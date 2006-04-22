@@ -33,21 +33,22 @@ sub parses_to {
 	my $parsed = shift;
 	bless $parsed, 'YAML::Tiny';
 
-	# Parse in the string
-	my $yaml = YAML::Tiny->read_string( $string );
-	isa_ok( $yaml, 'YAML::Tiny' );
-	is_deeply( $yaml, $parsed, "$name: Parsed object matches expected" );
-
-	# Round-trip the object
-	my $output = $yaml->write_string;
-	ok( (defined $output and ! ref $output),
-		"$name: ->write_string writes a string" );
-	my $yaml2 = YAML::Tiny->read_string( $output );
-	isa_ok( $yaml2, 'YAML::Tiny' );
-	is_deeply( $yaml, $yaml2, "$name: Perl->String->Perl round trip ok" );
-
-	# If YAML itself is available, compare
 	SKIP: {
+		# Parse in the string
+		my $yaml = eval { YAML::Tiny->read_string( $string ); };
+		isa_ok( $yaml, 'YAML::Tiny' );
+		skip( "$name: Message failed to read", 7 ) unless $yaml;
+		is_deeply( $yaml, $parsed, "$name: Parsed object matches expected" );
+
+		# Round-trip the object
+		my $output = $yaml->write_string;
+		ok( (defined $output and ! ref $output),
+			"$name: ->write_string writes a string" );
+		my $yaml2 = YAML::Tiny->read_string( $output );
+		isa_ok( $yaml2, 'YAML::Tiny' );
+		is_deeply( $yaml, $yaml2, "$name: Perl->String->Perl round trip ok" );
+
+		# If YAML itself is available, compare
 		skip( "No YAML.pm to compare with", 2 ) unless $COMPARE;
 		my @docs = eval { YAML::Load( $string ) };
 		is( $@, '', "$name: YAML.pm loads the string ok" );
