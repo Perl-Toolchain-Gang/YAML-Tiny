@@ -19,7 +19,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => (9 * 8);
+use Test::More tests => (11 * 8);
 use YAML::Tiny;
 
 # Do we have the authorative YAML to test against
@@ -74,9 +74,11 @@ parses_to( only_newlines => "\n\n", [ ] );
 parses_to( only_comment => "# comment\n", [ ] );
 
 # Empty document
-parses_to( only_header => "---\n",    [ undef ] );
-parses_to( one_undef   => "--- ~\n",  [ undef ] );
-parses_to( one_undef2  => "---  ~\n", [ undef ] );
+parses_to( only_header => "---\n",        [ undef ]        );
+parses_to( two_header  => "---\n---\n",   [ undef, undef ] );
+parses_to( one_undef   => "--- ~\n",      [ undef ]        );
+parses_to( one_undef2  => "---  ~\n",     [ undef ]        );
+parses_to( two_undef   => "--- ~\n---\n", [ undef, undef ] );
 
 # Just a scalar
 parses_to( one_scalar  => "--- foo\n",  [ 'foo' ] );
