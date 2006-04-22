@@ -91,7 +91,7 @@ sub read_string {
 	}
 
 	# Save final document
-	push @$self, $document;
+	push @$self, $document unless $state == FILE;
 
 	$self;
 }
