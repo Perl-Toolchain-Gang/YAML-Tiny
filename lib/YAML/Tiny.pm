@@ -115,7 +115,24 @@ sub write {
 sub write_string {
 	my $self = shift;
 	return '' unless @$self;
-	die "CODE INCOMPLETE";
+
+	# Iterate over the documents
+	my @lines = ();
+	foreach my $document ( @$self ) {
+		# Special cases
+		unless ( defined $document ) {
+			push @lines, '---';
+			next;
+		}
+		unless ( ref $document ) {
+			push @lines, "--- $document";
+			next;
+		}
+
+		die "CODE INCOMPLETE";
+	}
+
+	join '', map { "$_\n" } @lines;
 }
 
 # Set error
