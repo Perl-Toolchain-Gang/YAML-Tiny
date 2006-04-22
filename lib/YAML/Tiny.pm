@@ -17,10 +17,11 @@ my %ERROR = (
 );
 
 use constant FILE   => 0;
-use constant SCALAR => 1;
-use constant ARRAY  => 2;
-use constant HASH   => 3;
-use constant ANY    => 4;
+use constant START  => 1;
+use constant SCALAR => 2;
+use constant ARRAY  => 3;
+use constant HASH   => 4;
+use constant ANY    => 5;
 
 # Create an empty YAML::Tiny object
 sub new {
@@ -59,20 +60,38 @@ sub read_string {
 	}
 
 	# State variables
-	my $line_count = 0;
-	my $level      = 0;
-	my $state      = FILE;
-	my $indents    = [ ];
-	my $types      = [ ];
+	my $line     = 0;
+	my $state    = START;
+	my $document = undef;
+	my @indents  = ();
+	my @cursors  = ();
+	my $level    = undef;
 
 	foreach ( split /(?:\015{1,2}\012|\015|\012)/, shift ) {
-		$line_count++;
+		$line++;
 
 		# Skip comments and empty lines
 		next if /^\s*(?:\#|$)/;
 
+		# Check for a document header
+		if ( s/^(---(?:\s+|\Z)// ) {
+			unless ( $state == FILE ) {
+				# Change to new document
+				push @$self, $document;
+				$document = undef;
+				$state    = FILE;
+			}
+			next unless length($_);
+		}
+
+		# Get the indent level for the line
+		my $indent = s/^(\s+)// ? length($1) : 0;
+
 		die "CODE INCOMPLETE";
 	}
+
+	# Save final document
+	push @$self, $document;
 
 	$self;
 }

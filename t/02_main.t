@@ -77,7 +77,8 @@ parses_to( only_comment => "# comment\n", [ ] );
 parses_to( only_header => "---\n", [ undef ] );
 
 # Just a scalar
-parses_to( one_scalar => "--- foo\n", [ 'foo' ] );
+parses_to( one_scalar  => "--- foo\n",  [ 'foo' ] );
+parses_to( one_scalar2 => "---  foo\n", [ 'foo' ] );
 
 
 
