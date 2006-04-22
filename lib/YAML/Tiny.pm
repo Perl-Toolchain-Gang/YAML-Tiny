@@ -16,6 +16,18 @@ my %ERROR = (
 	YAML_PARSE_ERR_NO_FINAL_NEWLINE => "Stream does not end with newline character",
 );
 
+my %UNSUPPORTED = (
+	'%' => 'YAML::Tiny does not support directives',
+	'&' => 'YAML::Tiny does not support anchors',
+	'*' => 'YAML::Tiny does not support aliases',
+	'?' => 'YAML::Tiny does not support complex keys',
+	'|' => 'YAML::Tiny does not support literal multi-line scalars',
+	'>' => 'YAML::Tiny does not support folded multi-line scalars',
+	'!' => 'YAML::Tiny does not support explicit tags',
+	"'" => 'YAML::Tiny does not support quoted strings',
+	'"' => 'YAML::Tiny does not support quoted strings',
+);
+
 use constant FILE   => 0;
 use constant START  => 1;
 use constant SCALAR => 2;
@@ -74,6 +86,7 @@ sub read_string {
 		next if /^\s*(?:\#|$)/;
 
 		# Check for a document header
+		my $indent = 0;
 		if ( s/^(---(?:\s+|\Z))// ) {
 			if ( $state == FILE ) {
 				$state = START;
@@ -84,10 +97,23 @@ sub read_string {
 				$state    = FILE;
 			}
 			next unless length($_);
+			my $c = substr($_, 0, 1);
+			if ( $c eq '~' ) {
+				$document = undef;
+			} elsif ( $c eq '#' ) {
+				# Comment, ignore
+			} elsif ( $UNSUPPORTED{$c} ) {
+				# Directives not supported
+				return $class->_error($UNSUPPORTED{$c});
+			} else {
+				# Assume a scalar
+				$document = $self->_read_scalar($_);
+			}
+			next;
 		}
 
 		# Get the indent level for the line
-		my $indent = s/^(\s+)// ? length($1) : 0;
+		$indent += length($1) if s/^(\s+)//;
 
 		die "CODE INCOMPLETE";
 	}
@@ -96,6 +122,12 @@ sub read_string {
 	push @$self, $document unless $state == FILE;
 
 	$self;
+}
+
+# Deparse a scalar string to the actual scalar
+sub _read_scalar {
+	my $self = shift;
+	return shift;
 }
 
 # Save an object to a file

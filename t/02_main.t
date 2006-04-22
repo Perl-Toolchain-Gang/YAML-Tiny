@@ -74,7 +74,9 @@ parses_to( only_newlines => "\n\n", [ ] );
 parses_to( only_comment => "# comment\n", [ ] );
 
 # Empty document
-parses_to( only_header => "---\n", [ undef ] );
+parses_to( only_header => "---\n",    [ undef ] );
+parses_to( one_undef   => "--- ~\n",  [ undef ] );
+parses_to( one_undef2  => "---  ~\n", [ undef ] );
 
 # Just a scalar
 parses_to( one_scalar  => "--- foo\n",  [ 'foo' ] );
