@@ -1,0 +1,5 @@
+Revision history for Perl extension YAML::Tiny
+
+0.01  Wed 23 Apr 2006
+	- Initial version
+	- Handles only document headers and non-wrapping scalar documents
