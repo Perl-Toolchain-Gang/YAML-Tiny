@@ -19,7 +19,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 2;
+use Test::More tests => 15;
 use YAML::Tiny;
 
 sub parses_to {
@@ -35,7 +35,7 @@ sub parses_to {
 
 	# Round-trip the object
 	my $output = $yaml->write_string;
-	ok( defined $output and ! ref $output and length $output,
+	ok( (defined $output and ! ref $output),
 		"$name: ->write_string writes a string" );
 	my $yaml2 = YAML::Tiny->read_string( $output );
 	isa_ok( $yaml2, 'YAML::Tiny' );
