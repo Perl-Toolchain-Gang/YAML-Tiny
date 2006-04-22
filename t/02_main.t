@@ -19,9 +19,14 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 15;
+use Test::More tests => (3 * 6);
 use YAML::Tiny;
 
+# Do we have the authorative YAML to test against
+eval { require YAML; }
+my $COMPARE = !! $YAML::VERSION;
+
+# 6 tests per call
 sub parses_to {
 	my $name   = shift;
 	my $string = shift;
@@ -40,6 +45,14 @@ sub parses_to {
 	my $yaml2 = YAML::Tiny->read_string( $output );
 	isa_ok( $yaml2, 'YAML::Tiny' );
 	is_deeply( $yaml, $yaml2, "$name: Perl->String->Perl round trip ok" );
+
+	# If YAML itself is available, compare
+	SKIP: {
+		skip( "No YAML.pm to compare with", 2 ) unless $COMPARE;
+		my @docs = eval { YAML::Load( $string ) };
+		is( $@, '', "$name: YAML.pm loads the string ok" );
+		is_deeply( \@docs, $expected, "$name: YAML.pm matches YAML::Tiny" );		
+	}
 }
 
 
