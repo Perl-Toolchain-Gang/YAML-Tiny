@@ -45,8 +45,13 @@ sub read {
 sub read_string {
 	my $class = ref $_[0] ? ref shift : shift;
 	my $self  = bless [], $class;
+
+	# Handle special cases
 	return undef unless defined $_[0];
 	return $self unless length  $_[0];
+	unless ( $_[0] =~ /[\012\015]+$/ ) {
+		return $class->_error("Stream does not end with newline character (YAML_PARSE_ERR_NO_FINAL_NEWLINE)");
+	}
 
 	# State variables
 	my $line_count = 0;

@@ -71,4 +71,11 @@ parses_to( only_newline => "\n", [ ] );
 # Just a comment
 parses_to( only_comment => "# comment\n", [ ] );
 
+
+
+
+
+#####################################################################
+# Error Testing
+
 exit(0);
