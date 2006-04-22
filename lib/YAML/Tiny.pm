@@ -61,7 +61,7 @@ sub read_string {
 
 	# State variables
 	my $line     = 0;
-	my $state    = START;
+	my $state    = FILE;
 	my $document = undef;
 	my @indents  = ();
 	my @cursors  = ();
@@ -75,7 +75,9 @@ sub read_string {
 
 		# Check for a document header
 		if ( s/^(---(?:\s+|\Z))// ) {
-			unless ( $state == FILE ) {
+			if ( $state == FILE ) {
+				$state = START;
+			} else {
 				# Change to new document
 				push @$self, $document;
 				$document = undef;
