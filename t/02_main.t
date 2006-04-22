@@ -23,22 +23,22 @@ use Test::More tests => (3 * 6);
 use YAML::Tiny;
 
 # Do we have the authorative YAML to test against
-eval { require YAML; }
+eval { require YAML; };
 my $COMPARE = !! $YAML::VERSION;
 
 # 6 tests per call
 sub parses_to {
-	my $name   = shift;
-	my $string = shift;
-	my $parsed = shift;
-	bless $parsed, 'YAML::Tiny';
+	my $name     = shift;
+	my $string   = shift;
+	my $expected = shift;
+	bless $expected, 'YAML::Tiny';
 
 	SKIP: {
 		# Parse in the string
 		my $yaml = eval { YAML::Tiny->read_string( $string ); };
 		isa_ok( $yaml, 'YAML::Tiny' );
 		skip( "$name: Message failed to read", 7 ) unless $yaml;
-		is_deeply( $yaml, $parsed, "$name: Parsed object matches expected" );
+		is_deeply( $yaml, $expected, "$name: Parsed object matches expected" );
 
 		# Round-trip the object
 		my $output = $yaml->write_string;

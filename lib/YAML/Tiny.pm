@@ -74,7 +74,7 @@ sub read_string {
 		next if /^\s*(?:\#|$)/;
 
 		# Check for a document header
-		if ( s/^(---(?:\s+|\Z)// ) {
+		if ( s/^(---(?:\s+|\Z))// ) {
 			unless ( $state == FILE ) {
 				# Change to new document
 				push @$self, $document;
