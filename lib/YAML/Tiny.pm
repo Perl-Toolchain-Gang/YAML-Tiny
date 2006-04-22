@@ -16,7 +16,8 @@ my %ERROR = (
 	YAML_PARSE_ERR_NO_FINAL_NEWLINE => "Stream does not end with newline character",
 );
 
-my %UNSUPPORTED = (
+my %NO = (
+	'#' => 'YAML::Tiny does not support partial-line comments',
 	'%' => 'YAML::Tiny does not support directives',
 	'&' => 'YAML::Tiny does not support anchors',
 	'*' => 'YAML::Tiny does not support aliases',
@@ -29,10 +30,10 @@ my %UNSUPPORTED = (
 	'"' => 'YAML::Tiny does not support quoted strings',
 );
 
-use constant FILE   => 0;
-use constant START  => 1;
-use constant SCALAR => 2;
-use constant REF    => 3;
+use constant FILE       => 0;
+use constant START      => 1;
+use constant ARRAY      => 2;
+use constant OPEN_ARRAY => 3;
 
 # Create an empty YAML::Tiny object
 sub new {
@@ -74,9 +75,8 @@ sub read_string {
 	my $line     = 0;
 	my $state    = FILE;
 	my $document = undef;
-	my @indents  = ( -1 );
-	my @cursors  = ( $document );
-	my $level    = undef;
+	my @indents  = ( );
+	my @cursors  = ( );
 
 	foreach ( split /(?:\015{1,2}\012|\015|\012)/, shift ) {
 		$line++;
@@ -99,22 +99,38 @@ sub read_string {
 			}
 			next unless length $_;
 			my $c = substr($_, 0, 1);
-			if ( $c eq '~' ) {
-				$document = undef;
-			} elsif ( $c eq '#' ) {
-				# Comment, ignore
-			} elsif ( $UNSUPPORTED{$c} ) {
-				# Directives not supported
-				return $class->_error($UNSUPPORTED{$c});
-			} else {
-				# Assume a scalar
-				$document = $self->_read_scalar($_);
-			}
+			return $class->_error($NO{$c}) if $NO{$c};
+
+			# Assume a scalar
+			$document = $self->_read_scalar($_);
+
 			next;
 		}
 
-		# Are we in REF mode, expecting a list or
-		
+		# Are we in START mode, expecting a list or hash
+		if ( $state == START ) {
+			my $c = substr($_,0,1);
+			return $class->_error($NO{$c}) if $NO{$c};
+			if ( /^(-s+)/ ) {
+				# We have an ARRAY
+				$document = [ ];
+				push @indents, $indent;
+				push @cursors, $document;
+				unless ( length $_ ) {
+					# Open array
+					$state = OPEN_ARRAY;
+					next;
+				}
+				$c = substr($_, 0, 1);
+				return $class->_error($NO{$c}) if $NO{$c};
+
+				# Assume a scalar
+				push @$document, $self->_read_scalar($_);
+				$state = ARRAY;
+				next;
+			}
+		}
+
 		die "CODE INCOMPLETE";
 	}
 
@@ -126,8 +142,10 @@ sub read_string {
 
 # Deparse a scalar string to the actual scalar
 sub _read_scalar {
-	my $self = shift;
-	return shift;
+	my $self   = shift;
+	my $string = shift;
+	return undef if $string eq '~';
+	return $string;
 }
 
 # Save an object to a file
