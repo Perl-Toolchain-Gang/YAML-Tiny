@@ -183,6 +183,7 @@ sub write_string {
 
 		# Handle a plain list
 		if ( ref($document) eq 'ARRAY' ) {
+			push @lines, '---';
 			push @lines, map { "- $_" } @$document;
 			next;
 		}
