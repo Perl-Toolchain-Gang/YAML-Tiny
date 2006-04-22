@@ -20,7 +20,8 @@ my %UNSUPPORTED = (
 	'%' => 'YAML::Tiny does not support directives',
 	'&' => 'YAML::Tiny does not support anchors',
 	'*' => 'YAML::Tiny does not support aliases',
-	'?' => 'YAML::Tiny does not support complex keys',
+	'?' => 'YAML::Tiny does not support explicit mapping keys',
+	':' => 'YAML::Tiny does not support explicit mapping values',
 	'|' => 'YAML::Tiny does not support literal multi-line scalars',
 	'>' => 'YAML::Tiny does not support folded multi-line scalars',
 	'!' => 'YAML::Tiny does not support explicit tags',
@@ -31,9 +32,7 @@ my %UNSUPPORTED = (
 use constant FILE   => 0;
 use constant START  => 1;
 use constant SCALAR => 2;
-use constant ARRAY  => 3;
-use constant HASH   => 4;
-use constant ANY    => 5;
+use constant REF    => 3;
 
 # Create an empty YAML::Tiny object
 sub new {
@@ -75,8 +74,8 @@ sub read_string {
 	my $line     = 0;
 	my $state    = FILE;
 	my $document = undef;
-	my @indents  = ();
-	my @cursors  = ();
+	my @indents  = ( -1 );
+	my @cursors  = ( $document );
 	my $level    = undef;
 
 	foreach ( split /(?:\015{1,2}\012|\015|\012)/, shift ) {
@@ -85,8 +84,10 @@ sub read_string {
 		# Skip comments and empty lines
 		next if /^\s*(?:\#|$)/;
 
+		# Get the indent level for the line
+		my $indent = s/^(\s+)// ? length($1) : 0;
+
 		# Check for a document header
-		my $indent = 0;
 		if ( s/^(---(?:\s+|\Z))// ) {
 			if ( $state == FILE ) {
 				$state = START;
@@ -96,7 +97,10 @@ sub read_string {
 				$document = undef;
 				$state    = FILE;
 			}
-			next unless length($_);
+			unless ( length $_ ) {
+				$state = REF;
+				next;
+			}
 			my $c = substr($_, 0, 1);
 			if ( $c eq '~' ) {
 				$document = undef;
@@ -112,9 +116,8 @@ sub read_string {
 			next;
 		}
 
-		# Get the indent level for the line
-		$indent += length($1) if s/^(\s+)//;
-
+		# Are we in REF mode, expecting a list or
+		
 		die "CODE INCOMPLETE";
 	}
 

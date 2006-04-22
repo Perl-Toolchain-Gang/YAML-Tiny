@@ -19,7 +19,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => (7 * 8);
+use Test::More tests => (9 * 8);
 use YAML::Tiny;
 
 # Do we have the authorative YAML to test against
@@ -81,6 +81,10 @@ parses_to( one_undef2  => "---  ~\n", [ undef ] );
 # Just a scalar
 parses_to( one_scalar  => "--- foo\n",  [ 'foo' ] );
 parses_to( one_scalar2 => "---  foo\n", [ 'foo' ] );
+parses_to( two_scalar  => "--- foo\n--- bar\n", [ 'foo', 'bar' ] );
+
+# Simple lists
+parses_to( one_list => "---\n- foo\n", [ [ 'foo' ] ] );
 
 
 
