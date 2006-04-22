@@ -181,6 +181,12 @@ sub write_string {
 			next;
 		}
 
+		# Handle a plain list
+		if ( ref($document) eq 'ARRAY' ) {
+			push @lines, map { "- $_" } @$document;
+			next;
+		}
+
 		die "CODE INCOMPLETE";
 	}
 
