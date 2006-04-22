@@ -66,10 +66,17 @@ sub parses_to {
 parses_to( empty => '', [  ] );
 
 # Just a newline
-parses_to( only_newline => "\n", [ ] );
+### YAML.pm has a bug where it dies on a single newline
+parses_to( only_newlines => "\n\n", [ ] );
 
 # Just a comment
 parses_to( only_comment => "# comment\n", [ ] );
+
+# Empty document
+parses_to( only_header => "---\n", [ undef ] );
+
+# Just a scalar
+parses_to( one_scalar => "--- foo\n", [ 'foo' ] );
 
 
 

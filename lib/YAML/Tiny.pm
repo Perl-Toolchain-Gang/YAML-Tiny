@@ -11,6 +11,11 @@ BEGIN {
 	$errstr  = '';
 }
 
+# Create the main error hash
+my %ERROR = (
+	YAML_PARSE_ERR_NO_FINAL_NEWLINE => "Stream does not end with newline character",
+);
+
 use constant FILE   => 0;
 use constant SCALAR => 1;
 use constant ARRAY  => 2;
@@ -50,7 +55,7 @@ sub read_string {
 	return undef unless defined $_[0];
 	return $self unless length  $_[0];
 	unless ( $_[0] =~ /[\012\015]+$/ ) {
-		return $class->_error("Stream does not end with newline character (YAML_PARSE_ERR_NO_FINAL_NEWLINE)");
+		return $class->_error('YAML_PARSE_ERR_NO_FINAL_NEWLINE');
 	}
 
 	# State variables
@@ -94,9 +99,17 @@ sub write_string {
 	die "CODE INCOMPLETE";
 }
 
-# Error handling
-sub errstr { $errstr }
-sub _error { $errstr = $_[1]; undef }
+# Set error
+sub _error {
+	$errstr = $ERROR{$_[1]} ? "$ERROR{$_[1]} ($_[1])" : $_[1];
+	undef;
+}
+
+# Retrieve error
+sub errstr {
+	$errstr;
+}
+
 
 1;
 
