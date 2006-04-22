@@ -95,12 +95,9 @@ sub read_string {
 				# Change to new document
 				push @$self, $document;
 				$document = undef;
-				$state    = FILE;
+				$state    = START;
 			}
-			unless ( length $_ ) {
-				$state = REF;
-				next;
-			}
+			next unless length $_;
 			my $c = substr($_, 0, 1);
 			if ( $c eq '~' ) {
 				$document = undef;
