@@ -19,14 +19,14 @@ BEGIN {
 	}
 }
 
-use Test::More tests => (11 * 8);
+use Test::More tests => (12 * 7);
 use YAML::Tiny;
 
 # Do we have the authorative YAML to test against
 eval { require YAML; };
 my $COMPARE = !! $YAML::VERSION;
 
-# 8 tests per call
+# 7 tests per call
 sub parses_to {
 	my $name     = shift;
 	my $string   = shift;

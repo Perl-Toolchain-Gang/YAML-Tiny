@@ -111,7 +111,7 @@ sub read_string {
 		if ( $state == START ) {
 			my $c = substr($_,0,1);
 			return $class->_error($NO{$c}) if $NO{$c};
-			if ( /^(-s+)/ ) {
+			if ( s/^(-(?:\s+|\Z))// ) {
 				# We have an ARRAY
 				$document = [ ];
 				push @indents, $indent;
