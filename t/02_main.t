@@ -86,7 +86,8 @@ parses_to( one_scalar2 => "---  foo\n", [ 'foo' ] );
 parses_to( two_scalar  => "--- foo\n--- bar\n", [ 'foo', 'bar' ] );
 
 # Simple lists
-parses_to( one_list => "---\n- foo\n", [ [ 'foo' ] ] );
+parses_to( one_list1 => "---\n- foo\n", [ [ 'foo' ] ] );
+parses_to( one_list2 => "---\n- foo\n- bar\n", [ [ 'foo', 'bar' ] ] );
 
 
 

@@ -131,6 +131,27 @@ sub read_string {
 			}
 		}
 
+		# Are we in ARRAY mode, expecting the next array element
+		if ( $state == ARRAY ) {
+			my $c = substr($_,0,1);
+			return $class->_error($NO{$c}) if $NO{$c};
+			if ( s/^(-(?:\s+|\Z)// ) {
+				# We have an ARRAY
+				### Assume for now we are at the same indent level
+				unless ( length $_ ) {
+					# Open array
+					$state = OPEN_ARRAY;
+					next;
+				}
+				$c = substr($_, 0, 1);
+				return $class->_error($NO{$c}) if $NO{$c};
+
+				# Assume a scalar
+				push @$document, $self->_read_scalar($_);
+				next;
+			}
+		}
+
 		die "CODE INCOMPLETE";
 	}
 
