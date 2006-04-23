@@ -277,10 +277,52 @@ YAML::Tiny - Read/Write YAML files with as little code as possible
     # Save the file
     $yaml->write( 'file.conf' );
 
-=head1 DESCRIPTION
+=head1 PREAMBLE
 
 B<WARNING: THIS MODULES IS HIGHLY EXPERIMENTAL AND SUBJECT TO CHANGE
 WITHOUT NOTICE>
+
+The YAML specification is huge. Like, B<really> huge. It contains all the
+functionality of XML, except with flexibility and choice, which makes the
+full specification more complex than XML.
+
+The pure-Perl implementation L<YAML> costs just over 4 megabytes of memory
+to load. Just like with Windows .ini files (3 meg to load) and CSS (3.5 meg
+to load) the situation is just asking for B<YAML::Tiny> module, to implement
+a incomplete but usable subset of the functionality, in as little code as
+possible.
+
+Now, given the YAML features one would need in order to have something
+that is usable for things like META.yml and simple configuration files,
+there's still enough complexity that I'm not sure if it is even possible
+to do a YAML::Tiny module.
+
+So I'm going to impose some ground rules.
+
+Like the other C<::Tiny> modules, YAML::Tiny will have no non-core
+dependencies, and work back to at least perl 5.005_03, hopefully 5.004.
+
+I'm setting a hard-limit of 400k of memory (1/10th of YAML.pm).
+
+I plan to implement features from the most common to the least common, but
+if we hit 400k limit then we stop until we can find a way to squish the
+same functionality into less code and free some up.
+
+At this point, other than unquoted scalars, arrays, hashes and ASCII,
+I promise nothing.
+
+At present I've (literally) cut-and-pasted a L<Config::Tiny>-like set of
+methods, and I've implemented enough code to handle the following.
+
+  # A comment
+  ---
+  - foo
+  - bar
+
+And that's it. So do B<not> use this module for anything other than
+experimentation. It's only just getting started.
+
+=head1 DESCRIPTION
 
 C<Config::Tiny> is a perl class to read and write YAML-style files with as
 little code as possible, reducing load time and memory overhead.
