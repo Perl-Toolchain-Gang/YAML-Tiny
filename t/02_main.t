@@ -19,7 +19,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => (12 * 7);
+use Test::More tests => (13 * 7);
 use YAML::Tiny;
 
 # Do we have the authorative YAML to test against

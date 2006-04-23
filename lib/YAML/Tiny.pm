@@ -135,7 +135,7 @@ sub read_string {
 		if ( $state == ARRAY ) {
 			my $c = substr($_,0,1);
 			return $class->_error($NO{$c}) if $NO{$c};
-			if ( s/^(-(?:\s+|\Z)// ) {
+			if ( s/^(-(?:\s+|\Z))// ) {
 				# We have an ARRAY
 				### Assume for now we are at the same indent level
 				unless ( length $_ ) {
