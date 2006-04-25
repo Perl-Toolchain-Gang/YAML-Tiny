@@ -7,7 +7,7 @@ use strict;
 
 use vars qw{$VERSION $errstr};
 BEGIN {
-	$VERSION = '0.01';
+	$VERSION = '0.02';
 	$errstr  = '';
 }
 
