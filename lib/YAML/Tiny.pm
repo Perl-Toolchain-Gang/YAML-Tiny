@@ -155,7 +155,7 @@ sub read_string {
 			die "CODE INCOMPLETE";		
 		}
 
-		# Are we in ARRAY mode, expecting the next array element
+		# Are we in ARRAY mode, expect the next array element
 		if ( $state == ARRAY ) {
 			my $c = substr($_,0,1);
 			return $class->_error($NO{$c}) if $NO{$c};
@@ -172,6 +172,30 @@ sub read_string {
 
 				# Assume a scalar
 				push @$document, $self->_read_scalar($_);
+				next;
+			}
+		}
+
+		# Are we in HASH mode, expect the next hash element
+		if ( $state == HASH ) {
+			my $c = substr($_,0,1);
+			return $class->_error($NO{$c}) if $NO{$c};
+			if ( s/^(\w+):(?:\s+|$)// ) {
+				# We have a HASH
+				$key = $1;
+
+				### Assume for now we are at the same indent level
+				unless ( length $_ ) {
+					# Open hash
+					$state = OPEN_HASH;
+					$document->{$key} = undef;
+					next;
+				}
+				$c = substr($_, 0, 1);
+				return $class->_error($NO{$c}) if $NO{$c};
+
+				# Assume a scalar
+				$document->{$key} = $self->_read_scalar($_);
 				next;
 			}
 		}
