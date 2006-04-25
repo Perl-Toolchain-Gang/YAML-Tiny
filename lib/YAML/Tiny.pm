@@ -229,7 +229,18 @@ sub write_string {
 		# Handle a plain list
 		if ( ref($document) eq 'ARRAY' ) {
 			push @lines, '---';
-			push @lines, map { "- $_" } @$document;
+			push @lines, map {
+				"- " . $self->_write_scalar($_)
+				} @$document;
+			next;
+		}
+
+		# Handle a plain hash
+		if ( ref($document) eq 'HASH' ) {
+			push @lines, '---';
+			push @lines, map {
+				$_ . ': ' . $self->_write_scalar($document->{$_})
+				} sort keys %$document;
 			next;
 		}
 
@@ -237,6 +248,13 @@ sub write_string {
 	}
 
 	join '', map { "$_\n" } @lines;
+}
+
+sub _write_scalar {
+	my $self   = shift;
+	my $string = shift;
+	return '~' unless defined $string;
+	return $string;
 }
 
 # Set error
