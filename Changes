@@ -1,5 +1,9 @@
 Revision history for Perl extension YAML::Tiny
 
-0.01  Wed 23 Apr 2006
+0.02  Thu 26 Apr 2006
+	- Added support for a one-line hash
+	- Correcting POD bugs
+
+0.01  Wed 26 Apr 2006
 	- Initial version
 	- Handles only document headers and non-wrapping scalar documents

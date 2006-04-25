@@ -33,7 +33,9 @@ my %NO = (
 use constant FILE       => 0;
 use constant START      => 1;
 use constant ARRAY      => 2;
-use constant OPEN_ARRAY => 3;
+use constant HASH       => 3;
+use constant OPEN_ARRAY => 4;
+use constant OPEN_HASH  => 5;
 
 # Create an empty YAML::Tiny object
 sub new {
@@ -77,6 +79,7 @@ sub read_string {
 	my $document = undef;
 	my @indents  = ( );
 	my @cursors  = ( );
+	my $key      = undef;
 
 	foreach ( split /(?:\015{1,2}\012|\015|\012)/, shift ) {
 		$line++;
@@ -129,6 +132,27 @@ sub read_string {
 				$state = ARRAY;
 				next;
 			}
+			if ( s/^(\w+):(?:\s+|$)// ) {
+				# We have a HASH
+				$document = { };
+				$key      = $1;
+				push @indents, $indent;
+				push @cursors, $document;
+				unless ( length $_ ) {
+					# Open hash
+					$state = OPEN_HASH;
+					$document->{$key} = undef;
+					next;
+				}
+				$c = substr($_, 0, 1);
+				return $class->_error($NO{$c}) if $NO{$c};
+
+				# Assume a scalar
+				$document->{$key} = $self->_read_scalar($_);
+				$state = HASH;
+				next;
+			}
+			die "CODE INCOMPLETE";		
 		}
 
 		# Are we in ARRAY mode, expecting the next array element
@@ -240,38 +264,41 @@ YAML::Tiny - Read/Write YAML files with as little code as possible
 =head1 PREAMBLE
 
 B<WARNING: THIS MODULES IS HIGHLY EXPERIMENTAL AND SUBJECT TO CHANGE
-WITHOUT NOTICE>
+OR COMPLETE REMOVAL WITHOUT NOTICE>
 
 The YAML specification is huge. Like, B<really> huge. It contains all the
-functionality of XML, except with flexibility and choice, which makes the
-full specification more complex than XML.
+functionality of XML, except with flexibility and choice, which makes it
+easier to read, but will a full specification that is more complex than XML.
 
 The pure-Perl implementation L<YAML> costs just over 4 megabytes of memory
 to load. Just like with Windows .ini files (3 meg to load) and CSS (3.5 meg
-to load) the situation is just asking for B<YAML::Tiny> module, to implement
-a incomplete but usable subset of the functionality, in as little code as
-possible.
+to load) the situation is just asking for a B<YAML::Tiny> module, to
+implement an incomplete but usable subset of the functionality, in as little
+code as possible.
 
 Now, given the YAML features one would need in order to have something
 that is usable for things like META.yml and simple configuration files,
-there's still enough complexity that I'm not sure if it is even possible
+there is still enough complexity that I'm not sure if it is even possible
 to do a YAML::Tiny module.
 
-So I'm going to impose some ground rules.
+So I'm going to impose some ground rules before I start.
 
 Like the other C<::Tiny> modules, YAML::Tiny will have no non-core
-dependencies, and work back to at least perl 5.005_03, hopefully 5.004.
+dependencies, not require a compiler, and be back-compatible to at least
+perl 5.005_03, and ideally 5.004.
 
-I'm setting a hard-limit of 400k of memory (1/10th of YAML.pm).
+And I'm setting a hard-limit of 400k of memory to load it
+(1/10th of YAML.pm).
 
-I plan to implement features from the most common to the least common, but
-if we hit 400k limit then we stop until we can find a way to squish the
-same functionality into less code and free some up.
+I plan to implement features starting at the most common and working
+towards the least common, but if we hit 400k limit then we stop until
+we can find a way to squish the same functionality into less code and
+free some up.
 
 At this point, other than unquoted scalars, arrays, hashes and ASCII,
 I promise nothing.
 
-At present I've (literally) cut-and-pasted a L<Config::Tiny>-like set of
+To start, I've (literally) cut-and-pasted a L<Config::Tiny>-like set of
 methods, and I've implemented enough code to handle the following.
 
   # A comment
@@ -279,8 +306,9 @@ methods, and I've implemented enough code to handle the following.
   - foo
   - bar
 
-And that's it. So do B<not> use this module for anything other than
-experimentation. It's only just getting started.
+And that's about it. So do B<not> use this module for anything other
+than experimentation. It's only just getting started, and it might
+dissapear.
 
 =head1 SYNOPSIS
 
@@ -324,15 +352,15 @@ experimentation. It's only just getting started.
 
 =head1 DESCRIPTION
 
-C<Config::Tiny> is a perl class to read and write YAML-style files with as
+B<YAML::Tiny> is a perl class to read and write YAML-style files with as
 little code as possible, reducing load time and memory overhead.
 
 Most of the time it is accepted that Perl applications use a lot
-of memory and modules. The C<::Tiny> family of modules is specifically
+of memory and modules. The B<::Tiny> family of modules is specifically
 intended to provide an ultralight alternative to the standard modules.
 
-This module is primarily for reading human written files (like config files)
-and generating simple human-readable report. Note that I said
+This module is primarily for reading human-written files (like config files)
+and generating very simple human-readable files. Note that I said
 B<human-readable> and not B<geek-readable>. The sort of files that your
 average manager or secretary should be able to look at and make sense of.
 
@@ -342,16 +370,16 @@ again.
 
 It only supports a very basic subset of the full YAML specification.
 
-It is also targetted at files like Perl's META.yml, for which a small and
+Usage is targetted at files like Perl's META.yml, for which a small and
 easily-embeddable module would be highly useful.
 
 Features will only be added if they are human readable, and can be written
 in a few lines of code. Please don't be offended if your request is
-refused. Someone has to draw the line, and for YAML::Tiny that someone is
-the module author.
+refused. Someone has to draw the line, and for YAML::Tiny that someone is me.
 
-If you need something with more power move up to L<YAML> (4 megabytes of\
-memory overhead) or L<YAML::Syck> (requires libsyck).
+If you need something with more power move up to L<YAML> (4 megabytes of
+memory overhead) or L<YAML::Syck> (275k, but requires libsyck and a C
+compiler).
 
 To restate, L<YAML::Tiny> does B<not> preserve your comments, whitespace, or
 the order of your YAML data. But it should round-trip from Perl structure
@@ -361,7 +389,7 @@ to file and back again just fine.
 
 =head2 new
 
-The constructor C<new> creates and returns an empty C<Config::Tiny> object.
+The constructor C<new> creates and returns an empty C<YAML::Tiny> object.
 
 =head2 read $filename
 
@@ -371,7 +399,7 @@ C<YAML::Tiny> object containing the contents of the file.
 Returns the object on success, or C<undef> on error.
 
 When C<read> fails, C<YAML::Tiny> sets an error message internally
-you can recover via C<<YAML::Tiny->errstr>>. Although in B<some>
+you can recover via C<YAML::Tiny-E<gt>errstr>. Although in B<some>
 cases a failed C<read> will also set the operating system error
 variable C<$!>, not all errors do and you should not rely on using
 the C<$!> variable.
@@ -404,7 +432,12 @@ Bugs should be reported via the CPAN bug tracker at
 
 L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=YAML-Tiny>
 
-For other issues, or commercial enhancement or support, contact the author.
+=begin html
+
+For other issues, or commercial enhancement or support, please contact
+<a href="http://ali.as/">Adam Kennedy</a> directly.
+
+=end html
 
 =head1 AUTHOR
 
@@ -412,7 +445,8 @@ Adam Kennedy E<lt>cpan@ali.asE<gt>
 
 =head1 SEE ALSO
 
-L<http://ali.as/>, L<YAML>, L<YAML::Syck>, L<Config::Tiny>, L<CSS::Tiny>
+L<YAML>, L<YAML::Syck>, L<Config::Tiny>, L<CSS::Tiny>,
+L<http://use.perl.org/~Alias/journal/29427>
 
 =head1 COPYRIGHT
 
