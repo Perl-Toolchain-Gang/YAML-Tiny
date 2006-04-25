@@ -1,7 +1,7 @@
 Revision history for Perl extension YAML::Tiny
 
 0.02  Thu 26 Apr 2006
-	- Added support for a one-line hash
+	- Added support for a single root-level hash
 	- Correcting POD bugs
 
 0.01  Wed 26 Apr 2006
