@@ -9,5 +9,4 @@ if ( $ENV{AUTOMATED_TESTING} ) {
 	build_requires 'YAML' => 0;
 }
 
-auto_install;
 WriteAll;
