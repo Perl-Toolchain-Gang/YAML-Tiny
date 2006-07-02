@@ -200,6 +200,16 @@ sub read_string {
 			}
 		}
 
+		# Are we entering an indented hash
+		if ( $state == OPEN_HASH ) {
+			my $c = substr($_,0,1);
+			return $class->_error($NO{$c}) if $NO{$c};
+			if ( s/^(\w+):(?:\s+|$)// ) {
+				# Got the expected HASH key
+
+
+		}
+
 		die "CODE INCOMPLETE";
 	}
 
