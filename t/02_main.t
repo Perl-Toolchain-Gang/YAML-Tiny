@@ -27,33 +27,63 @@ eval { require YAML; };
 my $COMPARE = !! $YAML::VERSION;
 
 # 7 tests per call
-sub parses_to {
-	my $name     = shift;
-	my $string   = shift;
-	my $expected = shift;
-	bless $expected, 'YAML::Tiny';
+sub yaml_ok {
+	my $string = shift;
+	my $object = shift;
+	my $name   = shift || 'unnamed';
+	bless $object, 'YAML::Tiny';
 
+	# If YAML itself is available, test with it first
 	SKIP: {
-		# Parse in the string
-		my $yaml = eval { YAML::Tiny->read_string( $string ); };
-		isa_ok( $yaml, 'YAML::Tiny' );
-		skip( "$name: Message failed to read", 7 ) unless $yaml;
-		is_deeply( $yaml, $expected, "$name: Parsed object matches expected" );
+		skip( "Skipping compatibility testing (no YAML.pm)", 4 ) unless $COMPARE;
 
-		# Round-trip the object
-		my $output = $yaml->write_string;
-		ok( (defined $output and ! ref $output),
-			"$name: ->write_string writes a string" );
-		my $yaml2 = YAML::Tiny->read_string( $output );
-		isa_ok( $yaml2, 'YAML::Tiny' );
-		is_deeply( $yaml, $yaml2, "$name: Perl->String->Perl round trip ok" );
+		# Test writing with YAML.pm
+		my $yamlpm_out = eval { YAML::Save( @$object ) };
+		is( $@, '', "$name: YAML.pm saves without error" );
+		SKIP: {
+			skip( "Shortcutting after failure", 1 ) if $@;
+			is( $yamlpm_out, $string, "$name: YAML.pm serializes correctly" );
+		}
 
-		# If YAML itself is available, compare
-		skip( "No YAML.pm to compare with", 2 ) unless $COMPARE;
-		my @docs = eval { YAML::Load( $string ) };
-		is( $@, '', "$name: YAML.pm loads the string ok" );
-		is_deeply( \@docs, $expected, "$name: YAML.pm matches YAML::Tiny" );		
+		# Test reading with YAML.pm
+		my @yamlpm_in = eval { YAML::Load( $string ) };
+		is( $@, '', "$name: YAML.pm loads without error" );
+		SKIP: {
+			skip( "Shortcutting after failure", 1 ) if $@;
+			is_deeply( \@yamlpm_in, $object, "$name: YAML.pm parses correctly" );
+		}
 	}
+
+	# Does the structure serialize to the string.
+	# We can't test this by direct comparison, because any
+	# whitespace or comments would be lost.
+	# So instead we parse back in.
+	my $output = eval { $object->write_string };
+	is( $@, '', "$name: Object serializes without error" );
+	SKIP: {
+		skip( "Shortcutting after failure", 4 ) if $@;
+		ok(
+			!!(defined $output and ! ref $output),
+			"$name: YAML::Tiny serializes correctly",
+		);
+		my $roundtrip = eval { YAML::Tiny->read_string( $output ) };
+		is( $@, '', "$name: Object round-trips without error" );
+		skip( "Shortcutting after failure", 2 ) if $@;
+		isa_ok( $roundtrip, 'YAML::Tiny' );
+		is_deeply( $roundtrip, $object, "$name: YAML::Tiny round-trips correctly" );				
+	}
+
+	# Does the string parse to the structure
+	my $yaml = eval { YAML::Tiny->read_string( $string ); };
+	is( $@, '', "$name: Object parses without error" );
+	SKIP: {
+		skip( "Shortcutting after failure", 2 ) if $@;
+		isa_ok( $yaml, 'YAML::Tiny' );
+		is_deeply( $yaml, $object, "$name: YAML::Tiny parses correctly" );
+	}
+
+	# Return true as a convenience
+	return 1;
 }
 
 
@@ -64,41 +94,99 @@ sub parses_to {
 # Sample Testing
 
 # Test a completely empty document
-parses_to( empty => '', [  ] );
+yaml_ok(
+	'',
+	[  ],
+	'empty',
+);
 
 # Just a newline
 ### YAML.pm has a bug where it dies on a single newline
-parses_to( only_newlines => "\n\n", [ ] );
-
-# Just a comment
-parses_to( only_comment  => "# comment\n", [ ] );
-
-# Empty document
-parses_to( only_header   => "---\n",        [ undef ]        );
-parses_to( two_header    => "---\n---\n",   [ undef, undef ] );
-parses_to( one_undef     => "--- ~\n",      [ undef ]        );
-parses_to( one_undef2    => "---  ~\n",     [ undef ]        );
-parses_to( two_undef     => "--- ~\n---\n", [ undef, undef ] );
-
-# Just a scalar
-parses_to( one_scalar    => "--- foo\n",  [ 'foo' ] );
-parses_to( one_scalar2   => "---  foo\n", [ 'foo' ] );
-parses_to( two_scalar    => "--- foo\n--- bar\n", [ 'foo', 'bar' ] );
-
-# Simple lists
-parses_to( one_list1     => "---\n- foo\n", [ [ 'foo' ] ] );
-parses_to( one_list2     => "---\n- foo\n- bar\n", [ [ 'foo', 'bar' ] ] );
-parses_to( one_listundef => "---\n- ~\n- bar\n", [ [ undef, 'bar' ] ] );
-
-# Simple hashs
-parses_to( 'one_hash1',
-	"---\nfoo: bar\n",
-	[ { foo => 'bar' } ],
+yaml_ok(
+	"\n\n",
+	[ ],
+	'only_newlines',
 );
 
-parses_to( 'one_hash2',
+# Just a comment
+yaml_ok(
+	"# comment\n",
+	[ ],
+	'only_comment',
+);
+
+# Empty documents
+yaml_ok(
+	"---\n",
+	[ undef ],
+	'only_header',
+);
+yaml_ok(
+	"---\n---\n",
+	[ undef, undef ],
+	'two_header',
+);
+yaml_ok(
+	"--- ~\n",
+	[ undef ],
+	'one_undef',
+);
+yaml_ok(
+	"---  ~\n",
+	[ undef ],
+	'one_undef2',
+);
+yaml_ok(
+	"--- ~\n---\n",
+	[ undef, undef ],
+	'two_undef',
+);
+
+# Just a scalar
+yaml_ok(
+	"--- foo\n",
+	[ 'foo' ],
+	'one_scalar',
+);
+yaml_ok(
+	"---  foo\n",
+	[ 'foo' ],
+	'one_scalar2',
+);
+yaml_ok(
+	"--- foo\n--- bar\n",
+	[ 'foo', 'bar' ],
+	'two_scalar',
+);
+
+# Simple lists
+yaml_ok(
+	"---\n- foo\n",
+	[ [ 'foo' ] ],
+	'one_list1',
+);
+yaml_ok(
+	"---\n- foo\n- bar\n",
+	[ [ 'foo', 'bar' ] ],
+	'one_list2',
+);
+yaml_ok(
+	"---\n- ~\n- bar\n",
+	[ [ undef, 'bar' ] ],
+	'one_listundef',
+);
+
+# Simple hashs
+yaml_ok(
+	"---\nfoo: bar\n",
+	[ { foo => 'bar' } ],
+	'one_hash1',
+);
+
+yaml_ok(
 	"---\nfoo: bar\nthis: ~\n",
 	[ { this => undef, foo => 'bar' } ],
+ 	'one_hash2',
 );
 
 
@@ -108,11 +196,56 @@ parses_to( 'one_hash2',
 #####################################################################
 # Two-level recursion
 
-parses_to( 'array_in_hash', <<END_YAML, [ 'foo', [ 'bar' ] ] );
+# Simple array inside a hash with an undef
+yaml_ok(
+	<<'END_YAML',
 ---
 foo:
-  - bar 
+  - bar
+  - ~
+  - baz
 END_YAML
+	[ { foo => [ 'bar', undef, 'baz' ] } ],
+	'array_in_hash',
+);
+
+
+
+# Simple hash inside a hash with an undef
+yaml_ok(
+	<<'END_YAML',
+---
+foo: ~
+bar:
+  foo: bar
+END_YAML
+	[ { foo => undef, bar => { foo => 'bar' } } ],
+	'hash_in_hash',
+);
+
+
+
+# Mixed hash and scalars inside an array
+yaml_ok(
+	<<'END_YAML',
+---
+-
+  foo: ~
+  this: that
+- foo
+- ~
+-
+  foo: bar
+  this: that
+END_YAML
+	[ [
+		{ foo => undef, this => 'that' },
+		'foo',
+		undef,
+		{ foo => 'bar', this => 'that' },
+	] ],
+	'hash_in_array',
+);
 
 
 

@@ -6,6 +6,7 @@ use 5.004;
 use strict;
 
 use vars qw{$VERSION $errstr};
+use vars qw{@lines $cursor $indent};
 BEGIN {
 	$VERSION = '0.02';
 	$errstr  = '';
@@ -26,8 +27,8 @@ my %NO = (
 	'|' => 'YAML::Tiny does not support literal multi-line scalars',
 	'>' => 'YAML::Tiny does not support folded multi-line scalars',
 	'!' => 'YAML::Tiny does not support explicit tags',
-	"'" => 'YAML::Tiny does not support quoted strings',
-	'"' => 'YAML::Tiny does not support quoted strings',
+	"'" => 'YAML::Tiny does not support quoted strings... yet',
+	'"' => 'YAML::Tiny does not support quoted strings... yet',
 );
 
 use constant FILE       => 0;
@@ -39,7 +40,8 @@ use constant OPEN_HASH  => 5;
 
 # Create an empty YAML::Tiny object
 sub new {
-	bless [], shift;
+	my $class = shift;
+	bless [ @_ ], $class;
 }
 
 # Create an object from a file
@@ -62,7 +64,7 @@ sub read {
 }
 
 # Create an object from a string
-sub read_string {
+sub read_string_old {
 	my $class = ref $_[0] ? ref shift : shift;
 	my $self  = bless [], $class;
 
@@ -81,7 +83,7 @@ sub read_string {
 	my @cursors  = ( );
 	my $key      = undef;
 
-	foreach ( split /(?:\015{1,2}\012|\015|\012)/, shift ) {
+	foreach (  ) {
 		$line++;
 
 		# Skip comments and empty lines
@@ -206,8 +208,8 @@ sub read_string {
 			return $class->_error($NO{$c}) if $NO{$c};
 			if ( s/^(\w+):(?:\s+|$)// ) {
 				# Got the expected HASH key
-
-
+				die "CODE INCOMPLETE";
+			}
 		}
 
 		die "CODE INCOMPLETE";
@@ -216,15 +218,45 @@ sub read_string {
 	# Save final document
 	push @$self, $document unless $state == FILE;
 
-	$self;
+	return $self;
+}
+
+# Create an object from a string
+sub read_string {
+	my $class = ref $_[0] ? ref shift : shift;
+	my $self  = bless [], $class;
+
+	# Handle special cases
+	return undef unless defined $_[0];
+	return $self unless length  $_[0];
+	unless ( $_[0] =~ /[\012\015]+$/ ) {
+		return $class->_error('YAML_PARSE_ERR_NO_FINAL_NEWLINE');
+	}
+
+	# Split the file into lines
+	my @lines = grep { ! /^\s*(?:\#.+)?$/ }
+	            split /(?:\015{1,2}\012|\015|\012)/ shift;
+
+	# State variables
+	my $cursor = [ ];
+
+	# A nibbling parser
+	while ( @lines ) {
+		# We should see a document header
+		unless ( $lines[0] eq '---' ) {
+			die "Did not get document header";
+		}
+
+		die "CODE INCOMPLETE";
+	}
+
+	die "CODE INCOMPLETE";
 }
 
 # Deparse a scalar string to the actual scalar
 sub _read_scalar {
-	my $self   = shift;
-	my $string = shift;
-	return undef if $string eq '~';
-	return $string;
+	return undef if $_[1] eq '~';
+	return $_[1];
 }
 
 # Save an object to a file
@@ -248,47 +280,89 @@ sub write_string {
 	return '' unless @$self;
 
 	# Iterate over the documents
-	my @lines = ();
-	foreach my $document ( @$self ) {
-		# Special cases
-		unless ( defined $document ) {
-			push @lines, '---';
-			next;
-		}
-		unless ( ref $document ) {
-			push @lines, "--- $document";
-			next;
-		}
+	my $indent = 0;
+	my @lines  = ();
+	foreach my $cursor ( @$self ) {
+		push @lines, '---';
 
-		# Handle a plain list
-		if ( ref($document) eq 'ARRAY' ) {
-			push @lines, '---';
-			push @lines, map {
-				"- " . $self->_write_scalar($_)
-				} @$document;
-			next;
-		}
+		# An empty document
+		if ( ! defined $cursor ) {
+			# Do nothing
 
-		# Handle a plain hash
-		if ( ref($document) eq 'HASH' ) {
-			push @lines, '---';
-			push @lines, map {
-				$_ . ': ' . $self->_write_scalar($document->{$_})
-				} sort keys %$document;
-			next;
-		}
+		# A scalar document
+		} elsif ( ! ref $cursor ) {
+			$lines[-1] .= $cursor;
 
-		die "CODE INCOMPLETE";
+		# A list at the root
+		} elsif ( ref $cursor eq 'ARRAY' ) {
+			push @lines, $self->_write_array( $indent, $cursor );
+
+		# A hash at the root
+		} elsif ( ref $cursor eq 'HASH' ) {
+			push @lines, $self->_write_hash( $indent, $cursor );
+
+		} else {
+			die "CODE INCOMPLETE";
+		}
 	}
 
 	join '', map { "$_\n" } @lines;
 }
 
 sub _write_scalar {
-	my $self   = shift;
-	my $string = shift;
-	return '~' unless defined $string;
-	return $string;
+	return '~' unless defined $_[1];
+	return $_[1];
+}
+
+sub _write_array {
+	my ($self, $indent, $array) = @_;
+	my @lines  = ();
+	foreach my $el ( @$array ) {
+		my $line = ('  ' x $indent) . '-';
+		if ( ! ref $el ) {
+			$line .= ' ' . $self->_write_scalar( $el );
+			push @lines, $line;
+
+		} elsif ( ref $el eq 'ARRAY' ) {
+			push @lines, $line;
+			push @lines, $self->_write_array( ++$indent, $el );
+
+		} elsif ( ref $el eq 'HASH' ) {
+			push @lines, $line;
+			push @lines, $self->_write_hash( ++$indent, $el );
+
+		} else {
+			die "CODE INCOMPLETE";
+		}
+	}
+
+	@lines;
+}
+
+sub _write_hash {
+	my ($self, $indent, $hash) = @_;
+	my @lines  = ();
+	foreach my $name ( sort keys %$hash ) {
+		my $el   = $hash->{$name};
+		my $line = ('  ' x $indent) . "$name:";
+		if ( ! ref $el ) {
+			$line .= ' ' . $self->_write_scalar( $el );
+			push @lines, $line;
+
+		} elsif ( ref $el eq 'ARRAY' ) {
+			push @lines, $line;
+			push @lines, $self->_write_array( ++$indent, $el );
+
+		} elsif ( ref $el eq 'HASH' ) {
+			push @lines, $line;
+			push @lines, $self->_write_hash( ++$indent, $el );
+
+		} else {
+			die "CODE INCOMPLETE";
+		}
+	}
+
+	@lines;
 }
 
 # Set error
@@ -301,7 +375,6 @@ sub _error {
 sub errstr {
 	$errstr;
 }
-
 
 1;
 
