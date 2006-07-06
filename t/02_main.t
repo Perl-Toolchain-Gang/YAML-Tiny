@@ -19,7 +19,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => (16 * 7);
+use Test::More tests => (22 * 15);
 use YAML::Tiny;
 
 # Do we have the authorative YAML to test against
@@ -255,6 +255,37 @@ END_YAML
 	] ],
 	'hash_in_array',
 );
+
+
+
+
+
+#####################################################################
+# Future Things
+
+# Double quotes
+SKIP: {
+	skip( "Skipping double-quotes", 45 );
+
+	yaml_ok(
+		"--- \"  \"\n",
+		[ '  ' ],
+		"only_spaces",
+	);
+
+	yaml_ok(
+		"--- \"  foo\"\n--- \"bar  \"\n",
+		[ "  foo", "bar  " ],
+		"leading_trailing_spaces",
+	);
+
+	yaml_ok(
+		"--- \"\n\"\n",
+		[ "\n" ],
+		"only_spaces",
+	);
+
+}
 
 
 

@@ -12,23 +12,23 @@ BEGIN {
 	$errstr  = '';
 }
 
-# YAML::Tiny *really* needs to be a drop in replacement for common YAML
-# Thus you should export Dump and Load.
-
-sub import {
-    my ($package) = caller;
-    no strict 'refs';
-    *{$package . '::Dump'} = \&Dump;
-    *{$package . '::Load'} = \&Load;
-}
-
-sub Dump {
-    return YAML::Tiny->new(@_)->write_string();
-}
-
-sub Load {
-    die;
-}
+# YAML::Tiny might want to be a drop-in replacement.
+# If so we should add a Dump and Load function
+#
+# sub import {
+#    my ($package) = caller;
+#    no strict 'refs';
+#    *{$package . '::Dump'} = \&Dump;
+#    *{$package . '::Load'} = \&Load;
+#}
+#
+#sub Dump {
+#    return YAML::Tiny->new(@_)->write_string();
+#}
+#
+#sub Load {
+#    die;
+#}
 
 # Create the main error hash
 my %ERROR = (
