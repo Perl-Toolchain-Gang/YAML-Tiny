@@ -12,6 +12,24 @@ BEGIN {
 	$errstr  = '';
 }
 
+# YAML::Tiny *really* needs to be a drop in replacement for common YAML
+# Thus you should export Dump and Load.
+
+sub import {
+    my ($package) = caller;
+    no strict 'refs';
+    *{$package . '::Dump'} = \&Dump;
+    *{$package . '::Load'} = \&Load;
+}
+
+sub Dump {
+    return YAML::Tiny->new(@_)->write_string();
+}
+
+sub Load {
+    die;
+}
+
 # Create the main error hash
 my %ERROR = (
 	YAML_PARSE_ERR_NO_FINAL_NEWLINE => "Stream does not end with newline character",
@@ -61,7 +79,7 @@ sub read {
 	close CFG;
 
 	$class->read_string( $contents );
-}
+}
 
 # Create an object from a string
 sub read_string {
