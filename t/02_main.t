@@ -38,11 +38,20 @@ sub yaml_ok {
 		skip( "Skipping compatibility testing (no YAML.pm)", 4 ) unless $COMPARE;
 
 		# Test writing with YAML.pm
-		my $yamlpm_out = eval { YAML::Save( @$object ) };
+		my $yamlpm_out = eval { YAML::Dump( @$object ) };
 		is( $@, '', "$name: YAML.pm saves without error" );
 		SKIP: {
 			skip( "Shortcutting after failure", 1 ) if $@;
-			is( $yamlpm_out, $string, "$name: YAML.pm serializes correctly" );
+			ok(
+				!!(defined $yamlpm_out and ! ref $yamlpm_out),
+				"$name: YAML.pm serializes correctly",
+			);
+			my @yamlpm_round = eval { YAML::Load( $yamlpm_out ) };
+			is( $@, '', "$name: YAML.pm round-trips without error" );
+			skip( "Shortcutting after failure", 2 ) if $@;
+			my $round = bless [ @yamlpm_round ], 'YAML::Tiny';
+			isa_ok( $round, 'YAML::Tiny' );
+			is_deeply( $round, $object, "$name: YAML.pm round-trips correctly" );		
 		}
 
 		# Test reading with YAML.pm
@@ -59,7 +68,7 @@ sub yaml_ok {
 	# whitespace or comments would be lost.
 	# So instead we parse back in.
 	my $output = eval { $object->write_string };
-	is( $@, '', "$name: Object serializes without error" );
+	is( $@, '', "$name: YAML::Tiny serializes without error" );
 	SKIP: {
 		skip( "Shortcutting after failure", 4 ) if $@;
 		ok(
@@ -67,15 +76,15 @@ sub yaml_ok {
 			"$name: YAML::Tiny serializes correctly",
 		);
 		my $roundtrip = eval { YAML::Tiny->read_string( $output ) };
-		is( $@, '', "$name: Object round-trips without error" );
+		is( $@, '', "$name: YAML::Tiny round-trips without error" );
 		skip( "Shortcutting after failure", 2 ) if $@;
 		isa_ok( $roundtrip, 'YAML::Tiny' );
-		is_deeply( $roundtrip, $object, "$name: YAML::Tiny round-trips correctly" );				
+		is_deeply( $roundtrip, $object, "$name: YAML::Tiny round-trips correctly" );
 	}
 
 	# Does the string parse to the structure
 	my $yaml = eval { YAML::Tiny->read_string( $string ); };
-	is( $@, '', "$name: Object parses without error" );
+	is( $@, '', "$name: YAML::Tiny parses without error" );
 	SKIP: {
 		skip( "Shortcutting after failure", 2 ) if $@;
 		isa_ok( $yaml, 'YAML::Tiny' );
