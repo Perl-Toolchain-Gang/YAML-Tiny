@@ -2,7 +2,7 @@ package YAML::Tiny;
 
 # YAML, but just the best bits
 
-use 5.004;
+use 5.005;
 use strict;
 
 use vars qw{$VERSION $errstr};
@@ -33,6 +33,7 @@ BEGIN {
 # Create the main error hash
 my %ERROR = (
 	YAML_PARSE_ERR_NO_FINAL_NEWLINE => "Stream does not end with newline character",
+	
 );
 
 my %NO = (
@@ -49,12 +50,9 @@ my %NO = (
 	'"' => 'YAML::Tiny does not support quoted strings... yet',
 );
 
-use constant FILE       => 0;
-use constant START      => 1;
-use constant ARRAY      => 2;
-use constant HASH       => 3;
-use constant OPEN_ARRAY => 4;
-use constant OPEN_HASH  => 5;
+# Regular expressions
+my $RE_HEAD = qr/^---(?:\s*(.+)\s*)?$/;
+
 
 # Create an empty YAML::Tiny object
 sub new {
@@ -79,7 +77,7 @@ sub read {
 	close CFG;
 
 	$class->read_string( $contents );
-}
+}
 
 # Create an object from a string
 sub read_string {
@@ -88,7 +86,7 @@ sub read_string {
 
 	# Handle special cases
 	return undef unless defined $_[0];
-	return $self unless length  $_[0];
+	return $self unless length $_[0];
 	unless ( $_[0] =~ /[\012\015]+$/ ) {
 		return $class->_error('YAML_PARSE_ERR_NO_FINAL_NEWLINE');
 	}
@@ -97,26 +95,99 @@ sub read_string {
 	my @lines = grep { ! /^\s*(?:\#.+)?$/ }
 	            split /(?:\015{1,2}\012|\015|\012)/, shift;
 
-	# State variables
-	my $cursor = [ ];
-
 	# A nibbling parser
 	while ( @lines ) {
-		# We should see a document header
-		unless ( $lines[0] eq '---' ) {
+		# We are expecting a document header
+		unless ( shift(@lines) =~ /$RE_HEAD/ ) {
 			die "Did not get document header";
 		}
 
-		die "CODE INCOMPLETE";
+		# Handle scalar documents
+		if ( length $1 ) {
+			$self->_check_support("$1");
+			push @$self, $self->_read_scalar("$1");
+			next;
+		}
+
+		# Is this a hash or an array document
+		if ( $lines[0] =~ /\s*\-/ ) {
+			my $document = [ ];
+			push @$self, $document;
+			$self->_read_array( $document, [ 0 ], \@lines );
+		} elsif ( $lines[0] =~ /\s*\w/ ) {
+			my $document = { };
+			push @$self, $document;
+			$self->_read_hash( $document, [ 0 ], \@lines );
+		} else {
+			$self->_check_support($lines[0]);
+			die "CODE INCOMPLETE";
+		}
 	}
 
-	die "CODE INCOMPLETE";
+	$self;
+}
+
+sub _check_support {
+	# Check if we support the next char
+	my $errstr = $NO{substr($_[1], 0, 1)};
+	Carp::croak($errstr) if $errstr;
 }
 
 # Deparse a scalar string to the actual scalar
 sub _read_scalar {
 	return undef if $_[1] eq '~';
 	return $_[1];
+}
+
+# Parse an array
+sub _read_array {
+	my ($self, $array, $indent, $lines) = @_;
+
+	while ( @lines ) {
+		
+	}
+
+	return 1;
+}
+
+# Parse an array
+sub _read_hash {
+	my ($self, $hash, $indent, $lines) = @_;
+
+	while ( @lines ) {
+		$lines->[0] =~/^(\s*)/;
+		if ( length($1) < $indent->[-1] ) {
+			return 1;
+		} elsif ( length($1) > $indent->[-1] ) {
+			die "Hash line over-indented";
+		}
+
+		# Get the key
+		unless ( $lines->[0] =~ s/^\s*(\w+)\s*:\s*// ) {
+			die "Bad hash line";
+		}
+		my $key = $1;
+
+		# Do we have a value?
+		if ( length $lines->[0] ) {
+			# Yes
+			$hash->{$key} = $self->_read_scalar( shift @$lines );
+		} else {
+			# An indent
+			shift @$lines;
+			if ( $lines->[0] =~ /^(\s*)-/ ) {
+				$hash->{$key} = [];
+				push @$indent, length $1;
+				$self->_read_array( $hash->{$key}, $indent, $lines );
+			} elsif ( $lines->[0] =~ /^(\s*)./ ) {
+				$hahs->{$key} = {};
+				push @$indent, length $1;
+				$self->_read_hash( $hash->{$key}, $indent, $lines );
+			}
+		}
+	}
+
+	return 1;
 }
 
 # Save an object to a file
