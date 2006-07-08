@@ -1,13 +1,13 @@
 package YAML::Tiny;
 
-# YAML, but just the best bits
+# Current load overhead 132k
 
 use 5.005;
 use strict;
 
 use vars qw{$VERSION $errstr};
 BEGIN {
-	$VERSION = '0.03';
+	$VERSION = '0.04';
 	$errstr  = '';
 }
 
@@ -96,15 +96,14 @@ sub read_string {
 
 	# A nibbling parser
 	while ( @lines ) {
-		# We are expecting a document header
-		unless ( shift(@lines) =~ /$RE_HEAD/ ) {
-			die "Did not get document header";
-		}
-
-		# Handle scalar documents
-		if ( defined $1 ) {
-			push @$self, $self->_read_scalar("$1");
-			next;
+		# Do we have a document header?
+		if ( $lines[0] =~ /$RE_HEAD/ ) {
+			# Handle scalar documents
+			shift @lines;
+			if ( defined $1 ) {
+				push @$self, $self->_read_scalar("$1");
+				next;
+			}
 		}
 
 		if ( ! @lines or $lines[0] =~ /$RE_HEAD/ ) {
@@ -140,6 +139,9 @@ sub _check_support {
 # Deparse a scalar string to the actual scalar
 sub _read_scalar {
 	return undef if $_[1] eq '~';
+	if ( $_[1] =~ /^'(.*?)'$/ ) {
+		return defined $1 ? "$1" : '';
+	}
 	return $_[1];
 }
 
@@ -197,7 +199,7 @@ sub _read_hash {
 		}
 
 		# Get the key
-		unless ( $lines->[0] =~ s/^\s*(\w+)\s*:\s*// ) {
+		unless ( $lines->[0] =~ s/^\s*(\S+)\s*:(\s+|$)// ) {
 			die "Bad hash line";
 		}
 		my $key = $1;
@@ -273,8 +275,11 @@ sub write_string {
 }
 
 sub _write_scalar {
-	return '~' unless defined $_[1];
-	return $_[1];
+	my $str = $_[1];
+	return '~'       unless defined $str;
+	return "''"      unless length $str;
+	return "'$str'" if $str =~ /\s/;
+	return $str;
 }
 
 sub _write_array {

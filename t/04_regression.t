@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Load testing for YAML::Tiny
+# Testing of common META.yml examples
 
 use strict;
 use lib ();
@@ -20,13 +20,22 @@ BEGIN {
 	lib->import( catdir('t', 'lib') );
 }
 
-use Test::More tests => 3;
+use Test::More tests => (1 * 15);
+use YAML::Tiny;
+use MyTests 'yaml_ok';
 
-# Check their perl version
-ok( $] >= 5.004, "Your perl is new enough" );
 
-# Does the module load
-use_ok( 'YAML::Tiny' );
-use_ok( 'MyTests'    );
+
+
+
+#####################################################################
+# In META.yml files, some hash keys contain module names
+
+# Hash key legally containing a colon
+yaml_ok(
+	"---\nFoo::Bar: 1\n",
+	[ { 'Foo::Bar' => 1 } ],
+	'module_hash_key',
+);
 
 exit(0);

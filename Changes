@@ -1,5 +1,11 @@
 Revision history for Perl extension YAML::Tiny
 
+0.04  Sat  8 Jul 2006
+	- Added support for implicit document start for array/hash types
+	- Added support for colons in hash keys
+	- Added support for simple single quotes
+	- Can now handle our own META.yml file
+
 0.03  Sat  8 Jul 2006
 	- Got all of the trivial test cases to pass
 	- Good enough for an initial usable release, but still expected to fail a lot
