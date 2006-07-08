@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+0.06  Sun  9 Jul 2006
+	- Added more tests
+
 0.05  Sat  8 Jul 2006
 	- Added support for nested inline hashes (parse only)
 	- Added support for naked undef array and hash entries
