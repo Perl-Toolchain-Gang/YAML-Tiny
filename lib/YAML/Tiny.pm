@@ -6,7 +6,6 @@ use 5.005;
 use strict;
 
 use vars qw{$VERSION $errstr};
-use vars qw{@lines $cursor $indent};
 BEGIN {
 	$VERSION = '0.02';
 	$errstr  = '';
@@ -103,23 +102,28 @@ sub read_string {
 		}
 
 		# Handle scalar documents
-		if ( length $1 ) {
-			$self->_check_support("$1");
+		if ( defined $1 ) {
 			push @$self, $self->_read_scalar("$1");
 			next;
 		}
 
-		# Is this a hash or an array document
-		if ( $lines[0] =~ /\s*\-/ ) {
+		if ( ! @lines or $lines[0] =~ /$RE_HEAD/ ) {
+			# A naked document
+			push @$self, undef;
+
+		} elsif ( $lines[0] =~ /\s*\-/ ) {
+			# An array at the root
 			my $document = [ ];
 			push @$self, $document;
 			$self->_read_array( $document, [ 0 ], \@lines );
+
 		} elsif ( $lines[0] =~ /\s*\w/ ) {
+			# A hash at the root
 			my $document = { };
 			push @$self, $document;
 			$self->_read_hash( $document, [ 0 ], \@lines );
+
 		} else {
-			$self->_check_support($lines[0]);
 			die "CODE INCOMPLETE";
 		}
 	}
@@ -143,8 +147,38 @@ sub _read_scalar {
 sub _read_array {
 	my ($self, $array, $indent, $lines) = @_;
 
-	while ( @lines ) {
-		
+	while ( @$lines ) {
+		$lines->[0] =~ /^(\s*)/;
+		if ( length($1) < $indent->[-1] ) {
+			return 1;
+		} elsif ( length($1) > $indent->[-1] ) {
+			die "Hash line over-indented";
+		}
+
+		# Parse the line
+		if ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*$/ ) {
+			# Array entry with a value
+			shift @$lines;
+			push @$array, $self->_read_scalar( "$2" );
+
+		} elsif ( $lines->[0] =~ /^\s*\-\s*$/ ) {
+			# Naked indenter
+			shift @$lines;
+			if ( $lines->[0] =~ /^(\s*)\-/ ) {
+				push @$array, [ ];
+				$self->_read_array( $array->[-1], [ @$indent, length($1) ], $lines );
+
+			} elsif ( $lines->[0] =~ /^(\s*)\w/ ) {
+				push @$array, { };
+				$self->_read_hash( $array->[-1], [ @$indent, length($1) ], $lines );
+
+			} else {
+				die "CODE INCOMPLETE";
+			}
+
+		} else {
+			die "CODE INCOMPLETE";
+		}
 	}
 
 	return 1;
@@ -154,7 +188,7 @@ sub _read_array {
 sub _read_hash {
 	my ($self, $hash, $indent, $lines) = @_;
 
-	while ( @lines ) {
+	while ( @$lines ) {
 		$lines->[0] =~/^(\s*)/;
 		if ( length($1) < $indent->[-1] ) {
 			return 1;
@@ -177,12 +211,10 @@ sub _read_hash {
 			shift @$lines;
 			if ( $lines->[0] =~ /^(\s*)-/ ) {
 				$hash->{$key} = [];
-				push @$indent, length $1;
-				$self->_read_array( $hash->{$key}, $indent, $lines );
+				$self->_read_array( $hash->{$key}, [ @$indent, length($1) ], $lines );
 			} elsif ( $lines->[0] =~ /^(\s*)./ ) {
-				$hahs->{$key} = {};
-				push @$indent, length $1;
-				$self->_read_hash( $hash->{$key}, $indent, $lines );
+				$hash->{$key} = {};
+				$self->_read_hash( $hash->{$key}, [ @$indent, length($1) ], $lines );
 			}
 		}
 	}
@@ -256,11 +288,11 @@ sub _write_array {
 
 		} elsif ( ref $el eq 'ARRAY' ) {
 			push @lines, $line;
-			push @lines, $self->_write_array( ++$indent, $el );
+			push @lines, $self->_write_array( $indent + 1, $el );
 
 		} elsif ( ref $el eq 'HASH' ) {
 			push @lines, $line;
-			push @lines, $self->_write_hash( ++$indent, $el );
+			push @lines, $self->_write_hash( $indent + 1, $el );
 
 		} else {
 			die "CODE INCOMPLETE";
@@ -282,11 +314,11 @@ sub _write_hash {
 
 		} elsif ( ref $el eq 'ARRAY' ) {
 			push @lines, $line;
-			push @lines, $self->_write_array( ++$indent, $el );
+			push @lines, $self->_write_array( $indent + 1, $el );
 
 		} elsif ( ref $el eq 'HASH' ) {
 			push @lines, $line;
-			push @lines, $self->_write_hash( ++$indent, $el );
+			push @lines, $self->_write_hash( $indent + 1, $el );
 
 		} else {
 			die "CODE INCOMPLETE";
@@ -319,17 +351,16 @@ YAML::Tiny - Read/Write YAML files with as little code as possible
 
 =head1 PREAMBLE
 
-B<WARNING: THIS MODULES IS HIGHLY EXPERIMENTAL AND SUBJECT TO CHANGE
-OR COMPLETE REMOVAL WITHOUT NOTICE>
+B<WARNING: THIS MODULES IS HIGHLY EXPERIMENTAL AND SUBJECT TO CHANGE>
 
 The YAML specification is huge. Like, B<really> huge. It contains all the
 functionality of XML, except with flexibility and choice, which makes it
-easier to read, but will a full specification that is more complex than XML.
+easier to read, but with a full specification that is more complex than XML.
 
 The pure-Perl implementation L<YAML> costs just over 4 megabytes of memory
 to load. Just like with Windows .ini files (3 meg to load) and CSS (3.5 meg
-to load) the situation is just asking for a B<YAML::Tiny> module, to
-implement an incomplete but usable subset of the functionality, in as little
+to load) the situation is just asking for a B<YAML::Tiny> module, an
+incomplete but correct and usable subset of the functionality, in as little
 code as possible.
 
 Now, given the YAML features one would need in order to have something
@@ -354,17 +385,8 @@ free some up.
 At this point, other than unquoted scalars, arrays, hashes and ASCII,
 I promise nothing.
 
-To start, I've (literally) cut-and-pasted a L<Config::Tiny>-like set of
-methods, and I've implemented enough code to handle the following.
-
-  # A comment
-  ---
-  - foo
-  - bar
-
-And that's about it. So do B<not> use this module for anything other
-than experimentation. It's only just getting started, and it might
-dissapear.
+So do B<not> use this module for anything other than experimentation.
+It's only just getting started.
 
 =head1 SYNOPSIS
 
@@ -378,6 +400,8 @@ dissapear.
       three: four
       Foo: Bar
       empty: ~
+    
+    
     
     #############################################
     # In your program
@@ -413,7 +437,8 @@ little code as possible, reducing load time and memory overhead.
 
 Most of the time it is accepted that Perl applications use a lot
 of memory and modules. The B<::Tiny> family of modules is specifically
-intended to provide an ultralight alternative to the standard modules.
+intended to provide an ultralight and zero-dependency alternative to
+the standard modules.
 
 This module is primarily for reading human-written files (like config files)
 and generating very simple human-readable files. Note that I said
@@ -421,7 +446,7 @@ B<human-readable> and not B<geek-readable>. The sort of files that your
 average manager or secretary should be able to look at and make sense of.
 
 L<YAML::Tiny> does not generate comments, it won't necesarily preserve the
-order of your hashs, and it may normalise if reading in and writing out
+order of your hashes, and it will normalise if reading in and writing out
 again.
 
 It only supports a very basic subset of the full YAML specification.

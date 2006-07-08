@@ -63,6 +63,15 @@ sub yaml_ok {
 		}
 	}
 
+	# Does the string parse to the structure
+	my $yaml = eval { YAML::Tiny->read_string( $string ); };
+	is( $@, '', "$name: YAML::Tiny parses without error" );
+	SKIP: {
+		skip( "Shortcutting after failure", 2 ) if $@;
+		isa_ok( $yaml, 'YAML::Tiny' );
+		is_deeply( $yaml, $object, "$name: YAML::Tiny parses correctly" );
+	}
+
 	# Does the structure serialize to the string.
 	# We can't test this by direct comparison, because any
 	# whitespace or comments would be lost.
@@ -80,15 +89,6 @@ sub yaml_ok {
 		skip( "Shortcutting after failure", 2 ) if $@;
 		isa_ok( $roundtrip, 'YAML::Tiny' );
 		is_deeply( $roundtrip, $object, "$name: YAML::Tiny round-trips correctly" );
-	}
-
-	# Does the string parse to the structure
-	my $yaml = eval { YAML::Tiny->read_string( $string ); };
-	is( $@, '', "$name: YAML::Tiny parses without error" );
-	SKIP: {
-		skip( "Shortcutting after failure", 2 ) if $@;
-		isa_ok( $yaml, 'YAML::Tiny' );
-		is_deeply( $yaml, $object, "$name: YAML::Tiny parses correctly" );
 	}
 
 	# Return true as a convenience

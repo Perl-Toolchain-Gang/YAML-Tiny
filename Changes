@@ -1,5 +1,9 @@
 Revision history for Perl extension YAML::Tiny
 
+0.03  Sat  8 Jul 2006
+	- Got all of the trivial test cases to pass
+	- Good enough for an initial usable release, but still expected to fail a lot
+
 0.02  Thu 26 Apr 2006
 	- Added support for a single root-level hash
 	- Correcting POD bugs
