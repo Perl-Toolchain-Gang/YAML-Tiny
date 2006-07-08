@@ -17,12 +17,12 @@ BEGIN {
 			'lib'
 			);
 	}
-	lib->import( catdir('t', 'lib') );
 }
 
-use Test::More tests => (27 * 15);
+use lib catdir('t', 'lib');
+use MyTests;
+use Test::More tests(28);
 use YAML::Tiny;
-use MyTests 'yaml_ok';
 
 
 
@@ -225,6 +225,19 @@ yaml_ok(
 	"- foo\n",
 	[ [ 'foo' ] ],
 	'implicit_array',
+);
+
+# Inline nested hash
+yaml_ok(
+	<<'END_YAML',
+---
+- ~
+- foo: bar
+  this: that
+- baz
+END_YAML
+	[ [ undef, { foo => 'bar', this => 'that' }, 'baz' ] ],
+	'inline_nested_hash',
 );
 
 exit(0);

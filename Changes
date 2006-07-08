@@ -1,5 +1,11 @@
 Revision history for Perl extension YAML::Tiny
 
+0.05  Sat  8 Jul 2006
+	- Added support for nested inline hashes (parse only)
+	- Added support for naked undef array and hash entries
+	- Can now handle sample Plagger configs from Miyagawa-san's talk
+	- Can now handle vanilla.yml from Perl::Dist::Vanilla
+
 0.04  Sat  8 Jul 2006
 	- Added support for implicit document start for array/hash types
 	- Added support for colons in hash keys

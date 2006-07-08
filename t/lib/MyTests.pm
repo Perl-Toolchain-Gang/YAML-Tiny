@@ -6,15 +6,23 @@ use Test::More ();
 
 use vars qw{@ISA @EXPORT};
 BEGIN {
-	@ISA    = ( 'Exporter' );
-	@EXPORT = ( 'yaml_ok'  );
+	@ISA    = qw{ Exporter };
+	@EXPORT = qw{ tests  yaml_ok  slurp  load_ok };
 }
 
 # Do we have the authorative YAML to test against
 eval { require YAML; };
 my $COMPARE = !! $YAML::VERSION;
 
-# 7 tests per call
+# 15 tests per call to yaml_ok
+# 5  tests per call to load_ok
+sub tests {
+	my $yaml_ok = shift || 0;
+	my $load_ok = shift || 0;
+	my $count   = $yaml_ok * 15 + $load_ok * 4;
+	return ( tests => $count );
+}
+
 sub yaml_ok {
 	my $string = shift;
 	my $object = shift;
@@ -81,6 +89,27 @@ sub yaml_ok {
 
 	# Return true as a convenience
 	return 1;
+}
+
+sub slurp {
+	my $file = shift;
+	local $/ = undef;
+	open( FILE, " $file" ) or die "open($file) failed: $!";
+	my $source = <FILE>;
+	close( FILE ) or die "close($file) failed: $!";
+	$source;
+}
+
+sub load_ok {
+	my $name = shift;
+	my $file = shift;
+	my $size = shift;
+	Test::More::ok( -f $file, "Found $name" );
+	Test::More::ok( -r $file, "Can read $name" );
+	my $content = slurp( $file );
+	Test::More::ok( (defined $content and ! ref $content), "Loaded $name" );
+	Test::More::ok( ($size < length $content), "Content of $name larger than $size bytes" );
+	return $content;
 }
 
 1;

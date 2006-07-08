@@ -17,9 +17,9 @@ BEGIN {
 			'lib'
 			);
 	}
-	lib->import( catdir('t', 'lib') );
 }
 
+use lib catdir('t', 'lib');
 use Test::More tests => 3;
 
 # Check their perl version

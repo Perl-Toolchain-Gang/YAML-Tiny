@@ -17,12 +17,12 @@ BEGIN {
 			'lib'
 			);
 	}
-	lib->import( catdir('t', 'lib') );
 }
 
-use Test::More tests => (1 * 15);
+use lib catdir('t', 'lib');
+use MyTests;
+use Test::More tests(1);
 use YAML::Tiny;
-use MyTests 'yaml_ok';
 
 
 

@@ -45,13 +45,8 @@ my %NO = (
 	'|' => 'YAML::Tiny does not support literal multi-line scalars',
 	'>' => 'YAML::Tiny does not support folded multi-line scalars',
 	'!' => 'YAML::Tiny does not support explicit tags',
-	"'" => 'YAML::Tiny does not support quoted strings... yet',
 	'"' => 'YAML::Tiny does not support quoted strings... yet',
 );
-
-# Regular expressions
-my $RE_HEAD = qr/^---(?:\s*(.+)\s*)?$/;
-
 
 # Create an empty YAML::Tiny object
 sub new {
@@ -97,7 +92,7 @@ sub read_string {
 	# A nibbling parser
 	while ( @lines ) {
 		# Do we have a document header?
-		if ( $lines[0] =~ /$RE_HEAD/ ) {
+		if ( $lines[0] =~ /^---(?:\s*(.+)\s*)?$/ ) {
 			# Handle scalar documents
 			shift @lines;
 			if ( defined $1 ) {
@@ -106,7 +101,7 @@ sub read_string {
 			}
 		}
 
-		if ( ! @lines or $lines[0] =~ /$RE_HEAD/ ) {
+		if ( ! @lines or $lines[0] =~ /^---(?:\s*(.+)\s*)?$/ ) {
 			# A naked document
 			push @$self, undef;
 
@@ -157,22 +152,34 @@ sub _read_array {
 			die "Hash line over-indented";
 		}
 
-		# Parse the line
-		if ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*$/ ) {
+		if ( $lines->[0] =~ /^(\s*\-\s+)\S+\s*:(?:\s+|$)/ ) {
+			# Inline nested hash
+			my $indent2 = length("$1");
+			$lines->[0] =~ s/-/ /;
+			push @$array, { };
+			$self->_read_hash( $array->[-1], [ @$indent, $indent2 ], $lines );
+
+		} elsif ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*$/ ) {
 			# Array entry with a value
 			shift @$lines;
 			push @$array, $self->_read_scalar( "$2" );
 
 		} elsif ( $lines->[0] =~ /^\s*\-\s*$/ ) {
-			# Naked indenter
 			shift @$lines;
 			if ( $lines->[0] =~ /^(\s*)\-/ ) {
-				push @$array, [ ];
-				$self->_read_array( $array->[-1], [ @$indent, length($1) ], $lines );
+				my $indent2 = length("$1");
+				if ( $indent->[-1] == $indent2 ) {
+					# Null array entry
+					push @$array, undef;
+				} else {
+					# Naked indenter
+					push @$array, [ ];
+					$self->_read_array( $array->[-1], [ @$indent, $indent2 ], $lines );
+				}
 
 			} elsif ( $lines->[0] =~ /^(\s*)\w/ ) {
 				push @$array, { };
-				$self->_read_hash( $array->[-1], [ @$indent, length($1) ], $lines );
+				$self->_read_hash( $array->[-1], [ @$indent, length("$1") ], $lines );
 
 			} else {
 				die "CODE INCOMPLETE";
@@ -215,8 +222,14 @@ sub _read_hash {
 				$hash->{$key} = [];
 				$self->_read_array( $hash->{$key}, [ @$indent, length($1) ], $lines );
 			} elsif ( $lines->[0] =~ /^(\s*)./ ) {
-				$hash->{$key} = {};
-				$self->_read_hash( $hash->{$key}, [ @$indent, length($1) ], $lines );
+				my $indent2 = length("$1");
+				if ( $indent->[-1] == $indent2 ) {
+					# Null hash entry
+					$hash->{$key} = undef;
+				} else {
+					$hash->{$key} = {};
+					$self->_read_hash( $hash->{$key}, [ @$indent, length($1) ], $lines );
+				}
 			}
 		}
 	}
