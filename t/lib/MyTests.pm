@@ -35,7 +35,7 @@ sub yaml_ok {
 
 	# If YAML itself is available, test with it first
 	SKIP: {
-		skip( "Skipping YAML.pm compatibility testing", 7 ) unless $COMPARE_YAML;
+		Test::More::skip( "Skipping YAML.pm compatibility testing", 7 ) unless $COMPARE_YAML;
 
 		# Test writing with YAML.pm
 		my $yamlpm_out = eval { YAML::Dump( @$object ) };
@@ -65,7 +65,7 @@ sub yaml_ok {
 
 	# If YAML::Syck itself is available, test with it first
 	SKIP: {
-		skip( "Skipping YAML::Syck compatibility testing", 7 ) unless $COMPARE_SYCK;
+		Test::More::skip( "Skipping YAML::Syck compatibility testing", 7 ) unless $COMPARE_SYCK;
 
 		# Test writing with YAML::Syck
 		my $syck_out = eval { YAML::Syck::Dump( @$object ) };
