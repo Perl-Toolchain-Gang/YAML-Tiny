@@ -212,7 +212,6 @@ SKIP: {
 		[ "\n" ],
 		"only_spaces",
 	);
-
 }
 
 # Implicit document start
