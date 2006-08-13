@@ -193,7 +193,7 @@ yaml_ok(
 
 # Double quotes
 SKIP: {
-	skip( "Skipping double-quotes", 45 );
+	skip( "Skipping double-quotes", MyTests::count(3) );
 
 	yaml_ok(
 		"--- \"  \"\n",

@@ -15,16 +15,21 @@ eval { require YAML; };
 my $COMPARE_YAML = !! $YAML::VERSION;
 
 # Do we have YAML::Syck to test against?
-eval { require YAML::Syck; };
-my $COMPARE_SYCK = !! $YAML::Syck::VERSION;
+# eval { require YAML::Syck; };
+# my $COMPARE_SYCK = !! $YAML::Syck::VERSION;
+my $COMPARE_SYCK = 0;
 
-# 15 tests per call to yaml_ok
-# 5  tests per call to load_ok
+# 22 tests per call to yaml_ok
+# 4  tests per call to load_ok
 sub tests {
+	return ( tests => count(@_) );
+}
+
+sub count {
 	my $yaml_ok = shift || 0;
 	my $load_ok = shift || 0;
 	my $count   = $yaml_ok * 22 + $load_ok * 4;
-	return ( tests => $count );
+	return $count;	
 }
 
 sub yaml_ok {
