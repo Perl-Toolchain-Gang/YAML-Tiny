@@ -15,9 +15,8 @@ eval { require YAML; };
 my $COMPARE_YAML = !! $YAML::VERSION;
 
 # Do we have YAML::Syck to test against?
-# eval { require YAML::Syck; };
-# my $COMPARE_SYCK = !! $YAML::Syck::VERSION;
-my $COMPARE_SYCK = 0;
+eval { require YAML::Syck; };
+my $COMPARE_SYCK = !! $YAML::Syck::VERSION;
 
 # 22 tests per call to yaml_ok
 # 4  tests per call to load_ok
@@ -71,6 +70,9 @@ sub yaml_ok {
 	# If YAML::Syck itself is available, test with it first
 	SKIP: {
 		Test::More::skip( "Skipping YAML::Syck compatibility testing", 7 ) unless $COMPARE_SYCK;
+		unless ( @$object == 1 ) {
+			Test::More::skip( "Skipping YAML::Syck for unsupported feature", 7 );
+		}
 
 		# Test writing with YAML::Syck
 		my $syck_out = eval { YAML::Syck::Dump( @$object ) };
