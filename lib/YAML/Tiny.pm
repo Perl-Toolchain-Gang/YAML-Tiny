@@ -7,27 +7,9 @@ use strict;
 
 use vars qw{$VERSION $errstr};
 BEGIN {
-	$VERSION = '0.06';
+	$VERSION = '0.10';
 	$errstr  = '';
 }
-
-# YAML::Tiny might want to be a drop-in replacement.
-# If so we should add a Dump and Load function
-#
-# sub import {
-#    my ($package) = caller;
-#    no strict 'refs';
-#    *{$package . '::Dump'} = \&Dump;
-#    *{$package . '::Load'} = \&Load;
-#}
-#
-#sub Dump {
-#    return YAML::Tiny->new(@_)->write_string();
-#}
-#
-#sub Load {
-#    die;
-#}
 
 # Create the main error hash
 my %ERROR = (
@@ -47,6 +29,22 @@ my %NO = (
 	'!' => 'YAML::Tiny does not support explicit tags',
 	'"' => 'YAML::Tiny does not support quoted strings... yet',
 );
+
+my $ESCAPE_CHAR = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f]';
+
+# Escapes for unprintable characters
+my @UNPRINTABLE = qw(z    x01  x02  x03  x04  x05  x06  a
+                     x08  t    n    v    f    r    x0e  x0f
+                     x10  x11  x12  x13  x14  x15  x16  x17
+                     x18  x19  x1a  e    x1c  x1d  x1e  x1f
+                    );
+
+# Printable characters for escapes
+my %UNESCAPES = (
+	z => "\x00", a => "\x07", t => "\x09",
+	n => "\x0a", v => "\x0b", f => "\x0c",
+	r => "\x0d", e => "\x1b", '\\' => '\\',
+	);
 
 # Create an empty YAML::Tiny object
 sub new {
@@ -136,6 +134,16 @@ sub _read_scalar {
 	return undef if $_[1] eq '~';
 	if ( $_[1] =~ /^'(.*?)'$/ ) {
 		return defined $1 ? "$1" : '';
+	}
+	if ( $_[1] =~ /^"((?:\\.|[^"])*)"$/ ) {
+		my $str = $1;
+		$str =~ s/\\"/"/g;
+		$str =~ s/\\([never\\fartz]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
+		return $str;
+	}
+	if ( $_[1] =~ /^['"]/ ) {
+		# A quote with folding... we don't support that
+		die "YAML::Tiny does not support multi-line quoted scalars";
 	}
 	return $_[1];
 }
@@ -269,7 +277,7 @@ sub write_string {
 
 		# A scalar document
 		} elsif ( ! ref $cursor ) {
-			$lines[-1] .= $cursor;
+			$lines[-1] .= $self->_write_scalar( $cursor );
 
 		# A list at the root
 		} elsif ( ref $cursor eq 'ARRAY' ) {
@@ -289,9 +297,17 @@ sub write_string {
 
 sub _write_scalar {
 	my $str = $_[1];
-	return '~'       unless defined $str;
-	return "''"      unless length $str;
-	return "'$str'" if $str =~ /\s/;
+	return '~'  unless defined $str;
+	if ( $str =~ /$ESCAPE_CHAR/ ) {
+		$str =~ s/\\/\\\\/g;
+		$str =~ s/"/\\"/g;
+		$str =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/ge;
+		return qq{"$str"};
+	}
+	if ( length($str) == 0 or $str =~ /\s/ ) {
+		$str =~ s/'/''/;
+		return "'$str'";
+	}
 	return $str;
 }
 
@@ -355,6 +371,66 @@ sub _error {
 # Retrieve error
 sub errstr {
 	$errstr;
+}
+
+
+
+
+
+#####################################################################
+# YAML Compatibility
+
+use vars qw{@EXPORT_OK};
+BEGIN {
+	require Exporter;
+	@EXPORT_OK = qw{ Load Dump };
+}
+
+=pod
+
+=head1 FUNCTIONS
+
+YAML::Tiny implements two functions to add compatibility with the L<YAML>
+API. These should be a drop-in replacement, except that YAML::Tiny will
+B<not> export functions by default, and so you will need to explicitly
+import the functions.
+
+=head2 Dump
+
+  my $string = Dump(list-of-Perl-data-structures);
+
+Turn Perl data into YAML. This function works very much like Data::Dumper::Dumper().
+
+It takes a list of Perl data strucures and dumps them into a serialized form.
+
+It returns a string containing the YAML stream.
+
+The structures can be references or plain scalars.
+
+=cut
+
+sub Dump {
+	YAML::Tiny->new(@_)->write_string;
+}
+
+=pod
+
+=head2 Load
+
+  my @documents = Load(string-containing-a-YAML-stream);
+
+Turn YAML into Perl data. This is the opposite of Dump.
+
+Just like Storable's thaw() function or the eval() function in relation to Data::Dumper.
+
+It parses a string containing a valid YAML stream into a list of Perl data structures.
+
+=cut
+
+sub Load {
+	my $self = YAML::Tiny->read_string(@_)
+		or Carp::croak("Failed to load YAML document from string");
+	return @$self;	
 }
 
 1;

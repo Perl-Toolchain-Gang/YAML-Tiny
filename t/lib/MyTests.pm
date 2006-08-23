@@ -36,10 +36,13 @@ sub yaml_ok {
 	my $object = shift;
 	my $name   = shift || 'unnamed';
 	bless $object, 'YAML::Tiny';
+	my %options = (@_);
 
 	# If YAML itself is available, test with it first
 	SKIP: {
-		Test::More::skip( "Skipping YAML.pm compatibility testing", 7 ) unless $COMPARE_YAML;
+		unless ( $COMPARE_YAML and ! $options{noyaml} ) {
+			Test::More::skip( "Skipping YAML.pm compatibility testing", 7 );
+		}
 
 		# Test writing with YAML.pm
 		my $yamlpm_out = eval { YAML::Dump( @$object ) };
@@ -69,7 +72,9 @@ sub yaml_ok {
 
 	# If YAML::Syck itself is available, test with it first
 	SKIP: {
-		Test::More::skip( "Skipping YAML::Syck compatibility testing", 7 ) unless $COMPARE_SYCK;
+		unless ( $COMPARE_SYCK and ! $options{nosyck} ) {
+			Test::More::skip( "Skipping YAML::Syck compatibility testing", 7 );
+		}
 		unless ( @$object == 1 ) {
 			Test::More::skip( "Skipping YAML::Syck for unsupported feature", 7 );
 		}

@@ -1,5 +1,10 @@
 Revision history for Perl extension YAML::Tiny
 
+0.10  Thu 24 Aug 2006
+	- Added double-quote support, making YAML::Tiny a lot more usable
+	- Added Load and Dump for YAML.pm compatibility
+	- Added tests for verifying compatibility with YAML::Syck
+
 0.06  Sun  9 Jul 2006
 	- Added more tests
 
