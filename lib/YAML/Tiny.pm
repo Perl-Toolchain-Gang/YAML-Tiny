@@ -7,7 +7,7 @@ use strict;
 
 use vars qw{$VERSION $errstr};
 BEGIN {
-	$VERSION = '0.10';
+	$VERSION = '0.11';
 	$errstr  = '';
 }
 
@@ -103,13 +103,13 @@ sub read_string {
 			# A naked document
 			push @$self, undef;
 
-		} elsif ( $lines[0] =~ /\s*\-/ ) {
+		} elsif ( $lines[0] =~ /^\s*\-/ ) {
 			# An array at the root
 			my $document = [ ];
 			push @$self, $document;
 			$self->_read_array( $document, [ 0 ], \@lines );
 
-		} elsif ( $lines[0] =~ /\s*\w/ ) {
+		} elsif ( $lines[0] =~ /^\s*\w/ ) {
 			# A hash at the root
 			my $document = { };
 			push @$self, $document;

@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+0.11  Mon 25 Sep 2006
+	- Fixed bug in regex that detects unheadered ARRAY|HASH
+
 0.10  Thu 24 Aug 2006
 	- Added double-quote support, making YAML::Tiny a lot more usable
 	- Added Load and Dump for YAML.pm compatibility
