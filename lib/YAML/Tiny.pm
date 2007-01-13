@@ -7,7 +7,7 @@ use strict;
 
 use vars qw{$VERSION $errstr};
 BEGIN {
-	$VERSION = '1.00';
+	$VERSION = '1.01';
 	$errstr  = '';
 }
 
@@ -410,46 +410,9 @@ BEGIN {
 	@EXPORT_OK = qw{ Load Dump };
 }
 
-=pod
-
-=head1 FUNCTIONS
-
-YAML::Tiny implements two functions to add compatibility with the L<YAML>
-API. These should be a drop-in replacement, except that YAML::Tiny will
-B<not> export functions by default, and so you will need to explicitly
-import the functions.
-
-=head2 Dump
-
-  my $string = Dump(list-of-Perl-data-structures);
-
-Turn Perl data into YAML. This function works very much like Data::Dumper::Dumper().
-
-It takes a list of Perl data strucures and dumps them into a serialized form.
-
-It returns a string containing the YAML stream.
-
-The structures can be references or plain scalars.
-
-=cut
-
 sub Dump {
 	YAML::Tiny->new(@_)->write_string;
 }
-
-=pod
-
-=head2 Load
-
-  my @documents = Load(string-containing-a-YAML-stream);
-
-Turn YAML into Perl data. This is the opposite of Dump.
-
-Just like Storable's thaw() function or the eval() function in relation to Data::Dumper.
-
-It parses a string containing a valid YAML stream into a list of Perl data structures.
-
-=cut
 
 sub Load {
 	my $self = YAML::Tiny->read_string(@_)
@@ -468,8 +431,6 @@ __END__
 YAML::Tiny - Read/Write YAML files with as little code as possible
 
 =head1 PREAMBLE
-
-B<WARNING: THIS MODULES IS HIGHLY EXPERIMENTAL AND SUBJECT TO CHANGE>
 
 The YAML specification is huge. Like, B<really> huge. It contains all the
 functionality of XML, except with flexibility and choice, which makes it
@@ -624,6 +585,35 @@ Generates the file content for the object and returns it as a string.
 
 When an error occurs, you can retrieve the error message either from the
 C<$YAML::Tiny::errstr> variable, or using the C<errstr()> method.
+
+=head1 FUNCTIONS
+
+YAML::Tiny implements two functions to add compatibility with the L<YAML>
+API. These should be a drop-in replacement, except that YAML::Tiny will
+B<not> export functions by default, and so you will need to explicitly
+import the functions.
+
+=head2 Dump
+
+  my $string = Dump(list-of-Perl-data-structures);
+
+Turn Perl data into YAML. This function works very much like Data::Dumper::Dumper().
+
+It takes a list of Perl data strucures and dumps them into a serialized form.
+
+It returns a string containing the YAML stream.
+
+The structures can be references or plain scalars.
+
+=head2 Load
+
+  my @documents = Load(string-containing-a-YAML-stream);
+
+Turn YAML into Perl data. This is the opposite of Dump.
+
+Just like Storable's thaw() function or the eval() function in relation to Data::Dumper.
+
+It parses a string containing a valid YAML stream into a list of Perl data structures.
 
 =head1 SUPPORT
 

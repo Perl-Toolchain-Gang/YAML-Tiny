@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.01  Sun 14 Jan 2007
+	- Removed the ugly bold warning
+
 1.00  Sun 14 Jan 2007
 	- What the hell, I'm as close as is needed I think
 
