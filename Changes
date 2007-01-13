@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+0.90  Sat 13 Jan 2007
+	- Adding support for inline multi-lines
+
 0.11  Mon 25 Sep 2006
 	- Fixed bug in regex that detects unheadered ARRAY|HASH
 

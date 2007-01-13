@@ -7,7 +7,7 @@ use strict;
 
 use vars qw{$VERSION $errstr};
 BEGIN {
-	$VERSION = '0.11';
+	$VERSION = '0.90';
 	$errstr  = '';
 }
 
@@ -18,19 +18,15 @@ my %ERROR = (
 );
 
 my %NO = (
-	'#' => 'YAML::Tiny does not support partial-line comments',
 	'%' => 'YAML::Tiny does not support directives',
 	'&' => 'YAML::Tiny does not support anchors',
 	'*' => 'YAML::Tiny does not support aliases',
 	'?' => 'YAML::Tiny does not support explicit mapping keys',
 	':' => 'YAML::Tiny does not support explicit mapping values',
-	'|' => 'YAML::Tiny does not support literal multi-line scalars',
-	'>' => 'YAML::Tiny does not support folded multi-line scalars',
 	'!' => 'YAML::Tiny does not support explicit tags',
-	'"' => 'YAML::Tiny does not support quoted strings... yet',
 );
 
-my $ESCAPE_CHAR = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f]';
+my $ESCAPE_CHAR = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f\"\n]';
 
 # Escapes for unprintable characters
 my @UNPRINTABLE = qw(z    x01  x02  x03  x04  x05  x06  a
@@ -41,8 +37,8 @@ my @UNPRINTABLE = qw(z    x01  x02  x03  x04  x05  x06  a
 
 # Printable characters for escapes
 my %UNESCAPES = (
-	z => "\x00", a => "\x07", t => "\x09",
-	n => "\x0a", v => "\x0b", f => "\x0c",
+	z => "\x00", a => "\x07", t    => "\x09",
+	n => "\x0a", v => "\x0b", f    => "\x0c",
 	r => "\x0d", e => "\x1b", '\\' => '\\',
 	);
 
@@ -94,7 +90,7 @@ sub read_string {
 			# Handle scalar documents
 			shift @lines;
 			if ( defined $1 ) {
-				push @$self, $self->_read_scalar("$1");
+				push @$self, $self->_read_scalar( "$1", [ undef ], \@lines );
 				next;
 			}
 		}
@@ -109,11 +105,11 @@ sub read_string {
 			push @$self, $document;
 			$self->_read_array( $document, [ 0 ], \@lines );
 
-		} elsif ( $lines[0] =~ /^\s*\w/ ) {
+		} elsif ( $lines[0] =~ /^(\s*)\w/ ) {
 			# A hash at the root
 			my $document = { };
 			push @$self, $document;
-			$self->_read_hash( $document, [ 0 ], \@lines );
+			$self->_read_hash( $document, [ length($1) ], \@lines );
 
 		} else {
 			die "CODE INCOMPLETE";
@@ -131,21 +127,48 @@ sub _check_support {
 
 # Deparse a scalar string to the actual scalar
 sub _read_scalar {
-	return undef if $_[1] eq '~';
-	if ( $_[1] =~ /^'(.*?)'$/ ) {
-		return defined $1 ? "$1" : '';
+	my ($self, $string, $indent, $lines) = @_;
+	return undef if $string eq '~';
+	if ( $string =~ /^'(.*?)'$/ ) {
+		return '' unless defined $1;
+		my $rv = $1;
+		$rv =~ s/''/'/g;
+		return $rv;
 	}
-	if ( $_[1] =~ /^"((?:\\.|[^"])*)"$/ ) {
+	if ( $string =~ /^"((?:\\.|[^"])*)"$/ ) {
 		my $str = $1;
 		$str =~ s/\\"/"/g;
 		$str =~ s/\\([never\\fartz]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
 		return $str;
 	}
-	if ( $_[1] =~ /^['"]/ ) {
+	if ( $string =~ /^['"]/ ) {
 		# A quote with folding... we don't support that
 		die "YAML::Tiny does not support multi-line quoted scalars";
 	}
-	return $_[1];
+	unless ( $string eq '>' or $string eq '|' ) {
+		# Regular unquoted string
+		return $string;
+	}
+
+	# Error
+	die "Multi-line scalar content missing" unless @$lines;
+
+	# Check the indent depth
+	$lines->[0] =~ /^(\s*)/;
+	$indent->[-1] = length("$1");
+	if ( defined $indent->[-2] and $indent->[-1] <= $indent->[-2] ) {
+		die "Illegal line indenting";
+	}
+
+	# Pull the lines
+	my @multiline = ();
+	while ( @$lines ) {
+		$lines->[0] =~ /^(\s*)/;
+		last unless length($1) >= $indent->[-1];
+		push @multiline, substr(shift(@$lines), length($1));
+	}
+
+	join( ($string eq '>' ? ' ' : "\n"), @multiline ) . "\n";
 }
 
 # Parse an array
@@ -170,7 +193,7 @@ sub _read_array {
 		} elsif ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*$/ ) {
 			# Array entry with a value
 			shift @$lines;
-			push @$array, $self->_read_scalar( "$2" );
+			push @$array, $self->_read_scalar( "$2", [ @$indent, undef ], $lines );
 
 		} elsif ( $lines->[0] =~ /^\s*\-\s*$/ ) {
 			shift @$lines;
@@ -222,7 +245,7 @@ sub _read_hash {
 		# Do we have a value?
 		if ( length $lines->[0] ) {
 			# Yes
-			$hash->{$key} = $self->_read_scalar( shift @$lines );
+			$hash->{$key} = $self->_read_scalar( shift(@$lines), [ @$indent, undef ], $lines );
 		} else {
 			# An indent
 			shift @$lines;
@@ -301,6 +324,7 @@ sub _write_scalar {
 	if ( $str =~ /$ESCAPE_CHAR/ ) {
 		$str =~ s/\\/\\\\/g;
 		$str =~ s/"/\\"/g;
+		$str =~ s/\n/\\n/g;
 		$str =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/ge;
 		return qq{"$str"};
 	}
