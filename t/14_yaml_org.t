@@ -60,7 +60,6 @@ Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.
 END_TEXT
 	} ],
 	'sample.yml',
-	nosyck => 1,
 );
 
 exit(0);
