@@ -1,14 +1,16 @@
 package YAML::Tiny;
 
-# Current load overhead 132k
-
 use 5.005;
 use strict;
 
-use vars qw{$VERSION $errstr};
+use vars qw{$VERSION @ISA @EXPORT_OK$errstr};
 BEGIN {
-	$VERSION = '1.01';
+	$VERSION = '1.02';
 	$errstr  = '';
+
+	require Exporter;
+	@ISA       = qw{ Exporter  };
+	@EXPORT_OK = qw{ Load Dump };
 }
 
 # Create the main error hash
@@ -404,12 +406,6 @@ sub errstr {
 #####################################################################
 # YAML Compatibility
 
-use vars qw{@EXPORT_OK};
-BEGIN {
-	require Exporter;
-	@EXPORT_OK = qw{ Load Dump };
-}
-
 sub Dump {
 	YAML::Tiny->new(@_)->write_string;
 }
@@ -611,9 +607,11 @@ The structures can be references or plain scalars.
 
 Turn YAML into Perl data. This is the opposite of Dump.
 
-Just like Storable's thaw() function or the eval() function in relation to Data::Dumper.
+Just like L<Storable>'s thaw() function or the eval() function in relation
+to L<Data::Dumper>.
 
-It parses a string containing a valid YAML stream into a list of Perl data structures.
+It parses a string containing a valid YAML stream into a list of Perl data
+structures.
 
 =head1 SUPPORT
 
@@ -630,7 +628,7 @@ For other issues, or commercial enhancement or support, please contact
 
 =head1 AUTHOR
 
-Adam Kennedy E<lt>cpan@ali.asE<gt>
+Adam Kennedy E<lt>adamk@cpan.orgE<gt>
 
 =head1 SEE ALSO
 
@@ -639,7 +637,7 @@ L<http://use.perl.org/~Alias/journal/29427>
 
 =head1 COPYRIGHT
 
-Copyright 2006 Adam Kennedy. All rights reserved.
+Copyright 2006 - 2007 Adam Kennedy.
 
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
