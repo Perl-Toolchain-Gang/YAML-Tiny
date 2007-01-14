@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.02';
+	$VERSION = '1.03';
 	$errstr  = '';
 
 	require Exporter;
@@ -438,30 +438,9 @@ to load) the situation is just asking for a B<YAML::Tiny> module, an
 incomplete but correct and usable subset of the functionality, in as little
 code as possible.
 
-Now, given the YAML features one would need in order to have something
-that is usable for things like META.yml and simple configuration files,
-there is still enough complexity that I'm not sure if it is even possible
-to do a YAML::Tiny module.
-
-So I'm going to impose some ground rules before I start.
-
 Like the other C<::Tiny> modules, YAML::Tiny will have no non-core
 dependencies, not require a compiler, and be back-compatible to at least
 perl 5.005_03, and ideally 5.004.
-
-And I'm setting a hard-limit of 400k of memory to load it
-(1/10th of YAML.pm).
-
-I plan to implement features starting at the most common and working
-towards the least common, but if we hit 400k limit then we stop until
-we can find a way to squish the same functionality into less code and
-free some up.
-
-At this point, other than unquoted scalars, arrays, hashes and ASCII,
-I promise nothing.
-
-So do B<not> use this module for anything other than experimentation.
-It's only just getting started.
 
 =head1 SYNOPSIS
 

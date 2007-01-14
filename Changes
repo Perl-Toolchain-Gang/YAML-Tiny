@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.03  Sun 14 Jan 2007
+	- Removing the forward-looking part of the preamble
+
 1.02  Sun 14 Jan 2007
 	- Fixing exporting
 
