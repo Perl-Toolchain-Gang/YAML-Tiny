@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.04  Wed 21 Feb 2007
+	- Adding support for LoadFile, DumpFile, freeze and thaw
+
 1.03  Sun 14 Jan 2007
 	- Removing the forward-looking part of the preamble
 

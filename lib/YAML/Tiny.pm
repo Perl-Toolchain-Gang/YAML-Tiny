@@ -5,12 +5,16 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.03';
+	$VERSION = '1.04';
 	$errstr  = '';
 
 	require Exporter;
 	@ISA       = qw{ Exporter  };
-	@EXPORT_OK = qw{ Load Dump };
+	@EXPORT_OK = qw{
+		Load     Dump
+		LoadFile DumpFile
+		freeze   thaw
+		};
 }
 
 # Create the main error hash
@@ -416,6 +420,22 @@ sub Load {
 	return @$self;	
 }
 
+BEGIN {
+	*freeze = *Dump;
+	*thaw   = *Load;
+}
+
+sub DumpFile {
+	my $file = shift;
+	YAML::Tiny->new(@_)->write($file);
+}
+
+sub LoadFile {
+	my $self = YAML::Tiny->read($_[0])
+		or Carp::croak("Failed to load YAML document from '" . ($_[0] || '') . "'");
+	return @$self;
+}
+
 1;
 
 __END__
@@ -563,10 +583,10 @@ C<$YAML::Tiny::errstr> variable, or using the C<errstr()> method.
 
 =head1 FUNCTIONS
 
-YAML::Tiny implements two functions to add compatibility with the L<YAML>
-API. These should be a drop-in replacement, except that YAML::Tiny will
-B<not> export functions by default, and so you will need to explicitly
-import the functions.
+YAML::Tiny implements a number of functions to add compatibility with
+the L<YAML> API. These should be a drop-in replacement, except that
+YAML::Tiny will B<not> export functions by default, and so you will need
+to explicitly import the functions.
 
 =head2 Dump
 
@@ -592,6 +612,20 @@ to L<Data::Dumper>.
 It parses a string containing a valid YAML stream into a list of Perl data
 structures.
 
+=head2 freeze() and thaw()
+
+Aliases to Dump() and Load() for L<Storable> fans. This will also allow
+YAML::Tiny to be plugged directly into modules like POE.pm, that use the
+freeze/thaw API for internal serialization.
+
+=head2 DumpFile(filepath, list)
+
+Writes the YAML stream to a file instead of just returning a string.
+
+=head2 LoadFile(filepath)
+
+Reads the YAML stream from a file instead of a string.
+
 =head1 SUPPORT
 
 Bugs should be reported via the CPAN bug tracker at
@@ -612,7 +646,7 @@ Adam Kennedy E<lt>adamk@cpan.orgE<gt>
 =head1 SEE ALSO
 
 L<YAML>, L<YAML::Syck>, L<Config::Tiny>, L<CSS::Tiny>,
-L<http://use.perl.org/~Alias/journal/29427>
+L<http://use.perl.org/~Alias/journal/29427>, L<http://ali.as/>
 
 =head1 COPYRIGHT
 
