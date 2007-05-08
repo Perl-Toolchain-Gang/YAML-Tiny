@@ -1,16 +1,17 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Testing of basic document structures
 
 use strict;
-use File::Spec::Functions ':ALL';
 BEGIN {
-	$| = 1;
+	$|  = 1;
+	$^W = 1;
 }
 
+use File::Spec::Functions ':ALL';
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(27);
+use Test::More tests(30);
 use YAML::Tiny;
 
 
@@ -218,6 +219,26 @@ yaml_ok(
 END_YAML
 	[ [ undef, { foo => 'bar', this => 'that' }, 'baz' ] ],
 	'inline_nested_hash',
+);
+
+# Empty comments
+yaml_ok(
+	"---\n- foo\n#\n- bar\n",
+	[ [ 'foo', 'bar' ] ],
+	'empty_comment_in_list',
+);
+
+yaml_ok(
+	"---\nfoo: bar\n# foo\none: two\n",
+	[ { foo => 'bar', one => 'two' } ],
+	'empty_comment_in_hash',
+);
+
+# Complex keys
+yaml_ok(
+	"---\na b: c d\n",
+	[ { 'a b' => 'c d' } ],
+	'key_with_whitespace',
 );
 
 exit(0);

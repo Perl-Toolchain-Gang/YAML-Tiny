@@ -1,5 +1,9 @@
 Revision history for Perl extension YAML::Tiny
 
+1.05  Wed  2 May 2007
+	- Bug fix to allow support for keys with spaces
+	- Bug fix to allow empty comments
+
 1.04  Wed 21 Feb 2007
 	- Adding support for LoadFile, DumpFile, freeze and thaw
 

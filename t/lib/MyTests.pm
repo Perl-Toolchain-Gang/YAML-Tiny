@@ -73,7 +73,7 @@ sub yaml_ok {
 	# If YAML::Syck itself is available, test with it first
 	SKIP: {
 		unless ( $COMPARE_SYCK and ! $options{nosyck} ) {
-			Test::More::skip( "Skipping YAML::Syck compatibility testing", 7 );
+			Test::More::skip( "Skipping YAML::Syck for known-broken feature", 7 );
 		}
 		unless ( @$object == 1 ) {
 			Test::More::skip( "Skipping YAML::Syck for unsupported feature", 7 );

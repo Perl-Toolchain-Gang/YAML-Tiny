@@ -50,6 +50,7 @@ yaml_ok(
 	. "     baz\n",
 	[ { foo => "bar baz\n" } ],
 	'simple_multiline',
+	nosyck => 1,
 );
 
 exit(0);

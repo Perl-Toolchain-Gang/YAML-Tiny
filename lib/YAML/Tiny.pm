@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.04';
+	$VERSION = '1.05';
 	$errstr  = '';
 
 	require Exporter;
@@ -86,7 +86,7 @@ sub read_string {
 	}
 
 	# Split the file into lines
-	my @lines = grep { ! /^\s*(?:\#.+)?$/ }
+	my @lines = grep { ! /^\s*(?:\#.*)?$/ }
 	            split /(?:\015{1,2}\012|\015|\012)/, shift;
 
 	# A nibbling parser
@@ -243,7 +243,7 @@ sub _read_hash {
 		}
 
 		# Get the key
-		unless ( $lines->[0] =~ s/^\s*(\S+)\s*:(\s+|$)// ) {
+		unless ( $lines->[0] =~ s/^\s*([^\n]+?)\s*:(\s+|$)// ) {
 			die "Bad hash line";
 		}
 		my $key = $1;
@@ -506,18 +506,20 @@ perl 5.005_03, and ideally 5.004.
 
 =head1 DESCRIPTION
 
-B<YAML::Tiny> is a perl class to read and write YAML-style files with as
-little code as possible, reducing load time and memory overhead.
+B<YAML::Tiny> is a perl class for reading and writing YAML-style files,
+written with as little code as possible, reducing load time and memory
+overhead.
 
 Most of the time it is accepted that Perl applications use a lot
 of memory and modules. The B<::Tiny> family of modules is specifically
 intended to provide an ultralight and zero-dependency alternative to
-the standard modules.
+many more-thorough standard modules.
 
-This module is primarily for reading human-written files (like config files)
-and generating very simple human-readable files. Note that I said
-B<human-readable> and not B<geek-readable>. The sort of files that your
-average manager or secretary should be able to look at and make sense of.
+This module is primarily for reading human-written files (like simple
+config files) and generating very simple human-readable files. Note that
+I said B<human-readable> and not B<geek-readable>. The sort of files that
+your average manager or secretary should be able to look at and make
+sense of.
 
 L<YAML::Tiny> does not generate comments, it won't necesarily preserve the
 order of your hashes, and it will normalise if reading in and writing out
@@ -526,7 +528,7 @@ again.
 It only supports a very basic subset of the full YAML specification.
 
 Usage is targetted at files like Perl's META.yml, for which a small and
-easily-embeddable module would be highly useful.
+easily-embeddable module is extremely attractive.
 
 Features will only be added if they are human readable, and can be written
 in a few lines of code. Please don't be offended if your request is
