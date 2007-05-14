@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.05';
+	$VERSION = '1.06';
 	$errstr  = '';
 
 	require Exporter;
@@ -260,7 +260,7 @@ sub _read_hash {
 				$self->_read_array( $hash->{$key}, [ @$indent, length($1) ], $lines );
 			} elsif ( $lines->[0] =~ /^(\s*)./ ) {
 				my $indent2 = length("$1");
-				if ( $indent->[-1] == $indent2 ) {
+				if ( $indent->[-1] >= $indent2 ) {
 					# Null hash entry
 					$hash->{$key} = undef;
 				} else {

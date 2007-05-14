@@ -11,7 +11,7 @@ BEGIN {
 
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(2);
+use Test::More tests(4);
 use YAML::Tiny;
 
 
@@ -98,6 +98,98 @@ END_YAML
 		generated_by      => 'ExtUtils::MakeMaker version 6.30',
 	} ],
 	'YAML::Tiny',
+);
+
+
+
+
+
+
+#####################################################################
+# Testing various failing META.yml files from CPAN
+
+yaml_ok(
+	<<'END_YAML',
+---
+abstract: Mii in Nintendo Wii data parser and builder
+author: Toru Yamaguchi <zigorou@cpan.org>
+distribution_type: module
+generated_by: Module::Install version 0.65
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.3.html
+  version: 1.3
+name: Games-Nintendo-Wii-Mii
+no_index:
+  directory:
+    - inc
+    - t
+requires:
+  Carp: 1.03
+  Class::Accessor::Fast: 0.3
+  File::Slurp: 9999.12
+  IO::File: 1.1
+  Readonly: 0
+  Tie::IxHash: 1.21
+  URI: 1.35
+  XML::LibXML: 1.62
+version: 0.02
+END_YAML
+	[ {
+		abstract => 'Mii in Nintendo Wii data parser and builder',
+		author   => 'Toru Yamaguchi <zigorou@cpan.org>',
+		distribution_type => 'module',
+		generated_by => 'Module::Install version 0.65',
+		license => 'perl',
+		'meta-spec' => {
+			url => 'http://module-build.sourceforge.net/META-spec-v1.3.html',
+			version => '1.3',
+		},
+		name => 'Games-Nintendo-Wii-Mii',
+		no_index => {
+			directory => [ qw{ inc t } ],
+		},
+		requires => {
+			'Carp' => '1.03',
+			'Class::Accessor::Fast' => '0.3',
+			'File::Slurp' => '9999.12',
+			'IO::File'    => '1.1',
+			'Readonly'    => '0',
+			'Tie::IxHash' => '1.21',
+			'URI'         => '1.35',
+			'XML::LibXML' => '1.62',
+		},
+		version => '0.02',
+	} ],
+	'Games-Nintendo-Wii-Mii',
+);
+
+yaml_ok(
+	<<'END_YAML',
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Acme-Time-Baby
+version:      2.106
+version_from: Baby.pm
+installdirs:  site
+requires:
+    warnings:
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.17
+END_YAML
+	[ {
+		name => 'Acme-Time-Baby',
+		version => '2.106',
+		version_from => 'Baby.pm',
+		installdirs => 'site',
+		requires => {
+			warnings => undef,
+		},
+		distribution_type => 'module',
+		generated_by => 'ExtUtils::MakeMaker version 6.17',
+	} ],
+	'Acme-Time-Baby',
 );
 
 exit(0);
