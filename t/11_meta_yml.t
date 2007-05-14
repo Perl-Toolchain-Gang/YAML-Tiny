@@ -192,4 +192,35 @@ END_YAML
 	'Acme-Time-Baby',
 );
 
+
+
+
+
+#####################################################################
+# File with a YAML header
+
+yaml_ok(
+	<<'END_YAML',
+--- #YAML:1.0
+name:     Data-Swap
+version:  0.05
+license:  perl
+distribution_type: module
+requires:
+   perl:  5.6.0
+dynamic_config: 0
+END_YAML
+	[ {
+		name => 'Data-Swap',
+		version => '0.05',
+		license => 'perl',
+		distribution_type => 'module',
+		requires => {
+			perl => '5.6.0',
+		},
+		dynamic_config => '0',
+	} ],
+	'Data-Swap',
+);
+
 exit(0);
