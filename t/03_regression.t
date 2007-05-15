@@ -10,7 +10,7 @@ BEGIN {
 
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(3);
+use Test::More tests(5);
 use YAML::Tiny;
 
 
@@ -50,6 +50,39 @@ yaml_ok(
 	. "     baz\n",
 	[ { foo => "bar baz\n" } ],
 	'simple_multiline',
+	nosyck => 1,
+);
+
+
+
+
+
+#####################################################################
+# Support for YAML document version declarations
+
+# Simple case
+yaml_ok(
+	<<'END_YAML',
+--- #YAML:1.0
+foo: bar
+END_YAML
+	[ { foo => 'bar' } ],
+	'simple_doctype',
+	nosyck => 1,
+);
+
+# Multiple documents
+yaml_ok(
+	<<'END_YAML',
+--- #YAML:1.0
+foo: bar
+--- #YAML:1.0
+- 1
+--- #YAML:1.0
+foo: bar
+END_YAML
+	[ { foo => 'bar' }, [ 1 ], { foo => 'bar' } ],
+	'multi_doctype',
 	nosyck => 1,
 );
 

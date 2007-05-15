@@ -27,8 +27,8 @@ sub tests {
 sub count {
 	my $yaml_ok = shift || 0;
 	my $load_ok = shift || 0;
-	my $count   = $yaml_ok * 22 + $load_ok * 4;
-	return $count;	
+	my $count   = $yaml_ok * 25 + $load_ok * 4;
+	return $count;
 }
 
 sub yaml_ok {
@@ -41,7 +41,7 @@ sub yaml_ok {
 	# If YAML itself is available, test with it first
 	SKIP: {
 		unless ( $COMPARE_YAML and ! $options{noyaml} ) {
-			Test::More::skip( "Skipping YAML.pm compatibility testing", 7 );
+			Test::More::skip( "Skipping YAML.pm compatibility testing", 8 );
 		}
 
 		# Test writing with YAML.pm
@@ -62,8 +62,10 @@ sub yaml_ok {
 		}
 
 		# Test reading with YAML.pm
-		my @yamlpm_in = eval { YAML::Load( $string ) };
+		my $yamlpm_copy = $string;
+		my @yamlpm_in   = eval { YAML::Load( $yamlpm_copy ) };
 		Test::More::is( $@, '', "$name: YAML.pm loads without error" );
+		Test::More::is( $yamlpm_copy, $string, "$name: YAML.pm does not modify the input string" );
 		SKIP: {
 			Test::More::skip( "Shortcutting after failure", 1 ) if $@;
 			Test::More::is_deeply( \@yamlpm_in, $object, "$name: YAML.pm parses correctly" );
@@ -73,10 +75,10 @@ sub yaml_ok {
 	# If YAML::Syck itself is available, test with it first
 	SKIP: {
 		unless ( $COMPARE_SYCK and ! $options{nosyck} ) {
-			Test::More::skip( "Skipping YAML::Syck for known-broken feature", 7 );
+			Test::More::skip( "Skipping YAML::Syck for known-broken feature", 8 );
 		}
 		unless ( @$object == 1 ) {
-			Test::More::skip( "Skipping YAML::Syck for unsupported feature", 7 );
+			Test::More::skip( "Skipping YAML::Syck for unsupported feature", 8 );
 		}
 
 		# Test writing with YAML::Syck
@@ -97,8 +99,10 @@ sub yaml_ok {
 		}
 
 		# Test reading with YAML::Syck
-		my @syck_in = eval { YAML::Syck::Load( $string ) };
+		my $syck_copy = $string;
+		my @syck_in   = eval { YAML::Syck::Load( $syck_copy ) };
 		Test::More::is( $@, '', "$name: YAML::Syck loads without error" );
+		Test::More::is( $syck_copy, $string, "$name: YAML::Syck does not modify the input string" );
 		SKIP: {
 			Test::More::skip( "Shortcutting after failure", 1 ) if $@;
 			Test::More::is_deeply( \@syck_in, $object, "$name: YAML::Syck parses correctly" );
@@ -106,8 +110,10 @@ sub yaml_ok {
 	}
 
 	# Does the string parse to the structure
-	my $yaml = eval { YAML::Tiny->read_string( $string ); };
+	my $yaml_copy = $string;
+	my $yaml      = eval { YAML::Tiny->read_string( $yaml_copy ); };
 	Test::More::is( $@, '', "$name: YAML::Tiny parses without error" );
+	Test::More::is( $yaml_copy, $string, "$name: YAML::Tiny does not modify the input string" );
 	SKIP: {
 		Test::More::skip( "Shortcutting after failure", 2 ) if $@;
 		Test::More::isa_ok( $yaml, 'YAML::Tiny' );

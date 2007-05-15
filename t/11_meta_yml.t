@@ -11,7 +11,7 @@ BEGIN {
 
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(4);
+use Test::More tests(6);
 use YAML::Tiny;
 
 
@@ -201,6 +201,31 @@ END_YAML
 
 yaml_ok(
 	<<'END_YAML',
+--- %YAML:1.0
+name:     Data-Swap
+version:  0.05
+license:  perl
+distribution_type: module
+requires:
+   perl:  5.6.0
+dynamic_config: 0
+END_YAML
+	[ {
+		name => 'Data-Swap',
+		version => '0.05',
+		license => 'perl',
+		distribution_type => 'module',
+		requires => {
+			perl => '5.6.0',
+		},
+		dynamic_config => '0',
+	} ],
+	'Data-Swap',
+	noyaml => 1,
+);
+
+yaml_ok(
+	<<'END_YAML',
 --- #YAML:1.0
 name:     Data-Swap
 version:  0.05
@@ -221,6 +246,7 @@ END_YAML
 		dynamic_config => '0',
 	} ],
 	'Data-Swap',
+	nosyck => 1,
 );
 
 exit(0);
