@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.06';
+	$VERSION = '1.07';
 	$errstr  = '';
 
 	require Exporter;
@@ -92,7 +92,7 @@ sub read_string {
 	# A nibbling parser
 	while ( @lines ) {
 		# Do we have a document header?
-		if ( $lines[0] =~ /^---(?:\s*(.+)\s*)?$/ ) {
+		if ( $lines[0] =~ /^---\s*(?:(.+)\s*)?$/ ) {
 			# Handle scalar documents
 			shift @lines;
 			if ( defined $1 and $1 !~ /^[#%]YAML:[\d\.]+$/ ) {
@@ -101,7 +101,7 @@ sub read_string {
 			}
 		}
 
-		if ( ! @lines or $lines[0] =~ /^---(?:\s*(.+)\s*)?$/ ) {
+		if ( ! @lines or $lines[0] =~ /^---\s*(?:(.+)\s*)?$/ ) {
 			# A naked document
 			push @$self, undef;
 
@@ -183,7 +183,7 @@ sub _read_array {
 
 	while ( @$lines ) {
 		# Check for a new document
-		return 1 if $lines->[0] =~ /^---(?:\s*(.+)\s*)?$/;
+		return 1 if $lines->[0] =~ /^---\s*(?:(.+)\s*)?$/;
 
 		# Check the indent level
 		$lines->[0] =~ /^(\s*)/;
@@ -240,7 +240,7 @@ sub _read_hash {
 
 	while ( @$lines ) {
 		# Check for a new document
-		return 1 if $lines->[0] =~ /^---(?:\s*(.+)\s*)?$/;
+		return 1 if $lines->[0] =~ /^---\s*(?:(.+)\s*)?$/;
 
 		# Check the indent level
 		$lines->[0] =~/^(\s*)/;

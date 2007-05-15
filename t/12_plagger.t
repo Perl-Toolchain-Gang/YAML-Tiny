@@ -1,13 +1,14 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Testing Plagger config samples from Miyagawa-san's YAPC::NA 2006 talk
 
 use strict;
-use File::Spec::Functions ':ALL';
 BEGIN {
-	$| = 1;
+	$|  = 1;
+	$^W = 1;
 }
 
+use File::Spec::Functions ':ALL';
 use lib catdir('t', 'lib');
 use MyTests;
 use Test::More tests(2);

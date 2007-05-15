@@ -1,13 +1,14 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Testing of common META.yml examples
 
 use strict;
-use File::Spec::Functions ':ALL';
 BEGIN {
-	$| = 1;
+	$|  = 1;
+	$^W = 1;
 }
 
+use File::Spec::Functions ':ALL';
 use lib catdir('t', 'lib');
 use MyTests;
 use Test::More tests(5);

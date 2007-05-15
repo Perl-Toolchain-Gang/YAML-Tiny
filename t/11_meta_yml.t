@@ -1,17 +1,17 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Testing of common META.yml examples
 
 use strict;
-use File::Spec::Functions ':ALL';
 BEGIN {
 	$|  = 1;
 	$^W = 1;
 }
 
+use File::Spec::Functions ':ALL';
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(6);
+use Test::More tests(7, 1);
 use YAML::Tiny;
 
 
@@ -248,5 +248,46 @@ END_YAML
 	'Data-Swap',
 	nosyck => 1,
 );
+
+
+
+
+
+#####################################################################
+# Various files that fail for unknown reasons
+
+SCOPE: {
+	my $content = load_ok(
+		'Template-Provider-Unicode-Japanese.yml',
+		catfile( 't', 'data', 'Template-Provider-Unicode-Japanese.yml' ),
+		100
+	);
+	yaml_ok(
+		$content,
+		[ {
+			abstract => 'Decode all templates by Unicode::Japanese',
+			author   => 'Hironori Yoshida C<< <yoshida@cpan.org> >>',
+			distribution_type => 'module',
+			generated_by => 'Module::Install version 0.65',
+			license => 'perl',
+			'meta-spec' => {
+				url => 'http://module-build.sourceforge.net/META-spec-v1.3.html',
+				version => '1.3',
+			},
+			name => 'Template-Provider-Unicode-Japanese',
+			no_index => {
+				directory => [ qw{ inc t } ],
+			},
+			requires => {
+				'Template::Config' => 0,
+				'Unicode::Japanese' => 0,
+				perl => '5.6.0',
+				version => '0',
+			},
+			version => '1.2.1',
+		} ],
+		'Template-Provider-Unicode-Japanese',
+	);
+}
 
 exit(0);

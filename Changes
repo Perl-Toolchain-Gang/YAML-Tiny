@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.07  Tue 15 May 2007
+	- Adding support for whitespace after document headers
+
 1.06  Mon 14 May 2007
 	- Bug fix to support an additional variant of null hashes
 
