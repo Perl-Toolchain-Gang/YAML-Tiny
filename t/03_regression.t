@@ -54,6 +54,33 @@ yaml_ok(
 	nosyck => 1,
 );
 
+# Piped multi-line scalar
+yaml_ok( <<'END_YAML', [ [ "foo\nbar\n", 1 ] ], 'indented' );
+---
+- |
+  foo
+  bar
+- 1
+END_YAML
+
+# ... with a comment
+yaml_ok( <<'END_YAML', [ [ "foo\nbar\n", 1 ] ], 'indented' );
+---
+- | # Comment
+  foo
+  bar
+- 1
+END_YAML
+
+# ... with a pointless hyphen
+yaml_ok( <<'END_YAML', [ [ "foo\nbar\n", 1 ] ], 'indented' );
+---
+- |-
+  foo
+  bar
+- 1
+END_YAML
+
 
 
 

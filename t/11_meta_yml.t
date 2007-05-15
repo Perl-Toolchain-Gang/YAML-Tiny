@@ -11,7 +11,7 @@ BEGIN {
 use File::Spec::Functions ':ALL';
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(7, 1);
+use Test::More tests(8, 2);
 use YAML::Tiny;
 
 
@@ -287,6 +287,28 @@ SCOPE: {
 			version => '1.2.1',
 		} ],
 		'Template-Provider-Unicode-Japanese',
+	);
+}
+
+SCOPE: {
+	my $content = load_ok(
+		'HTML-WebDAO.yml',
+		catfile( 't', 'data', 'HTML-WebDAO.yml' ),
+		100
+	);
+	yaml_ok(
+		$content,
+		[ {
+			abstract => 'Perl extension for create complex web application',
+			author   => [
+				'Zahatski Aliaksandr, E<lt>zagap@users.sourceforge.netE<gt>',
+			],
+			license  => 'perl',
+			name     => 'HTML-WebDAO',
+			version  => '0.04',
+		} ],
+		'HTML-WebDAO',
+		nosyck => 1,
 	);
 }
 
