@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.07';
+	$VERSION = '1.08';
 	$errstr  = '';
 
 	require Exporter;
@@ -151,10 +151,9 @@ sub _read_scalar {
 		# A quote with folding... we don't support that
 		die "YAML::Tiny does not support multi-line quoted scalars";
 	}
-	unless ( $string eq '>' or $string eq '|' ) {
-		# Regular unquoted string
-		return $string;
-	}
+
+	# Regular unquoted string
+	return $string unless $string =~ /^[>|]/;
 
 	# Error
 	die "Multi-line scalar content missing" unless @$lines;
@@ -174,7 +173,9 @@ sub _read_scalar {
 		push @multiline, substr(shift(@$lines), length($1));
 	}
 
-	join( ($string eq '>' ? ' ' : "\n"), @multiline ) . "\n";
+	my $j = (substr($string, 0, 1) eq '>') ? ' ' : "\n";
+	my $t = (substr($string, 1, 1) eq '-') ? '' : "\n";
+	return join( $j, @multiline ) . $t;
 }
 
 # Parse an array
