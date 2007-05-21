@@ -11,7 +11,7 @@ BEGIN {
 use File::Spec::Functions ':ALL';
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(7);
+use Test::More tests(8);
 use YAML::Tiny;
 
 
@@ -104,6 +104,21 @@ END_YAML
 	[ { foo => 'bar' }, [ 1 ], { foo => 'bar' } ],
 	'multi_doctype',
 	nosyck => 1,
+);
+
+
+
+
+
+#####################################################################
+# Hitchhiker Scalar
+
+yaml_ok(
+	<<'END_YAML',
+--- 42
+END_YAML
+	[ 42 ],
+	'hitchhiker scalar',
 );
 
 exit(0);
