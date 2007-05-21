@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.09  Mon 21 May 2007
+	- Fixing a bug in the trivial scalar case
+
 1.08  Wed 16 May 2007
         - Adding support for |- trimming multiline scalars
 

@@ -139,7 +139,7 @@ sub yaml_ok {
 		Test::More::is_deeply( $roundtrip, $object, "$name: YAML::Tiny round-trips correctly" );
 
 		# Testing the serialization
-		Test::More::skip( "Shortcutting perfect serialization tests", 1 ) unless $params{serializes};
+		Test::More::skip( "Shortcutting perfect serialization tests", 1 ) unless $options{serializes};
 		Test::More::is( $output, $string, 'Serializes ok' );
 	}
 

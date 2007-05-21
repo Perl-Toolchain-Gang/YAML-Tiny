@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.08';
+	$VERSION = '1.09';
 	$errstr  = '';
 
 	require Exporter;
@@ -315,7 +315,7 @@ sub write_string {
 
 		# A scalar document
 		} elsif ( ! ref $cursor ) {
-			$lines[-1] .= $self->_write_scalar( $cursor );
+			$lines[-1] .= ' ' . $self->_write_scalar( $cursor );
 
 		# A list at the root
 		} elsif ( ref $cursor eq 'ARRAY' ) {
