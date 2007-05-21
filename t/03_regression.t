@@ -119,6 +119,7 @@ yaml_ok(
 END_YAML
 	[ 42 ],
 	'hitchhiker scalar',
+	serializes => 1,
 );
 
 exit(0);

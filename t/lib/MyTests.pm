@@ -27,16 +27,16 @@ sub tests {
 sub count {
 	my $yaml_ok = shift || 0;
 	my $load_ok = shift || 0;
-	my $count   = $yaml_ok * 25 + $load_ok * 4;
+	my $count   = $yaml_ok * 26 + $load_ok * 4;
 	return $count;
 }
 
 sub yaml_ok {
-	my $string = shift;
-	my $object = shift;
-	my $name   = shift || 'unnamed';
+	my $string  = shift;
+	my $object  = shift;
+	my $name    = shift || 'unnamed';
+	my %options = ( @_ );
 	bless $object, 'YAML::Tiny';
-	my %options = (@_);
 
 	# If YAML itself is available, test with it first
 	SKIP: {
@@ -127,7 +127,7 @@ sub yaml_ok {
 	my $output = eval { $object->write_string };
 	Test::More::is( $@, '', "$name: YAML::Tiny serializes without error" );
 	SKIP: {
-		Test::More::skip( "Shortcutting after failure", 4 ) if $@;
+		Test::More::skip( "Shortcutting after failure", 5 ) if $@;
 		Test::More::ok(
 			!!(defined $output and ! ref $output),
 			"$name: YAML::Tiny serializes correctly",
@@ -137,6 +137,10 @@ sub yaml_ok {
 		Test::More::skip( "Shortcutting after failure", 2 ) if $@;
 		Test::More::isa_ok( $roundtrip, 'YAML::Tiny' );
 		Test::More::is_deeply( $roundtrip, $object, "$name: YAML::Tiny round-trips correctly" );
+
+		# Testing the serialization
+		Test::More::skip( "Shortcutting perfect serialization tests", 1 ) unless $params{serializes};
+		Test::More::is( $output, $string, 'Serializes ok' );
 	}
 
 	# Return true as a convenience
