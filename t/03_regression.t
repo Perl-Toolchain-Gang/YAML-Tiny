@@ -11,7 +11,7 @@ BEGIN {
 use File::Spec::Functions ':ALL';
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(8);
+use Test::More tests(12);
 use YAML::Tiny;
 
 
@@ -120,6 +120,55 @@ END_YAML
 	[ 42 ],
 	'hitchhiker scalar',
 	serializes => 1,
+);
+
+
+
+
+
+#####################################################################
+# Null HASH/ARRAY
+
+yaml_ok(
+	<<'END_YAML',
+---
+- foo
+- {}
+- bar
+END_YAML
+	[ [ 'foo', {}, 'bar' ] ],
+	'null hash in array',
+);
+
+yaml_ok(
+	<<'END_YAML',
+---
+- foo
+- []
+- bar
+END_YAML
+	[ [ 'foo', [], 'bar' ] ],
+	'null array in array',
+);
+
+yaml_ok(
+	<<'END_YAML',
+---
+foo: {}
+bar: 1
+END_YAML
+	[  { foo => {}, bar => 1 } ],
+	'null hash in hash',
+);
+
+yaml_ok(
+	<<'END_YAML',
+---
+foo: []
+bar: 1
+END_YAML
+	[  { foo => [], bar => 1 } ],
+	'null array in hash',
 );
 
 exit(0);

@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.09';
+	$VERSION = '1.10';
 	$errstr  = '';
 
 	require Exporter;
@@ -150,6 +150,14 @@ sub _read_scalar {
 	if ( $string =~ /^['"]/ ) {
 		# A quote with folding... we don't support that
 		die "YAML::Tiny does not support multi-line quoted scalars";
+	}
+	if ( $string eq '{}' ) {
+		# Null hash
+		return {};		
+	}
+	if ( $string eq '[]' ) {
+		# Null array
+		return [];
 	}
 
 	# Regular unquoted string
@@ -360,12 +368,22 @@ sub _write_array {
 			push @lines, $line;
 
 		} elsif ( ref $el eq 'ARRAY' ) {
-			push @lines, $line;
-			push @lines, $self->_write_array( $indent + 1, $el );
+			if ( @$el ) {
+				push @lines, $line;
+				push @lines, $self->_write_array( $indent + 1, $el );
+			} else {
+				$line .= ' []';
+				push @lines, $line;
+			}
 
 		} elsif ( ref $el eq 'HASH' ) {
-			push @lines, $line;
-			push @lines, $self->_write_hash( $indent + 1, $el );
+			if ( keys %$el ) {
+				push @lines, $line;
+				push @lines, $self->_write_hash( $indent + 1, $el );
+			} else {
+				$line .= ' {}';
+				push @lines, $line;
+			}
 
 		} else {
 			die "CODE INCOMPLETE";
@@ -386,12 +404,22 @@ sub _write_hash {
 			push @lines, $line;
 
 		} elsif ( ref $el eq 'ARRAY' ) {
-			push @lines, $line;
-			push @lines, $self->_write_array( $indent + 1, $el );
+			if ( @$el ) {
+				push @lines, $line;
+				push @lines, $self->_write_array( $indent + 1, $el );
+			} else {
+				$line .= ' []';
+				push @lines, $line;
+			}
 
 		} elsif ( ref $el eq 'HASH' ) {
-			push @lines, $line;
-			push @lines, $self->_write_hash( $indent + 1, $el );
+			if ( keys %$el ) {
+				push @lines, $line;
+				push @lines, $self->_write_hash( $indent + 1, $el );
+			} else {
+				$line .= ' {}';
+				push @lines, $line;
+			}
 
 		} else {
 			die "CODE INCOMPLETE";

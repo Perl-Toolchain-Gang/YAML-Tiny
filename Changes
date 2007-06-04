@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.10  Tue  5 Jun 2007
+        - Adding support for null hash/arrays
+
 1.09  Mon 21 May 2007
 	- Fixing a bug in the trivial scalar case
 
