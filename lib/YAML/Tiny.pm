@@ -211,7 +211,7 @@ sub _read_array {
 			die "Hash line over-indented";
 		}
 
-		if ( $lines->[0] =~ /^(\s*\-\s+)\S+\s*:(?:\s+|$)/ ) {
+		if ( $lines->[0] =~ /^(\s*\-\s+)[^'"]\S*\s*:(?:\s+|$)/ ) {
 			# Inline nested hash
 			my $indent2 = length("$1");
 			$lines->[0] =~ s/-/ /;
@@ -269,7 +269,7 @@ sub _read_hash {
 		}
 
 		# Get the key
-		unless ( $lines->[0] =~ s/^\s*([^\n]+?)\s*:(\s+|$)// ) {
+		unless ( $lines->[0] =~ s/^\s*([^'"][^\n]*?)\s*:(\s+|$)// ) {
 			die "Bad hash line";
 		}
 		my $key = $1;

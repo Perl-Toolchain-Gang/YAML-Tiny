@@ -2,6 +2,8 @@ Revision history for Perl extension YAML::Tiny
 
 1.11  Tue  5 Jun 2007
 	- Forgot to string trailing whitespace in a few cases
+	- 'hashkey: This was mistaken as a hash entry, not a string'
+	- Adding explicit tests from #yaml for single quote escaping
 
 1.10  Tue  5 Jun 2007
         - Adding support for null hash/arrays

@@ -11,7 +11,7 @@ BEGIN {
 use File::Spec::Functions ':ALL';
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(13);
+use Test::More tests(15);
 use YAML::Tiny;
 
 
@@ -189,6 +189,40 @@ arr:
 END_YAML
 	[ { abstract => 'Generate fractal curves', foo => undef, arr => [ 'foo', undef, 'bar' ] } ],
 	'trailing whitespace',
+);
+
+
+
+
+
+#####################################################################
+# Quote vs Hash
+
+yaml_ok(
+	<<'END_YAML',
+---
+author:
+  - 'mst: Matt S. Trout <mst@shadowcatsystems.co.uk>'
+END_YAML
+	[ { author => [ 'mst: Matt S. Trout <mst@shadowcatsystems.co.uk>' ] } ],
+	'hash-like quote',
+);
+
+
+
+
+
+#####################################################################
+# Single Quote Idiosyncracy
+
+yaml_ok(
+	<<'END_YAML',
+---
+slash: '\'
+name: 'O''Reilly'
+END_YAML
+	[ { slash => "\\", name => "O'Reilly" } ],
+	'single quote subtleties',
 );
 
 exit(0);
