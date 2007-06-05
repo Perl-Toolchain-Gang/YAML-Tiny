@@ -11,7 +11,7 @@ BEGIN {
 use File::Spec::Functions ':ALL';
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(12);
+use Test::More tests(13);
 use YAML::Tiny;
 
 
@@ -169,6 +169,26 @@ bar: 1
 END_YAML
 	[  { foo => [], bar => 1 } ],
 	'null array in hash',
+);
+
+
+
+
+#####################################################################
+# Trailing Whitespace
+
+yaml_ok(
+	<<'END_YAML',
+---
+abstract: Generate fractal curves 
+foo: ~ 
+arr:
+  - foo 
+  - ~
+  - 'bar'  
+END_YAML
+	[ { abstract => 'Generate fractal curves', foo => undef, arr => [ 'foo', undef, 'bar' ] } ],
+	'trailing whitespace',
 );
 
 exit(0);

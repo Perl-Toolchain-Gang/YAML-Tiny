@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.11  Tue  5 Jun 2007
+	- Forgot to string trailing whitespace in a few cases
+
 1.10  Tue  5 Jun 2007
         - Adding support for null hash/arrays
 

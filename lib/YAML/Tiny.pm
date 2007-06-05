@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.10';
+	$VERSION = '1.11';
 	$errstr  = '';
 
 	require Exporter;
@@ -134,7 +134,14 @@ sub _check_support {
 # Deparse a scalar string to the actual scalar
 sub _read_scalar {
 	my ($self, $string, $indent, $lines) = @_;
+
+	# Trim trailing whitespace
+	$string =~ s/\s*$//;
+
+	# Explitic null/undef
 	return undef if $string eq '~';
+
+	# Quotes
 	if ( $string =~ /^'(.*?)'$/ ) {
 		return '' unless defined $1;
 		my $rv = $1;
@@ -151,6 +158,8 @@ sub _read_scalar {
 		# A quote with folding... we don't support that
 		die "YAML::Tiny does not support multi-line quoted scalars";
 	}
+
+	# Null hash and array
 	if ( $string eq '{}' ) {
 		# Null hash
 		return {};		
