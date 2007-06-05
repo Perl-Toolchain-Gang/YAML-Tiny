@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.12  Tue  5 Jun 2007
+	- Adding support for open hash/array at EOF
+
 1.11  Tue  5 Jun 2007
 	- Forgot to string trailing whitespace in a few cases
 	- 'hashkey: This was mistaken as a hash entry, not a string'

@@ -11,7 +11,7 @@ BEGIN {
 use File::Spec::Functions ':ALL';
 use lib catdir('t', 'lib');
 use MyTests;
-use Test::More tests(15);
+use Test::More tests(17);
 use YAML::Tiny;
 
 
@@ -223,6 +223,37 @@ name: 'O''Reilly'
 END_YAML
 	[ { slash => "\\", name => "O'Reilly" } ],
 	'single quote subtleties',
+);
+
+
+
+
+
+#####################################################################
+# Empty Values and Premature EOF
+
+yaml_ok(
+	<<'END_YAML',
+---
+foo:    0
+requires:
+build_requires:
+END_YAML
+	[ { foo => 0, requires => undef, build_requires => undef } ],
+	'empty hash keys',
+	noyaml => 1,
+);
+
+yaml_ok(
+	<<'END_YAML',
+---
+- foo
+-
+-
+END_YAML
+	[ [ 'foo', undef, undef ] ],
+	'empty array keys',
+	noyaml => 1,
 );
 
 exit(0);

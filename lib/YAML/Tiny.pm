@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.11';
+	$VERSION = '1.12';
 	$errstr  = '';
 
 	require Exporter;
@@ -225,6 +225,10 @@ sub _read_array {
 
 		} elsif ( $lines->[0] =~ /^\s*\-\s*$/ ) {
 			shift @$lines;
+			unless ( @$lines ) {
+				push @$array, undef;
+				return 1;
+			}
 			if ( $lines->[0] =~ /^(\s*)\-/ ) {
 				my $indent2 = length("$1");
 				if ( $indent->[-1] == $indent2 ) {
@@ -281,6 +285,10 @@ sub _read_hash {
 		} else {
 			# An indent
 			shift @$lines;
+			unless ( @$lines ) {
+				$hash->{$key} = undef;
+				return 1;
+			}
 			if ( $lines->[0] =~ /^(\s*)-/ ) {
 				$hash->{$key} = [];
 				$self->_read_array( $hash->{$key}, [ @$indent, length($1) ], $lines );
