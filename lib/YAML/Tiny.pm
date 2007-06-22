@@ -502,13 +502,14 @@ YAML::Tiny - Read/Write YAML files with as little code as possible
 
 =head1 PREAMBLE
 
-The YAML specification is huge. Like, B<really> huge. It contains all the
+The YAML specification is huge. Really, B<really> huge. It contains all the
 functionality of XML, except with flexibility and choice, which makes it
-easier to read, but with a full specification that is more complex than XML.
+easier to read, but with a formal specification that is more complex than
+XML.
 
-The pure-Perl implementation L<YAML> costs just over 4 megabytes of memory
-to load. Just like with Windows .ini files (3 meg to load) and CSS (3.5 meg
-to load) the situation is just asking for a B<YAML::Tiny> module, an
+The original pure-Perl implementation L<YAML> costs just over 4 megabytes of
+memory to load. Just like with Windows .ini files (3 meg to load) and CSS
+(3.5 meg to load) the situation is just asking for a B<YAML::Tiny> module, an
 incomplete but correct and usable subset of the functionality, in as little
 code as possible.
 
