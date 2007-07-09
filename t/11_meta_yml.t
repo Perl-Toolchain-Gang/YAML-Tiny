@@ -9,8 +9,7 @@ BEGIN {
 }
 
 use File::Spec::Functions ':ALL';
-use lib catdir('t', 'lib');
-use MyTests;
+use t::lib::Test;
 use Test::More tests(8, 2);
 use YAML::Tiny;
 

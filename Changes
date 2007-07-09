@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.13  Mon  9 Jul 2007
+	- Adding a test case for support of multi-byte characters
+
 1.12  Tue  5 Jun 2007
 	- Adding support for open hash/array at EOF
 

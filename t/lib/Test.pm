@@ -1,4 +1,4 @@
-package MyTests;
+package t::lib::Test;
 
 use strict;
 use Exporter   ();
@@ -27,7 +27,8 @@ sub tests {
 sub count {
 	my $yaml_ok = shift || 0;
 	my $load_ok = shift || 0;
-	my $count   = $yaml_ok * 26 + $load_ok * 4;
+	my $single  = shift || 0;
+	my $count   = $yaml_ok * 26 + $load_ok * 4 + $single;
 	return $count;
 }
 
