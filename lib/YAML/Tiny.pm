@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.13';
+	$VERSION = '1.14';
 	$errstr  = '';
 
 	require Exporter;
@@ -344,10 +344,18 @@ sub write_string {
 
 		# A list at the root
 		} elsif ( ref $cursor eq 'ARRAY' ) {
+			unless ( @$cursor ) {
+				$lines[-1] .= ' []';
+				next;
+			}
 			push @lines, $self->_write_array( $indent, $cursor );
 
 		# A hash at the root
 		} elsif ( ref $cursor eq 'HASH' ) {
+			unless ( %$cursor ) {
+				$lines[-1] .= ' {}';
+				next;
+			}
 			push @lines, $self->_write_hash( $indent, $cursor );
 
 		} else {
