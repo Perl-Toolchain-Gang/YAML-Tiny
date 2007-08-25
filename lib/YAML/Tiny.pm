@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.14';
+	$VERSION = '1.15';
 	$errstr  = '';
 
 	require Exporter;
@@ -321,6 +321,8 @@ sub write {
 		);
 	print CFG $self->write_string;
 	close CFG;
+
+	return 1;
 }
 
 # Save an object to a string
@@ -359,7 +361,7 @@ sub write_string {
 			push @lines, $self->_write_hash( $indent, $cursor );
 
 		} else {
-			die "CODE INCOMPLETE";
+			Carp::croak("Cannot serialize " . ref($cursor));
 		}
 	}
 
@@ -447,7 +449,7 @@ sub _write_hash {
 			}
 
 		} else {
-			die "CODE INCOMPLETE";
+			Carp::croak("Cannot serialize " . ref($el));
 		}
 	}
 

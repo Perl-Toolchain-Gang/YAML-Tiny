@@ -1,5 +1,10 @@
 Revision history for Perl extension YAML::Tiny
 
+1.15  Sat 25 Aug 2007
+	- Incremental release to include an updated version of 99_author.t
+	- Replace a few CODE INCOMPLETE errors with real errors
+	  (those parts of the module are now complete)
+
 1.14  Thu 16 Aug 2007
 	- Adding support for empty reference documents
 
