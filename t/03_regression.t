@@ -255,4 +255,21 @@ END_YAML
 	noyaml => 1,
 );
 
+
+
+
+
+#####################################################################
+# Comment on the Document Line
+
+yaml_ok(
+	<<'END_YAML',
+--- # Comment
+foo: bar
+END_YAML
+	[ { foo => 'bar' } ],
+	'comment header',
+	noyaml => 1,
+);
+
 exit(0);

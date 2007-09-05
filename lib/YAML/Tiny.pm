@@ -95,7 +95,7 @@ sub read_string {
 		if ( $lines[0] =~ /^---\s*(?:(.+)\s*)?$/ ) {
 			# Handle scalar documents
 			shift @lines;
-			if ( defined $1 and $1 !~ /^[#%]YAML:[\d\.]+$/ ) {
+			if ( defined $1 and $1 !~ /^(?:\#.+|\%YAML:[\d\.]+)$/ ) {
 				push @$self, $self->_read_scalar( "$1", [ undef ], \@lines );
 				next;
 			}
