@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(17);
+use Test::More tests(18);
 use YAML::Tiny;
 
 
