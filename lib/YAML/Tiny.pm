@@ -5,7 +5,7 @@ use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.15';
+	$VERSION = '1.16';
 	$errstr  = '';
 
 	require Exporter;

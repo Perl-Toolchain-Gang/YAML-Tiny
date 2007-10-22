@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.16  Mon 22 Oct 2007
+	- Updating to newer AUTOMATED_TESTING tests
+
 1.15  Sat 25 Aug 2007
 	- Incremental release to include an updated version of 99_author.t
 	- Replace a few CODE INCOMPLETE errors with real errors
