@@ -1,11 +1,13 @@
 package YAML::Tiny;
 
-use 5.005;
+BEGIN {
+	require 5.004;
+}
 use strict;
 
 use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
 BEGIN {
-	$VERSION = '1.16';
+	$VERSION = '1.17';
 	$errstr  = '';
 
 	require Exporter;

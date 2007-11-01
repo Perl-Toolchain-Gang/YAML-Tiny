@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.17  Thu  1 Nov 2007
+	- Updating from Module::Install to the tinier ExtUtils::MakeMaker
+
 1.16  Mon 22 Oct 2007
 	- Updating to newer AUTOMATED_TESTING tests
 
