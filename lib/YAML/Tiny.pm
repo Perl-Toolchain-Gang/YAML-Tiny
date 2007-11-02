@@ -1,18 +1,13 @@
 package YAML::Tiny;
 
+use strict;
 BEGIN {
 	require 5.004;
-}
-use strict;
-
-use vars qw{$VERSION @ISA @EXPORT_OK $errstr};
-BEGIN {
-	$VERSION = '1.17';
-	$errstr  = '';
-
 	require Exporter;
-	@ISA       = qw{ Exporter  };
-	@EXPORT_OK = qw{
+	$YAML::Tiny::VERSION   = '1.18';
+	$YAML::Tiny::errstr    = '';
+	@YAML::Tiny::ISA       = qw{ Exporter  };
+	@YAML::Yiny::EXPORT_OK = qw{
 		Load     Dump
 		LoadFile DumpFile
 		freeze   thaw
@@ -129,8 +124,8 @@ sub read_string {
 
 sub _check_support {
 	# Check if we support the next char
-	my $errstr = $NO{substr($_[1], 0, 1)};
-	Carp::croak($errstr) if $errstr;
+	my $err = $NO{substr($_[1], 0, 1)};
+	Carp::croak($err) if $err;
 }
 
 # Deparse a scalar string to the actual scalar
@@ -460,13 +455,13 @@ sub _write_hash {
 
 # Set error
 sub _error {
-	$errstr = $ERROR{$_[1]} ? "$ERROR{$_[1]} ($_[1])" : $_[1];
+	$YAML::Tiny::errstr = $ERROR{$_[1]} ? "$ERROR{$_[1]} ($_[1])" : $_[1];
 	undef;
 }
 
 # Retrieve error
 sub errstr {
-	$errstr;
+	$YAML::Tiny::errstr;
 }
 
 
