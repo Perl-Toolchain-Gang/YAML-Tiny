@@ -7,7 +7,6 @@ BEGIN {
 use ExtUtils::MakeMaker;
 
 my $PREREQ_PM = {
-	'perl'       => '5.004',
 	'File::Spec' => '0.80',
 	'Test::More' => '0.47',
 };
