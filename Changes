@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.19  Fri 16 Nov 2007
+	- Removing the invalid perl dep
+
 1.18  Mon  5 Nov 2007
 	- Adding a new test file
 
