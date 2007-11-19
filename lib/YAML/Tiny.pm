@@ -4,10 +4,10 @@ use strict;
 BEGIN {
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.19';
+	$YAML::Tiny::VERSION   = '1.20';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
-	@YAML::Yiny::EXPORT_OK = qw{
+	@YAML::Tiny::EXPORT_OK = qw{
 		Load     Dump
 		LoadFile DumpFile
 		freeze   thaw

@@ -1,5 +1,9 @@
 Revision history for Perl extension YAML::Tiny
 
+1.20  Mon 19 Nov 2007
+	- Correcting class name in @EXPORT_OK declaration
+	  (Demetrios Biskinis)
+
 1.19  Fri 16 Nov 2007
 	- Removing the invalid perl dep
 
