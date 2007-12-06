@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML::Tiny
 
+1.21  Thu  6 Dec 2007
+	- Fixing support for unprintable characters
+
 1.20  Mon 19 Nov 2007
 	- Correcting class name in @EXPORT_OK declaration
 	  (Demetrios Biskinis)

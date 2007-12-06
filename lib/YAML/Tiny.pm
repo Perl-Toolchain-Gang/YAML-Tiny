@@ -4,7 +4,7 @@ use strict;
 BEGIN {
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.20';
+	$YAML::Tiny::VERSION   = '1.21';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT_OK = qw{
@@ -372,7 +372,7 @@ sub _write_scalar {
 		$str =~ s/\\/\\\\/g;
 		$str =~ s/"/\\"/g;
 		$str =~ s/\n/\\n/g;
-		$str =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/ge;
+		$str =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
 		return qq{"$str"};
 	}
 	if ( length($str) == 0 or $str =~ /\s/ ) {

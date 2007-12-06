@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(18, 0, 6);
+use Test::More tests(19, 0, 6);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
@@ -288,6 +288,22 @@ END_YAML
 	[ { foo => 'bar' } ],
 	'comment header',
 	noyaml => 1,
+);
+
+
+
+
+
+
+#####################################################################
+# Newlines and tabs
+
+yaml_ok(
+	<<'END_YAML',
+foo: "foo\\\n\tbar"
+END_YAML
+	[ { foo => "foo\\\n\tbar" } ],
+	'special characters',
 );
 
 exit(0);
