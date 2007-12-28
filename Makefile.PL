@@ -6,8 +6,10 @@ BEGIN {
 use ExtUtils::MakeMaker;
 
 my $PREREQ_PM = {
-	'File::Spec' => '0.80',
-	'Test::More' => '0.47',
+	# Skip on Windows to avoid breaking ActivePerl PPMs
+	# Both come with 5.6.2 or newer, which everyone on Win32 has.
+	($^O eq 'MSWin32' ? () : ('File::Spec' => '0.80')),
+	($^O eq 'MSWin32' ? () : ('Test::More' => '0.47')),
 };
 if ( $ENV{AUTOMATED_TESTING} ) {
 	$PREREQ_PM->{'YAML'}       = '0.62';

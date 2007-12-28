@@ -235,7 +235,7 @@ END_YAML
 yaml_ok(
 	<<'END_YAML',
 ---
-slash: '\'
+slash: '\\'
 name: 'O''Reilly'
 END_YAML
 	[ { slash => "\\", name => "O'Reilly" } ],
@@ -305,5 +305,24 @@ END_YAML
 	[ { foo => "foo\\\n\tbar" } ],
 	'special characters',
 );
+
+
+
+
+
+
+#####################################################################
+# Circular Reference Protection
+
+SCOPE: {
+	my $foo = { a => b };
+	my $bar = [ $foo, 2 ];
+	$foo->{c} = $bar;
+	my $circ = YAML::Tiny->new( [ $foo, $bar ] );
+	isa_ok( $circ, 'YAML::Tiny' );
+
+	# When we try to serialize, it should NOT infinite loop
+	
+}	
 
 exit(0);
