@@ -4,7 +4,7 @@ use strict;
 BEGIN {
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.22';
+	$YAML::Tiny::VERSION   = '1.22_01';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT_OK = qw{
@@ -13,11 +13,6 @@ BEGIN {
 		freeze   thaw
 		};
 }
-
-# Create the main error hash
-my %ERROR = (
-	YAML_PARSE_ERR_NO_FINAL_NEWLINE => "Stream does not end with newline character",
-);
 
 my $ESCAPE_CHAR = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f\"\n]';
 
@@ -54,9 +49,10 @@ sub read {
 
 	# Slurp in the file
 	local $/ = undef;
-	open CFG, $file or return $class->_error( "Failed to open file '$file': $!" );
+	local *CFG;
+	open( CFG, $file ) or return $class->_error( "Failed to open file '$file': $!" );
 	my $contents = <CFG>;
-	close CFG;
+	close( CFG ) or return $class->_error( "Failed to close file '$file': $!" );
 
 	$class->read_string( $contents );
 }
@@ -70,7 +66,7 @@ sub read_string {
 	return undef unless defined $_[0];
 	return $self unless length $_[0];
 	unless ( $_[0] =~ /[\012\015]+$/ ) {
-		return $class->_error('YAML_PARSE_ERR_NO_FINAL_NEWLINE');
+		return $class->_error("Stream does not end with newline character");
 	}
 
 	# Split the file into lines
@@ -318,9 +314,6 @@ sub write_string {
 	foreach my $cursor ( @$self ) {
 		push @lines, '---';
 
-		# Circular reference protection
-		my $seen = ();
-
 		# An empty document
 		if ( ! defined $cursor ) {
 			# Do nothing
@@ -335,7 +328,7 @@ sub write_string {
 				$lines[-1] .= ' []';
 				next;
 			}
-			push @lines, $self->_write_array( $cursor, $indent, $seen );
+			push @lines, $self->_write_array( $cursor, $indent, {} );
 
 		# A hash at the root
 		} elsif ( ref $cursor eq 'HASH' ) {
@@ -343,7 +336,7 @@ sub write_string {
 				$lines[-1] .= ' {}';
 				next;
 			}
-			push @lines, $self->_write_hash( $cursor, $indent, $seen );
+			push @lines, $self->_write_hash( $cursor, $indent, {} );
 
 		} else {
 			Carp::croak("Cannot serialize " . ref($cursor));
@@ -386,7 +379,7 @@ sub _write_array {
 		} elsif ( $type eq 'ARRAY' ) {
 			if ( @$el ) {
 				push @lines, $line;
-				push @lines, $self->_write_array( $indent + 1, $el );
+				push @lines, $self->_write_array( $el, $indent + 1, $seen );
 			} else {
 				$line .= ' []';
 				push @lines, $line;
@@ -395,7 +388,7 @@ sub _write_array {
 		} elsif ( $type eq 'HASH' ) {
 			if ( keys %$el ) {
 				push @lines, $line;
-				push @lines, $self->_write_hash( $indent + 1, $el );
+				push @lines, $self->_write_hash( $el, $indent + 1, $seen );
 			} else {
 				$line .= ' {}';
 				push @lines, $line;
@@ -426,7 +419,7 @@ sub _write_hash {
 		} elsif ( $type eq 'ARRAY' ) {
 			if ( @$el ) {
 				push @lines, $line;
-				push @lines, $self->_write_array( $indent + 1, $el );
+				push @lines, $self->_write_array( $el, $indent + 1, $seen );
 			} else {
 				$line .= ' []';
 				push @lines, $line;
@@ -435,7 +428,7 @@ sub _write_hash {
 		} elsif ( $type eq 'HASH' ) {
 			if ( keys %$el ) {
 				push @lines, $line;
-				push @lines, $self->_write_hash( $indent + 1, $el );
+				push @lines, $self->_write_hash( $el, $indent + 1, $seen );
 			} else {
 				$line .= ' {}';
 				push @lines, $line;
@@ -451,7 +444,7 @@ sub _write_hash {
 
 # Set error
 sub _error {
-	$YAML::Tiny::errstr = $ERROR{$_[1]} ? "$ERROR{$_[1]} ($_[1])" : $_[1];
+	$YAML::Tiny::errstr = $_[1];
 	undef;
 }
 
@@ -498,11 +491,18 @@ sub LoadFile {
 
 
 #####################################################################
-# Inline Scalar::Util functions
+# Use Scalar::Util if possible, otherwise emulate it
 
+BEGIN {
+	eval {
+		require Scalar::Util;
+	};
+	if ( $@ ) {
+		# Failed to load Scalar::Util
+		eval <<'END_PERL';
 sub refaddr {
 	my $pkg = ref($_[0]) or return undef;
-	if (blessed($_[0])) {
+	if (!!UNIVERSAL::can($_[0], 'can')) {
 		bless $_[0], 'Scalar::Util::Fake';
 	} else {
 		$pkg = undef;
@@ -511,6 +511,11 @@ sub refaddr {
 	my $i = do { local $^W; hex $1 };
 	bless $_[0], $pkg if defined $pkg;
 	$i;
+}
+END_PERL
+	} else {
+		Scalar::Util->import('refaddr');
+	}
 }
 
 1;

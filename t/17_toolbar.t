@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More skip_all => 'Temporarily ignoring failing test';
+# use Test::More skip_all => 'Temporarily ignoring failing test';
 use Test::More tests(1, 1);
 use YAML::Tiny;
 
@@ -22,7 +22,7 @@ use YAML::Tiny;
 # Testing that Perl::Smith config files work
 
 my $toolbar_file = catfile( 't', 'data', 'toolbar.yml' );
-my $toolbar      = load_ok( 'toolbar.yml', $toolbar_file, 1000 );
+my $toolbar      = load_ok( 'toolbar.yml', $toolbar_file, 100 );
 
 yaml_ok(
 	$toolbar,
@@ -30,6 +30,19 @@ yaml_ok(
 		main_toolbar => [
 			'item file-new',
 			'item file-open',
+			'item file-print#',
+			'item file-close#',
+			'item file-save-all',
+			'item file-save',
+			undef,
+			'item edit-changes-undo',
+			'item edit-changes-redo',
+			undef,
+			'item edit-cut',
+			'item edit-copy',
+			'item edit-paste',
+			'item edit-replace',
+			'item edit-delete',
 		]
 	} ],
 	'toolbar.yml',
