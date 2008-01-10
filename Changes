@@ -1,5 +1,9 @@
 Revision history for Perl extension YAML::Tiny
 
+1.23  Thu 10 Jan 2008
+	- Identical to 1.22_01
+	- CPAN Testers results positive, pushing to production version
+
 1.22_01 Wed  9 Jan 2008
 	- Correcting handling of single quote escaping
 	- Adding protection for infinite loops caused by circular
