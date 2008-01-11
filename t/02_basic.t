@@ -185,14 +185,14 @@ yaml_ok(
 	"--- \"  \"\n",
 	[ '  ' ],
 	"only_spaces",
-	noyaml => 1,
+	noyamlpm => 1,
 );
 
 yaml_ok(
 	"--- \"  foo\"\n--- \"bar  \"\n",
 	[ "  foo", "bar  " ],
 	"leading_trailing_spaces",
-	noyaml => 1,
+	noyamlpm => 1,
 );
 
 # Implicit document start

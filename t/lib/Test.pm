@@ -11,12 +11,26 @@ BEGIN {
 }
 
 # Do we have the authorative YAML to test against
-eval { require YAML; };
-my $COMPARE_YAML = !! $YAML::VERSION;
+eval {
+	require YAML;
+
+	# This doesn't currently work, but is documented to.
+	# So if it ever turns up, use it.
+	$YAML::UseVersion = 1;
+};
+my $HAVE_YAMLPM = !! $YAML::VERSION;
 
 # Do we have YAML::Syck to test against?
-eval { require YAML::Syck; };
-my $COMPARE_SYCK = !! $YAML::Syck::VERSION;
+eval {
+	require YAML::Syck;
+};
+my $HAVE_SYCK = !! $YAML::Syck::VERSION;
+
+# Do we have YAML::XS to test against?
+eval {
+	require YAML::XS;
+};
+my $HAVE_XS = !! $YAML::XS::VERSION;
 
 # 22 tests per call to yaml_ok
 # 4  tests per call to load_ok
@@ -28,7 +42,7 @@ sub count {
 	my $yaml_ok = shift || 0;
 	my $load_ok = shift || 0;
 	my $single  = shift || 0;
-	my $count   = $yaml_ok * 26 + $load_ok * 4 + $single;
+	my $count   = $yaml_ok * 34 + $load_ok * 4 + $single;
 	return $count;
 }
 
@@ -39,10 +53,13 @@ sub yaml_ok {
 	my %options = ( @_ );
 	bless $object, 'YAML::Tiny';
 
-	# If YAML itself is available, test with it first
+	# If YAML itself is available, test with it
 	SKIP: {
-		unless ( $COMPARE_YAML and ! $options{noyaml} ) {
-			Test::More::skip( "Skipping YAML.pm compatibility testing", 8 );
+		unless ( $HAVE_YAMLPM ) {
+			Test::More::skip( "Skipping YAML.pm, not available for testing", 8 );
+		}
+		if ( $options{noyamlpm} ) {
+			Test::More::skip( "Skipping YAML.pm for known-broken feature", 8 );
 		}
 
 		# Test writing with YAML.pm
@@ -73,9 +90,12 @@ sub yaml_ok {
 		}
 	}
 
-	# If YAML::Syck itself is available, test with it first
+	# If YAML::Syck itself is available, test with it
 	SKIP: {
-		unless ( $COMPARE_SYCK and ! $options{nosyck} ) {
+		unless ( $HAVE_SYCK ) {
+			Test::More::skip( "Skipping YAML::Syck, not available for testing", 8 );
+		}
+		if ( $options{nosyck} ) {
 			Test::More::skip( "Skipping YAML::Syck for known-broken feature", 8 );
 		}
 		unless ( @$object == 1 ) {
@@ -107,6 +127,43 @@ sub yaml_ok {
 		SKIP: {
 			Test::More::skip( "Shortcutting after failure", 1 ) if $@;
 			Test::More::is_deeply( \@syck_in, $object, "$name: YAML::Syck parses correctly" );
+		}
+	}
+
+	# If YAML::XS itself is available, test with it
+	SKIP: {
+		unless ( $HAVE_XS ) {
+			Test::More::skip( "Skipping YAML::XS, not available for testing", 8 );
+		}
+		if ( $options{noxs} ) {
+			Test::More::skip( "Skipping YAML::XS for known-broken feature", 8 );
+		}
+
+		# Test writing with YAML::XS
+		my $xs_out = eval { YAML::XS::Dump( @$object ) };
+		Test::More::is( $@, '', "$name: YAML::XS saves without error" );
+		SKIP: {
+			Test::More::skip( "Shortcutting after failure", 4 ) if $@;
+			Test::More::ok(
+				!!(defined $xs_out and ! ref $xs_out),
+				"$name: YAML::XS serializes correctly",
+			);
+			my @xs_round = eval { YAML::XS::Load( $xs_out ) };
+			Test::More::is( $@, '', "$name: YAML::XS round-trips without error" );
+			Test::More::skip( "Shortcutting after failure", 2 ) if $@;
+			my $round = bless [ @xs_round ], 'YAML::Tiny';
+			Test::More::isa_ok( $round, 'YAML::Tiny' );
+			Test::More::is_deeply( $round, $object, "$name: YAML::XS round-trips correctly" );		
+		}
+
+		# Test reading with YAML::XS
+		my $xs_copy = $string;
+		my @xs_in   = eval { YAML::XS::Load( $xs_copy ) };
+		Test::More::is( $@, '', "$name: YAML::XS loads without error" );
+		Test::More::is( $xs_copy, $string, "$name: YAML::XS does not modify the input string" );
+		SKIP: {
+			Test::More::skip( "Shortcutting after failure", 1 ) if $@;
+			Test::More::is_deeply( \@xs_in, $object, "$name: YAML::XS parses correctly" );
 		}
 	}
 

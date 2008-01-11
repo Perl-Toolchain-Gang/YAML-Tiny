@@ -10,12 +10,12 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(20, 0, 10);
+use Test::More tests(23, 0, 10);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
 	freeze   thaw
-	};
+};
 
 
 
@@ -95,20 +95,46 @@ END_YAML
 
 
 #####################################################################
-# Support for YAML document version declarations
+# Support for YAML version directives
 
-# Simple case
+# Simple inline case (comment variant)
 yaml_ok(
 	<<'END_YAML',
 --- #YAML:1.0
 foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
-	'simple_doctype',
-	nosyck => 1,
+	'simple_doctype_comment',
 );
 
-# Multiple documents
+# Simple inline case (comment variant)
+yaml_ok(
+	<<'END_YAML',
+%YAML:1.0
+---
+foo: bar
+END_YAML
+	[ { foo => 'bar' } ],
+	'simple_doctype_comment',
+	noyamlpm => 1,
+	nosyck   => 1,
+	noxs     => 1,
+);
+
+# Simple inline case (comment variant)
+yaml_ok(
+	<<'END_YAML',
+%YAML 1.1
+---
+foo: bar
+END_YAML
+	[ { foo => 'bar' } ],
+	'simple_doctype_comment',
+	noyamlpm => 1,
+	nosyck   => 1,
+);
+
+# Multiple inline documents (comment variant)
 yaml_ok(
 	<<'END_YAML',
 --- #YAML:1.0
@@ -119,8 +145,31 @@ foo: bar
 foo: bar
 END_YAML
 	[ { foo => 'bar' }, [ 1 ], { foo => 'bar' } ],
-	'multi_doctype',
-	nosyck => 1,
+	'multi_doctype_comment',
+	# nosyck => 1,
+);
+
+# Simple pre-document case (comment variant)
+yaml_ok(
+	<<'END_YAML',
+%YAML 1.1
+---
+foo: bar
+END_YAML
+	[ { foo => 'bar' } ],
+	'predocument_percent',
+	noyamlpm => 1,
+);
+
+# Simple pre-document case (comment variant)
+yaml_ok(
+	<<'END_YAML',
+#YAML 1.1
+---
+foo: bar
+END_YAML
+	[ { foo => 'bar' } ],
+	'predocument_comment',
 );
 
 
@@ -258,7 +307,7 @@ build_requires:
 END_YAML
 	[ { foo => 0, requires => undef, build_requires => undef } ],
 	'empty hash keys',
-	noyaml => 1,
+	noyamlpm => 1,
 );
 
 yaml_ok(
@@ -270,7 +319,7 @@ yaml_ok(
 END_YAML
 	[ [ 'foo', undef, undef ] ],
 	'empty array keys',
-	noyaml => 1,
+	noyamlpm => 1,
 );
 
 
@@ -287,7 +336,7 @@ foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
 	'comment header',
-	noyaml => 1,
+	noyamlpm => 1,
 );
 
 
@@ -304,25 +353,6 @@ foo: "foo\\\n\tbar"
 END_YAML
 	[ { foo => "foo\\\n\tbar" } ],
 	'special characters',
-);
-
-
-
-
-
-
-#####################################################################
-# Snippit from the YAML Reference
-
-yaml_ok(
-	<<'END_YAML',
-%YAML 1.1   # Reference card
----
-Collection indicators:
-    '? ' : Key indicator.
-END_YAML
-	[ { 'Collection indicators' => { '? ' => 'Key indicator' } } ],
-	'reference',
 );
 
 

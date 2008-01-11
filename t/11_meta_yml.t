@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(8, 2);
+use Test::More tests(7, 2);
 use YAML::Tiny;
 
 
@@ -197,31 +197,6 @@ END_YAML
 
 #####################################################################
 # File with a YAML header
-
-yaml_ok(
-	<<'END_YAML',
---- %YAML:1.0
-name:     Data-Swap
-version:  0.05
-license:  perl
-distribution_type: module
-requires:
-   perl:  5.6.0
-dynamic_config: 0
-END_YAML
-	[ {
-		name => 'Data-Swap',
-		version => '0.05',
-		license => 'perl',
-		distribution_type => 'module',
-		requires => {
-			perl => '5.6.0',
-		},
-		dynamic_config => '0',
-	} ],
-	'Data-Swap',
-	noyaml => 1,
-);
 
 yaml_ok(
 	<<'END_YAML',
