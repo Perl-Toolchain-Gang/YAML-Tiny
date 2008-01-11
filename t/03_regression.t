@@ -108,19 +108,19 @@ END_YAML
 	nosyck   => 1,
 );
 
-# Simple inline case (comment variant)
+# Simple inline case (percent variant)
 yaml_ok(
 	<<'END_YAML',
 --- %YAML:1.0
 foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
-	'simple_doctype_comment',
+	'simple_doctype_percent',
 	noyamlpm => 1,
 	noxs     => 1,
 );
 
-# Simple inline case (comment variant)
+# Simple header (comment variant)
 yaml_ok(
 	<<'END_YAML',
 %YAML:1.0
@@ -128,7 +128,7 @@ yaml_ok(
 foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
-	'simple_doctype_comment',
+	'predocument_1_0',
 	noyamlpm => 1,
 	nosyck   => 1,
 	noxs     => 1,
@@ -142,7 +142,7 @@ yaml_ok(
 foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
-	'simple_doctype_comment',
+	'predocument_1_1',
 	noyamlpm => 1,
 	nosyck   => 1,
 );
@@ -172,6 +172,7 @@ END_YAML
 	[ { foo => 'bar' } ],
 	'predocument_percent',
 	noyamlpm => 1,
+	nosyck   => 1,
 );
 
 # Simple pre-document case (comment variant)
