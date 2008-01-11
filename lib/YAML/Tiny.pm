@@ -4,7 +4,7 @@ use strict;
 BEGIN {
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.23';
+	$YAML::Tiny::VERSION   = '1.24';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT_OK = qw{
@@ -624,6 +624,10 @@ compiler).
 To restate, L<YAML::Tiny> does B<not> preserve your comments, whitespace, or
 the order of your YAML data. But it should round-trip from Perl structure
 to file and back again just fine.
+
+=head1 YAML TINY SPECIFICATION
+
+
 
 =head1 METHODS
 

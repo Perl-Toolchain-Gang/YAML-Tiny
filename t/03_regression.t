@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(19, 0, 10);
+use Test::More tests(20, 0, 10);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
@@ -306,6 +306,24 @@ END_YAML
 	'special characters',
 );
 
+
+
+
+
+
+#####################################################################
+# Snippit from the YAML Reference
+
+yaml_ok(
+	<<'END_YAML',
+%YAML 1.1   # Reference card
+---
+Collection indicators:
+    '? ' : Key indicator.
+END_YAML
+	[ { 'Collection indicators' => { '? ' => 'Key indicator' } } ],
+	'reference',
+);
 
 
 
