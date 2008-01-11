@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(23, 0, 10);
+use Test::More tests(24, 0, 10);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
@@ -105,6 +105,19 @@ foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
 	'simple_doctype_comment',
+	nosyck   => 1,
+);
+
+# Simple inline case (comment variant)
+yaml_ok(
+	<<'END_YAML',
+--- %YAML:1.0
+foo: bar
+END_YAML
+	[ { foo => 'bar' } ],
+	'simple_doctype_comment',
+	noyamlpm => 1,
+	noxs     => 1,
 );
 
 # Simple inline case (comment variant)
