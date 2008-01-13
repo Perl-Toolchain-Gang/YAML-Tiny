@@ -4,7 +4,7 @@ use strict;
 BEGIN {
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.24_01';
+	$YAML::Tiny::VERSION   = '1.25';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT_OK = qw{
@@ -630,7 +630,281 @@ to file and back again just fine.
 
 =head1 YAML TINY SPECIFICATION
 
+This section of the documentation provides a specification for "YAML Tiny",
+a subset of the YAML specification.
 
+It is based on and described comparatively to the YAML 1.1  Working Draft
+2004-12-28 specification, located at L<http://yaml.org/spec/current.html>.
+
+Terminology and chapter numbers are based on that specification.
+
+=head2 1. Introduction and Goals
+
+The purpose of the YAML Tiny specification is to describe a useful subset of
+the YAML specification that can be used for typical document-oriented
+uses such as configuration files and simple data structure dumps.
+
+Many specification elements that add flexibility or extensibility are
+intentionally removed, as is support for complex datastructures, class
+and object-orientation.
+
+In general, YAML Tiny targets only those data structures available in
+JSON, with the additional limitation that only simple keys are supported.
+
+As a result, all possible YAML Tiny documents should be able to be
+transformed into an equivalent JSON document, although the reverse is
+not necesarily true (but will be true in simple cases).
+
+As a result of these simplifications the YAML Tiny specification should
+be implementable in a relatively small amount of code in any language
+that supports Perl Compatible Regular Expressions (PCRE).
+
+=head2 2. Introduction
+
+YAML Tiny supports three data structures. These are scalars (in a variety
+or forms), block-form sequences and block-form mappings. Flow-style
+sequences and mappings are not supported, with some minor exceptions
+detailed later.
+
+The use of three dashes "---" to indicate the start of a new document is
+supported, and multiple documents per file/stream is allowed.
+
+Both line and inline comments are supported.
+
+Scalars are supported via the plain style, single quote and double quote,
+as well as literal-style and folded-style multi-line scalars.
+
+The use of tags is not supported.
+
+The use of anchors and aliases is not supported.
+
+The use of directives is supported only for the %YAML directive.
+
+=head2 3. Processing YAML Tiny Information
+
+B<Processes>
+
+The YAML specification dictates three-phase serialization and three-phase
+deserialization.
+
+The YAML Tiny specification does not mandate any particular methodology
+or mechanism for parsing.
+
+Any compliant parser is only required to parse a single document at a
+time. The ability to support streaming documents is optional and most
+likely non-typical.
+
+Because anchors and aliases are not supported, the resulting representation
+graph is thus directed but (unlike the main YAML specification) B<acyclic>.
+
+Circular references/pointers are not possible as a result, and any YAML Tiny
+serializer detecting a circulars should error with an appropriate message.
+
+B<Presentation Stream>
+
+YAML Tiny is notionally unicode, but support for unicode is required if the
+underlying language or system being used to implement a parser does not
+support Unicode. If unicode is encountered in this case an error should be
+returned.
+
+B<Loading Failure Points>
+
+YAML Tiny parsers and emitters are not expected to recover from adapt to
+errors. The specific error modality of any implementation is not dictated
+(return codes, exceptions, etc) but is expected to be consistant.
+
+=head2 4. Syntax
+
+B<Character Set>
+
+YAML Tiny streams are implemented primarily using the ASCII character set,
+although the use of Unicode inside strings is allowed if support by the
+implementation.
+
+Specific YAML Tiny encoded document types aiming for maximum compatibility
+should restrict themselves to ASCII.
+
+The escaping and unescaping of the 8-bit YAML escapes is required.
+
+The escaping and unescaping of 16-bit and 32-bit YAML escapes is not
+required.
+
+B<Indicator Characters>
+
+Support for the "~" null/undefined indicator is required.
+
+Implementations may represent this as appropriate for the underlying
+language.
+
+Support for the "-" block sequence indicator is required.
+
+Support for the "?" mapping key indicator is B<not> required.
+
+Support for the ":" mapping value indicator is required.
+
+Support for the "," flow collection indicator is B<not> required.
+
+Support for the "[" flow sequence indicator is B<not> required, with
+one exception (detailed below).
+
+Support for the "]" flow sequence indicator is B<not> required, with
+one exception (detailed below).
+
+Support for the "{" flow mapping indicator is B<not> required, with
+one exception (detailed below).
+
+Support for the "}" flow mapping indicator is B<not> required, with
+one exception (detailed below).
+
+Support for the "#" comment indicator is required.
+
+Support for the "&" anchor indicator is B<not> required.
+
+Support for the "*" alias indicator is B<not> required.
+
+Support for the "!" tag indicator is B<not> required.
+
+Support for the "|" literal block indicator is required.
+
+Support for the ">" folded block indicator is required.
+
+Support for the "'" single quote indicator is required.
+
+Support for the """ double quote indicator is required.
+
+Support for the "%" directive indicator is required, but only
+for the special case of a %YAML version directive before the
+"---" document header, or on the same line as the document header.
+
+For example:
+
+  %YAML 1.1
+  ---
+  - A sequence with a single element
+
+Special Exception:
+
+To provide the ability to support empty sequences
+and mappings, support for the constructs [] (empty sequence) and {}
+(empty mapping) are required.
+
+For example, 
+  
+  %YAML 1.1
+  # A document consisting of only an empty mapping
+  --- {}
+  # A document consisting of only an empty sequence
+  --- []
+  # A document consisting of an empty mapping within a sequence
+  - foo
+  - {}
+  - bar
+
+B<Syntax Primitives>
+
+Other than the empty sequence and mapping cases described above, YAML Tiny
+supports only the indentation-based block-style group of contexts.
+
+All five scalar contexts are supported.
+
+Indentation spaces work as per the YAML specification in all cases.
+
+Comments work as per the YAML specification in all simple cases.
+Support for indented multi-line comments is B<not> required.
+
+Seperation spaces work as per the YAML specification in all cases.
+
+B<YAML Tiny Character Stream>
+
+The only directive supported by the YAML Tiny specification is the
+%YAML language/version identifier. Although detected, this directive
+will have no control over the parsing itself.
+
+The parser must recognise both the YAML 1.0 and YAML 1.1+ formatting
+of this directive (as well as the commented form, although no explicit
+code should be needed to deal with this case, being a comment anyway)
+
+That is, all of the following should be supported.
+
+  --- #YAML:1.0
+  - foo
+
+  %YAML:1.0
+  ---
+  - foo
+
+  % YAML 1.1
+  ---
+  - foo
+
+Support for the %TAG directive is B<not> required.
+
+Support for additional directives is B<not> required.
+
+Support for the document boundary marker "---" is required.
+
+Support for the document boundary market "..." is B<not> required.
+
+If necesary, a document boundary should simply by indicated with a
+"---" marker, with not preceding "..." marker.
+
+Support for empty streams (containing no documents) is required.
+
+Support for implicit document starts is required.
+
+That is, the following must be equivalent.
+
+ # Full form
+ %YAML 1.1
+ ---
+ foo: bar
+
+ # Implicit form
+ foo: bar
+
+B<Nodes>
+
+Support for nodes optional anchor and tag properties are B<not> required.
+
+Support for node anchors is B<not> required.
+
+Supprot for node tags is B<not> required.
+
+Support for alias nodes is B<not> required.
+
+Support for flow nodes is B<not> required.
+
+Support for block nodes is required.
+
+B<Scalar Styles>
+
+Support for all five scalar styles are required as per the YAML
+specification, although support for quoted scalars spanning more
+than one line is B<not> required.
+
+Support for the chomping indicators on multi-line scalar styles
+is required.
+
+B<Collection Styles>
+
+Support for block-style sequences is required.
+
+Support for flow-style sequences is B<not> required.
+
+Support for block-style mappings is required.
+
+Support for flow-style mappings is B<not> required.
+
+Both sequences and mappings should be able to be arbitrarily
+nested.
+
+Support for plain-style mapping keys is required.
+
+Support for quoted keys in mappings is B<not> required.
+
+Support for "?"-indicated explicit keys is B<not> required.
+
+Here endeth the specification.
 
 =head1 METHODS
 
