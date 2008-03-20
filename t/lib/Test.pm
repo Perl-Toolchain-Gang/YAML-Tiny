@@ -19,6 +19,9 @@ eval {
 	$YAML::UseVersion = 1;
 };
 my $HAVE_YAMLPM = !! $YAML::VERSION;
+sub have_yamlpm {
+	$HAVE_YAMLPM;
+}
 
 # Do we have YAML::Syck to test against?
 eval {

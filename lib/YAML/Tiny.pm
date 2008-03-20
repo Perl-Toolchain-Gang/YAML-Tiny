@@ -4,7 +4,7 @@ use strict;
 BEGIN {
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.25';
+	$YAML::Tiny::VERSION   = '1.26';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT_OK = qw{
@@ -359,7 +359,7 @@ sub _write_scalar {
 		$str =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
 		return qq{"$str"};
 	}
-	if ( length($str) == 0 or $str =~ /\s/ ) {
+	if ( length($str) == 0 or $str =~ /(?:^\W|\s)/ ) {
 		$str =~ s/\'/\'\'/;
 		return "'$str'";
 	}
@@ -470,7 +470,12 @@ sub Dump {
 sub Load {
 	my $self = YAML::Tiny->read_string(@_)
 		or Carp::croak("Failed to load YAML document from string");
-	return @$self;	
+	if ( wantarray ) {
+		return @$self;
+	} else {
+		# To match YAML.pm, return the LAST document
+		return $self->[-1];
+	}
 }
 
 BEGIN {
@@ -662,7 +667,7 @@ that supports Perl Compatible Regular Expressions (PCRE).
 =head2 2. Introduction
 
 YAML Tiny supports three data structures. These are scalars (in a variety
-or forms), block-form sequences and block-form mappings. Flow-style
+of forms), block-form sequences and block-form mappings. Flow-style
 sequences and mappings are not supported, with some minor exceptions
 detailed later.
 
@@ -697,8 +702,8 @@ likely non-typical.
 Because anchors and aliases are not supported, the resulting representation
 graph is thus directed but (unlike the main YAML specification) B<acyclic>.
 
-Circular references/pointers are not possible as a result, and any YAML Tiny
-serializer detecting a circulars should error with an appropriate message.
+Circular references/pointers are not possible, and any YAML Tiny serializer
+detecting a circulars should error with an appropriate message.
 
 B<Presentation Stream>
 
@@ -905,6 +910,18 @@ Support for quoted keys in mappings is B<not> required.
 Support for "?"-indicated explicit keys is B<not> required.
 
 Here endeth the specification.
+
+=head2 Additional Perl-Specific Notes
+
+For some Perl applications, it's important to know if you really have a
+number and not a string.
+
+That is, in some contexts is important that 3 the number is distinctive
+from "3" the string.
+
+Because even Perl itself is not trivially able to understand the difference
+(certainly without XS-based modules) Perl implementations of the YAML Tiny
+specification are not required to retain the distinctiveness of 3 vs "3".
 
 =head1 METHODS
 

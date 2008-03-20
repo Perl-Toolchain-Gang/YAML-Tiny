@@ -1,5 +1,12 @@
 Revision history for Perl extension YAML::Tiny
 
+1.26  Thu 20 Mar 2008
+	- Added extra test cases to validate RT bugs that were fixed
+	  previous, but not closed at the time.
+	- Always quote when serialising anything that starts with a non-word
+	- YAML::Tiny::Load is now fully compatible with YAML.pm in scalar
+	  context (returns the LAST parsed document).
+
 1.25  Mon 14 Jan 2008
 	- Wrote the specification section
 

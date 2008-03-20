@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(24, 0, 10);
+use Test::More tests(30, 0, 10);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
@@ -395,4 +395,141 @@ SCOPE: {
 	);
 }	
 
-exit(0);
+
+
+
+
+#####################################################################
+# Confirm we can read the synopsis
+
+yaml_ok(
+	<<'END_YAML',
+---
+rootproperty: blah
+section:
+  one: two
+  three: four
+  Foo: Bar
+  empty: ~
+END_YAML
+	[ {
+		rootproperty => 'blah',
+		section      => {
+			one   => 'two',
+			three => 'four',
+			Foo   => 'Bar',
+			empty => undef,
+		},
+	} ],
+	'synopsis',
+);
+
+
+
+
+
+#####################################################################
+# Unprintable Characters
+
+yaml_ok(
+       "--- \"foo\\n\\x00\"\n",
+       [ "foo\n\0" ],
+       'unprintable',
+);
+
+
+
+
+
+#####################################################################
+# Empty Quote Line
+
+yaml_ok(
+	<<'END_YAML',
+---
+- foo
+#
+- bar
+END_YAML
+	[ [ "foo", "bar" ] ],
+);
+
+
+
+
+
+#####################################################################
+# Indentation after empty hash value
+
+yaml_ok(
+	<<'END_YAML',
+---
+Test:
+  optmods:
+    Bad: 0
+    Foo: 1
+    Long: 0
+  version: 5
+Test_IncludeA:
+  optmods:
+Test_IncludeB:
+  optmods:
+_meta:
+  name: 'test profile'
+  note: 'note this test profile'
+END_YAML
+	[ {
+		Test => {
+			optmods => {
+				Bad => 0,
+				Foo => 1,
+				Long => 0,
+			},
+			version => 5,
+		},
+		Test_IncludeA => {
+			optmods => undef,
+		},
+		Test_IncludeB => {
+			optmods => undef,
+		},
+		_meta => {
+			name => 'test profile',
+			note => 'note this test profile',
+		},
+	} ],
+);
+
+
+
+
+
+#####################################################################
+# Spaces in the Key
+
+yaml_ok(
+	<<'END_YAML',
+---
+the key: the value
+END_YAML
+	[ { 'the key' => 'the value' } ],
+);
+
+
+
+
+
+#####################################################################
+# Ticker #32402
+
+# Tests a particular pathological case
+
+yaml_ok(
+	<<'END_YAML',
+---
+- value
+- '><'
+END_YAML
+	[ [ 'value', '><' ] ],
+	'Pathological >< case',
+);
