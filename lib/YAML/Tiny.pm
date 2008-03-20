@@ -98,7 +98,7 @@ sub read_string {
 			push @$self, $document;
 			$self->_read_array( $document, [ 0 ], \@lines );
 
-		} elsif ( $lines[0] =~ /^(\s*)\w/ ) {
+		} elsif ( $lines[0] =~ /^(\s*)\S/ ) {
 			# A hash at the root
 			my $document = { };
 			push @$self, $document;
@@ -221,7 +221,7 @@ sub _read_array {
 					$self->_read_array( $array->[-1], [ @$indent, $indent2 ], $lines );
 				}
 
-			} elsif ( $lines->[0] =~ /^(\s*)\w/ ) {
+			} elsif ( $lines->[0] =~ /^(\s*)\S/ ) {
 				push @$array, { };
 				$self->_read_hash( $array->[-1], [ @$indent, length("$1") ], $lines );
 
