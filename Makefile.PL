@@ -1,7 +1,7 @@
 use strict;
 BEGIN {
 	require 5.003_96;
-	$main::VERSION = '1.26';
+	$main::VERSION = '1.27';
 }
 use ExtUtils::MakeMaker;
 
@@ -20,8 +20,5 @@ WriteMakefile(
 	},
 	($] >= 5.005 ? (
 		AUTHOR  => 'Adam Kennedy <adamk@cpan.org>',
-	) : ()),
-	($ExtUtils::MakeMaker::VERSION ge '6.30_00' ? (
-		LICENSE => 'perl',
 	) : ()),
 );

@@ -4,7 +4,7 @@ use strict;
 BEGIN {
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.26';
+	$YAML::Tiny::VERSION   = '1.27';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT_OK = qw{
@@ -473,7 +473,7 @@ sub Load {
 	if ( wantarray ) {
 		return @$self;
 	} else {
-		# To match YAML.pm, return the LAST document
+		# To match YAML.pm, return the last document
 		return $self->[-1];
 	}
 }
@@ -491,7 +491,12 @@ sub DumpFile {
 sub LoadFile {
 	my $self = YAML::Tiny->read($_[0])
 		or Carp::croak("Failed to load YAML document from '" . ($_[0] || '') . "'");
-	return @$self;
+	if ( wantarray ) {
+		return @$self;
+	} else {
+		# To match YAML.pm, return the last document
+		return $self->[-1];
+	}
 }
 
 
