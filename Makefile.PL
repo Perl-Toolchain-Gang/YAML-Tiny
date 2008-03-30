@@ -21,4 +21,7 @@ WriteMakefile(
 	($] >= 5.005 ? (
 		AUTHOR  => 'Adam Kennedy <adamk@cpan.org>',
 	) : ()),
+	($ExtUtils::MakeMaker::VERSION ge '6.42' ? (
+		LICENSE => 'perl',
+	) : ()),
 );
