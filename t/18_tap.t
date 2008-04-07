@@ -35,6 +35,7 @@ yaml_ok(
 	[ { foo => "bar" } ],
 	'document_end_hash',
 	'noyamlpm' => 1,
+	'nosyck'   => 1,
 );
 
 # Document ending (array)
