@@ -1,5 +1,9 @@
 Revision history for Perl extension YAML-Tiny
 
+1.28_01 Sat  5 Apr 2008
+	- Adding support for document terminators
+	  (To support YAML embedded in TAP streams)
+
 1.27  Mon 31 Mar 2008
 	- Skip 04_scalar.t if no YAML.pm
 	- Implement YAML compatibility + tests for LoadFile

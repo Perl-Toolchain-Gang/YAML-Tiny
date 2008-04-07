@@ -4,7 +4,7 @@ use strict;
 BEGIN {
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.27';
+	$YAML::Tiny::VERSION   = '1.28_01';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT_OK = qw{
@@ -88,9 +88,12 @@ sub read_string {
 			}
 		}
 
-		if ( ! @lines or $lines[0] =~ /^---\s*(?:(.+)\s*)?$/ ) {
+		if ( ! @lines or $lines[0] =~ /^(?:---|\.\.\.)/ ) {
 			# A naked document
 			push @$self, undef;
+			while ( @lines and $lines[0] !~ /^---/ ) {
+				shift @lines;
+			}
 
 		} elsif ( $lines[0] =~ /^\s*\-/ ) {
 			# An array at the root
@@ -182,7 +185,12 @@ sub _read_array {
 
 	while ( @$lines ) {
 		# Check for a new document
-		return 1 if $lines->[0] =~ /^---\s*(?:(.+)\s*)?$/;
+		if ( $lines->[0] =~ /^(?:---|\.\.\.)/ ) {
+			while ( @$lines and $lines->[0] !~ /^---/ ) {
+				shift @$lines;
+			}
+			return 1;
+		}
 
 		# Check the indent level
 		$lines->[0] =~ /^(\s*)/;
@@ -243,7 +251,12 @@ sub _read_hash {
 
 	while ( @$lines ) {
 		# Check for a new document
-		return 1 if $lines->[0] =~ /^---\s*(?:(.+)\s*)?$/;
+		if ( $lines->[0] =~ /^(?:---|\.\.\.)/ ) {
+			while ( @$lines and $lines->[0] !~ /^---/ ) {
+				shift @$lines;
+			}
+			return 1;
+		}
 
 		# Check the indent level
 		$lines->[0] =~ /^(\s*)/;
