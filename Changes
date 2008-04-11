@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML-Tiny
 
+1.29  Sat 12 Apr 2008
+	- CPAN Testers passes ok, moving to production version
+
 1.28_01 Sat  5 Apr 2008
 	- Adding support for document terminators
 	  (To support YAML embedded in TAP streams)
