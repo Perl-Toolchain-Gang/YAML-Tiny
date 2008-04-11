@@ -50,9 +50,13 @@ sub read {
 	# Slurp in the file
 	local $/ = undef;
 	local *CFG;
-	open( CFG, $file ) or return $class->_error( "Failed to open file '$file': $!" );
+	unless ( open(CFG, $file) ) {
+		return $class->_error( "Failed to open file '$file': $!" );
+	}
 	my $contents = <CFG>;
-	close( CFG ) or return $class->_error( "Failed to close file '$file': $!" );
+	unless ( close(CFG) ) {
+		return $class->_error( "Failed to close file '$file': $!" );
+	}
 
 	$class->read_string( $contents );
 }
