@@ -1,7 +1,7 @@
 use strict;
 BEGIN {
 	require 5.003_96;
-	$main::VERSION = '1.29';
+	$main::VERSION = '1.30';
 }
 use ExtUtils::MakeMaker;
 
@@ -13,8 +13,8 @@ WriteMakefile(
 		'File::Spec' => '0.80',
 		'Test::More' => '0.47',
 		($ENV{AUTOMATED_TESTING} ? (
-			'YAML'       => '0.62',
-			'YAML::Syck' => '0.84',
+			'YAML'       => '0.66',
+			'YAML::Syck' => '1.04',
 			'YAML::XS'   => '0.26',
 		) : ()),
 	},
