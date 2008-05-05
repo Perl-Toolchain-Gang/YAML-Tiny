@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(30, 0, 10);
+use Test::More tests(31, 0, 10);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
