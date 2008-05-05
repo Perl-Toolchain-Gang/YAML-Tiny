@@ -16,6 +16,4 @@ ok( $] >= 5.004, "Your perl is new enough" );
 
 # Does the module load
 use_ok( 'YAML::Tiny' );
-use_ok( 't::lib::Test'    );
-
-exit(0);
+use_ok( 't::lib::Test' );

@@ -7,7 +7,7 @@ use Test::More ();
 use vars qw{@ISA @EXPORT};
 BEGIN {
 	@ISA    = qw{ Exporter };
-	@EXPORT = qw{ tests  yaml_ok  slurp  load_ok };
+	@EXPORT = qw{ tests  yaml_ok  yaml_error slurp  load_ok };
 }
 
 # Do we have the authorative YAML to test against
@@ -206,6 +206,12 @@ sub yaml_ok {
 
 	# Return true as a convenience
 	return 1;
+}
+
+sub yaml_error {
+	my $string = shift;
+	my $yaml   = eval { YAML::Tiny->read_string( $string ); };
+	Test::More::like( $@, qr/$_[0]/, "YAML::Tiny throws expected error" );
 }
 
 sub slurp {

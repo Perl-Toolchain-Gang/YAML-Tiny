@@ -4,7 +4,7 @@ use strict;
 BEGIN {
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.29';
+	$YAML::Tiny::VERSION   = '1.30';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT_OK = qw{
@@ -142,20 +142,11 @@ sub _read_scalar {
 		$str =~ s/\\([never\\fartz]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
 		return $str;
 	}
-	if ( $string =~ /^['"]/ ) {
-		# A quote with folding... we don't support that
-		die "YAML::Tiny does not support multi-line quoted scalars";
-	}
 
-	# Null hash and array
-	if ( $string eq '{}' ) {
-		# Null hash
-		return {};		
-	}
-	if ( $string eq '[]' ) {
-		# Null array
-		return [];
-	}
+	# Special cases
+	die "Unsupported YAML feature" if $string =~ /^['"!&]/;
+	return {} if $string eq '{}';
+	return [] if $string eq '[]';
 
 	# Regular unquoted string
 	return $string unless $string =~ /^[>|]/;
@@ -272,6 +263,7 @@ sub _read_hash {
 
 		# Get the key
 		unless ( $lines->[0] =~ s/^\s*([^\'\" ][^\n]*?)\s*:(\s+|$)// ) {
+			die "Unsupported YAML feature" if $lines->[0] =~ /^\s*[?'"]/;
 			die "Bad or unsupported hash line";
 		}
 		my $key = $1;

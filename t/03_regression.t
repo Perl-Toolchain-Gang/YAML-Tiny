@@ -267,7 +267,11 @@ arr:
   - ~
   - 'bar'  
 END_YAML
-	[ { abstract => 'Generate fractal curves', foo => undef, arr => [ 'foo', undef, 'bar' ] } ],
+	[ {
+		abstract => 'Generate fractal curves',
+		foo      => undef,
+		arr      => [ 'foo', undef, 'bar' ],
+	} ],
 	'trailing whitespace',
 );
 
@@ -532,4 +536,19 @@ yaml_ok(
 END_YAML
 	[ [ 'value', '><' ] ],
 	'Pathological >< case',
+);
+
+
+
+
+
+#####################################################################
+# Special Characters
+
+yaml_ok(
+	<<'END_YAML',
+---
+- "Ingy d\xC3\xB6t Net"
+END_YAML
+	[ [ "Ingy d\xC3\xB6t Net" ] ],
 );
