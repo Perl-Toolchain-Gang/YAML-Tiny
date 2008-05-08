@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML-Tiny
 
+1.31  Thu  8 May 2008
+	- Emergency bugfix release
+
 1.30  Sun  4 May 2008
 	- Better error reporting of unsupported features
 	- Heavily bump automated testing deps to remove false errors
