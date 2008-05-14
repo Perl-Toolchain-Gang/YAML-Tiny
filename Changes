@@ -1,5 +1,10 @@
 Revision history for Perl extension YAML-Tiny
 
+1.32  Wed 14 May 2008
+	- Adding a test to check for correct exceptions
+	- ONLY do comparative tests when the modules to compare to are current.
+	  (Prevents false failures in some cases)
+
 1.31  Thu  8 May 2008
 	- Emergency bugfix release
 
