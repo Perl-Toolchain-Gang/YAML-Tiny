@@ -7,11 +7,13 @@ BEGIN {
 	$YAML::Tiny::VERSION   = '1.32';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
+	@YAML::Tiny::EXPORT = qw{
+		Load Dump
+	};
 	@YAML::Tiny::EXPORT_OK = qw{
-		Load     Dump
 		LoadFile DumpFile
 		freeze   thaw
-		};
+	};
 }
 
 my $ESCAPE_CHAR = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f\"\n]';
