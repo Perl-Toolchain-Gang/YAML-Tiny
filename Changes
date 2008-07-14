@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML-Tiny
 
+1.33  ???
+	- Export Load and Dump functions by default.
+
 1.32  Wed 14 May 2008
 	- Adding a test to check for correct exceptions
 	- ONLY do comparative tests when the modules to compare to are current.
