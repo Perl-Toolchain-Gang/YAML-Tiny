@@ -12,6 +12,7 @@ use Test::More tests => 6;
 use YAML::Tiny;
 
 
+
 ok defined &main::Load, 'Load is exported';
 ok defined &main::Dump, 'Dump is exported';
 ok not(defined &main::LoadFile), 'Load is exported';
