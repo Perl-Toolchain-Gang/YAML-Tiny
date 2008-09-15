@@ -15,7 +15,7 @@ BEGIN {
 	if ( t::lib::Test->have_yamlpm ) {
 		plan( tests => 18 );
 	} else {
-		plan( skip_all => 'Requites YAML.pm' );
+		plan( skip_all => 'Requires YAML.pm' );
 		exit(0);
 	}
 }
