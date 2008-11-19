@@ -4,7 +4,7 @@ use strict;
 BEGIN {
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.33';
+	$YAML::Tiny::VERSION   = '1.34_01';
 	$YAML::Tiny::errstr    = '';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT = qw{
@@ -334,7 +334,7 @@ sub write_string {
 
 		# A scalar document
 		} elsif ( ! ref $cursor ) {
-			$lines[-1] .= ' ' . $self->_write_scalar( $cursor );
+			$lines[-1] .= ' ' . $self->_write_scalar( $cursor, $indent );
 
 		# A list at the root
 		} elsif ( ref $cursor eq 'ARRAY' ) {
@@ -387,7 +387,7 @@ sub _write_array {
 		my $line = ('  ' x $indent) . '-';
 		my $type = ref $el;
 		if ( ! $type ) {
-			$line .= ' ' . $self->_write_scalar( $el );
+			$line .= ' ' . $self->_write_scalar( $el, $indent + 1 );
 			push @lines, $line;
 
 		} elsif ( $type eq 'ARRAY' ) {
@@ -427,7 +427,7 @@ sub _write_hash {
 		my $line = ('  ' x $indent) . "$name:";
 		my $type = ref $el;
 		if ( ! $type ) {
-			$line .= ' ' . $self->_write_scalar( $el );
+			$line .= ' ' . $self->_write_scalar( $el, $indent + 1 );
 			push @lines, $line;
 
 		} elsif ( $type eq 'ARRAY' ) {

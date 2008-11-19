@@ -32,7 +32,7 @@ eval {
 my $HAVE_SYCK = !! (
 	$YAML::Syck::VERSION
 	and
-	$YAML::Syck::VERSION >= 1.04
+	$YAML::Syck::VERSION >= 1.05
 );
 sub have_syck { $HAVE_SYCK }
 
@@ -43,7 +43,7 @@ eval {
 my $HAVE_XS = !! (
 	$YAML::XS::VERSION
 	and
-	$YAML::XS::VERSION >= 0.26
+	$YAML::XS::VERSION >= 0.29
 );
 sub have_xs{ $HAVE_XS }
 
