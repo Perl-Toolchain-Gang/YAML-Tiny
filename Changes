@@ -1,5 +1,9 @@
 Revision history for Perl extension YAML-Tiny
 
+1.35 Wed 17 Dec 2008
+	- Production release for changes in 1.34_01
+	- No other changes
+
 1.34_01 Wed 19 Nov 2008
 	- Improving sub-classability by passing the indent level through
 	  to the ->_write_scalar method.
