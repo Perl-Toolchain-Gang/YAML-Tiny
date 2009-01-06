@@ -286,4 +286,110 @@ SCOPE: {
 	);
 }
 
+SCOPE: {
+	my $content = load_ok(
+		'Spreadsheet-Read.yml',
+		catfile( 't', 'data', 'Spreadsheet-Read.yml' ),
+		100
+	);
+	yaml_ok(
+		$content,
+		[ {
+  'resources' => {
+    'license' => 'http://dev.perl.org/licenses/'
+  },
+  'meta-spec' => {
+    'version' => '1.4',
+    'url' => 'http://module-build.sourceforge.net/META-spec-v1.4.html'
+  },
+  'distribution_type' => 'module',
+  'generated_by' => 'Author',
+  'version' => 'VERSION',
+  'name' => 'Read',
+  'author' => [
+    'H.Merijn Brand <h.m.brand@xs4all.nl>'
+  ],
+  'license' => 'perl',
+  'build_requires' => {
+    'Test::More' => '0',
+    'Test::Harness' => '0',
+    'perl' => '5.006'
+  },
+  'provides' => {
+    'Spreadsheet::Read' => {
+      'version' => 'VERSION',
+      'file' => 'Read.pm'
+    }
+  },
+  'optional_features' => [
+    {
+      'opt_csv' => {
+        'requires' => {
+          'Text::CSV_XS' => '0.23'
+        },
+        'recommends' => {
+          'Text::CSV_PP' => '1.10',
+          'Text::CSV_XS' => '0.58',
+          'Text::CSV' => '1.10'
+        },
+        'description' => 'Provides parsing of CSV streams'
+      }
+    },
+    {
+      'opt_excel' => {
+        'requires' => {
+          'Spreadsheet::ParseExcel' => '0.26',
+          'Spreadsheet::ParseExcel::FmtDefault' => '0'
+        },
+        'recommends' => {
+          'Spreadsheet::ParseExcel' => '0.42'
+        },
+        'description' => 'Provides parsing of Microsoft Excel files'
+      }
+    },
+    {
+      'opt_excelx' => {
+        'requires' => {
+          'Spreadsheet::XLSX' => '0.07'
+        },
+        'description' => 'Provides parsing of Microsoft Excel 2007 files'
+      }
+    },
+    {
+      'opt_oo' => {
+        'requires' => {
+          'Spreadsheet::ReadSXC' => '0.2'
+        },
+        'description' => 'Provides parsing of OpenOffice spreadsheets'
+      }
+    },
+    {
+      'opt_tools' => {
+        'recommends' => {
+          'Tk::TableMatrix::Spreadsheet' => '0',
+          'Tk::NoteBook' => '0',
+          'Tk' => '0'
+        },
+        'description' => 'Spreadsheet tools'
+      }
+    }
+  ],
+  'requires' => {
+    'perl' => '5.006',
+    'Data::Dumper' => '0',
+    'Exporter' => '0',
+    'Carp' => '0'
+  },
+  'recommends' => {
+    'perl' => '5.008005',
+    'IO::Scalar' => '0',
+    'File::Temp' => '0.14'
+  },
+  'abstract' => 'Meta-Wrapper for reading spreadsheet data'
+		} ],
+		'Spreadsheet-Read',
+		noyamlpm => 1,
+	);
+}
+
 exit(0);
