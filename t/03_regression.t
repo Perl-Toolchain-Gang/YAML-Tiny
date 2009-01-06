@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(30, 0, 10);
+use Test::More tests(31, 0, 10);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
@@ -552,3 +552,23 @@ END_YAML
 #END_YAML
 #	[ [ "Ingy d\xC3\xB6t Net" ] ],
 #);
+
+
+
+
+
+
+######################################################################
+# Non-Indenting Sub-List
+
+yaml_ok(
+	<<'END_YAML',
+---
+foo:
+- list
+bar: value
+END_YAML
+	[ { foo => [ 'list' ], bar => 'value' } ],
+	'Non-indenting sub-list',
+	noyamlpm => 1,
+);
