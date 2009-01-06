@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML-Tiny
 
+1.36 Wed  7 Jan 2009
+	- Fixing missing feature reported by H.Merijn Brand
+
 1.35 Wed 17 Dec 2008
 	- Production release for changes in 1.34_01
 	- No other changes
