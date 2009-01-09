@@ -86,7 +86,7 @@ generated_by: ExtUtils::MakeMaker version 6.30
 END_YAML
 	[ {
 		name              => 'ITS-SIN-FIDS-Content-XML',
-		version           => 0.01,
+		version           => "0.01", # this kludge is to prevent floating point comparison errors
 		version_from      => 'lib/ITS/SIN/FIDS/Content/XML.pm',
 		installdirs       => 'site',
 		requires          => {
