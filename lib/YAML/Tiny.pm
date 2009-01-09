@@ -18,6 +18,20 @@ BEGIN {
 
 my $ESCAPE_CHAR = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f\"\n]';
 
+my %BOM = (
+    "\357\273\277" => 'UTF-8',
+    "\376\377"     => 'UTF-16BE',
+    "\377\376"     => 'UTF-16LE',
+    "\0\0\376\377" => 'UTF-32BE',
+    "\377\376\0\0" => 'UTF-32LE'
+);
+
+sub BOM_MIN_LENGTH () { 2 }
+sub BOM_MAX_LENGTH () { 4 }
+sub HAVE_UTF8      () { $] >= 5.007003 }
+
+BEGIN { require utf8 if HAVE_UTF8 }
+
 # Escapes for unprintable characters
 my @UNPRINTABLE = qw(
 	z    x01  x02  x03  x04  x05  x06  a
@@ -68,16 +82,30 @@ sub read_string {
 	my $class = ref $_[0] ? ref shift : shift;
 	my $self  = bless [], $class;
 
+	my $str = $_[0];
+
 	# Handle special cases
-	return undef unless defined $_[0];
-	return $self unless length $_[0];
-	unless ( $_[0] =~ /[\012\015]+$/ ) {
+	return undef unless defined $str;
+
+	foreach my $length ( BOM_MIN_LENGTH .. BOM_MAX_LENGTH ) {
+		if ( my $enc = $BOM{substr($str, 0, $length)} ) {
+			return $class->_error("Stream has a non UTF-8 BOM") unless $enc eq 'UTF-8';
+			substr($str, 0, $length) = ''; # strip UTF-8 bom if found, we'll just ignore it
+		}
+	}
+
+	if ( HAVE_UTF8 ) {
+		utf8::decode($str); # try to decode as utf8
+	}
+
+	return $self unless length $str;
+	unless ( $str =~ /[\012\015]+$/ ) {
 		return $class->_error("Stream does not end with newline character");
 	}
 
 	# Split the file into lines
 	my @lines = grep { ! /^\s*(?:\#.*)?$/ }
-	            split /(?:\015{1,2}\012|\015|\012)/, shift;
+	            split /(?:\015{1,2}\012|\015|\012)/, $str;
 
 	# Strip the initial YAML header
 	@lines and $lines[0] =~ /^\%YAML[: ][\d\.]+.*$/ and shift @lines;
