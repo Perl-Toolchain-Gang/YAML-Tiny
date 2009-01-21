@@ -1,6 +1,8 @@
 package YAML::Tiny;
 
 use strict;
+use Carp ();
+
 BEGIN {
 	require 5.004;
 	require Exporter;
