@@ -230,7 +230,7 @@ sub slurp {
 	my $file = shift;
 	local $/ = undef;
 	open( FILE, " $file" ) or die "open($file) failed: $!";
-	binmode(FILE); # disable perl's BOM interpretation
+	# binmode(FILE); # disable perl's BOM interpretation
 	my $source = <FILE>;
 	close( FILE ) or die "close($file) failed: $!";
 	$source;

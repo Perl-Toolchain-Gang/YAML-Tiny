@@ -391,5 +391,3 @@ SCOPE: {
 		noyamlpm => 1,
 	);
 }
-
-exit(0);
