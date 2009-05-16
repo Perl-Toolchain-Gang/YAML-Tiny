@@ -317,8 +317,8 @@ sub _read_hash {
 
 		# Get the key
 		unless ( $lines->[0] =~ s/^\s*([^\'\" ][^\n]*?)\s*:(\s+|$)// ) {
-			die "Unsupported YAML feature" if $lines->[0] =~ /^\s*[?\'\"]/;
-			die "Bad or unsupported hash line";
+			die "Unsupported YAML feature at '$lines->[0]'" if $lines->[0] =~ /^\s*[?\'\"]/;
+			die "Bad or unsupported hash line '$lines->[0]'";
 		}
 		my $key = $1;
 
