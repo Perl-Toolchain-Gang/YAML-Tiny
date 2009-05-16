@@ -21,7 +21,7 @@ use YAML::Tiny;
 #####################################################################
 # Testing that Perl::Smith config files work
 
-my $toolbar_file = catfile( 't', 'data', 'toolbar.yml' );
+my $toolbar_file = catfile( test_data_directory(), 'toolbar.yml' );
 my $toolbar      = load_ok( 'toolbar.yml', $toolbar_file, 100 );
 
 yaml_ok(

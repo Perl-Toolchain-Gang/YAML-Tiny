@@ -20,7 +20,7 @@ use YAML::Tiny;
 #####################################################################
 # Testing that Perl::Smith config files work
 
-my $vanilla_file = catfile( 't', 'data', 'vanilla.yml' );
+my $vanilla_file = catfile( test_data_directory(), 'vanilla.yml' );
 my $vanilla      = load_ok( 'yanilla.yml', $vanilla_file, 1000 );
 
 yaml_ok(

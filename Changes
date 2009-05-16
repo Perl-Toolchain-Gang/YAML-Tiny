@@ -1,6 +1,10 @@
 Revision history for Perl extension YAML-Tiny
 
-1.37 to be released
+1.38 Sat 16 May 2009
+	- Moving the test suite style closer to Parse::CPAN::Meta
+	- Fixed Changes file date for 1.37 :)
+
+1.37 Sat 16 May 2009
 	- Call $self->_error instead of $class->_error when we can
 	- Refactoring away some of the code other people have been
 	  contributing lately that most certainly NOT ::Tiny style.

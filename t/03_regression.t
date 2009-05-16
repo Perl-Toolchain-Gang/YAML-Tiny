@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(35, 0, 10);
+use Test::More tests(37, 0, 10);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
@@ -424,9 +424,8 @@ SCOPE: {
 	   $string = eval { $circ->write_string; };
 	is( $string, undef, '->write_string does not return a value' );
 	ok( $@, 'Error string is defined' );
-	like(
-		$@,
-		qr/does not support circular references/,
+	ok(
+		$@ =~ /does not support circular references/,
 		'Got the expected error message',
 	);
 }	
@@ -636,4 +635,22 @@ yaml_ok(
 	"--- 'A\\B \\C'\n",
 	[ "A\\B \\C" ],
 	'Multiple escaping of escape with whitespace ok',
+);
+
+
+
+
+
+######################################################################
+# Check illegal characters that are in legal places
+
+yaml_ok(
+	"--- 'Wow!'\n",
+	[ "Wow!" ],
+	'Bang in a quote',
+);
+yaml_ok(
+	"--- 'This&that'\n",
+	[ "This&that" ],
+	'Ampersand in a quote',
 );

@@ -6,12 +6,16 @@ use Carp ();
 # UTF Support?
 sub HAVE_UTF8 () { $] >= 5.007003 }
 BEGIN {
-	require utf8 if HAVE_UTF8;
+	if ( HAVE_UTF8 ) {
+		# The string eval helps hide this from Test::MinimumVersion
+		eval "require utf8;";
+		die "Failed to load UTF-8 support" if $@;
+	}
 
 	# Class structure
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.37';
+	$YAML::Tiny::VERSION   = '1.38';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
 	@YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
@@ -39,6 +43,13 @@ my %UNESCAPES = (
 	n => "\x0a", v => "\x0b", f    => "\x0c",
 	r => "\x0d", e => "\x1b", '\\' => '\\',
 );
+
+
+
+
+
+#####################################################################
+# Implementation
 
 # Create an empty YAML::Tiny object
 sub new {
@@ -74,7 +85,10 @@ sub read {
 sub read_string {
 	my $class  = ref $_[0] ? ref shift : shift;
 	my $self   = bless [], $class;
-	my $string = defined($_[0]) ? shift : return undef;
+	my $string = $_[0];
+	unless ( defined $string ) {
+		return $self->_error("Did not provide a string to load");
+	}
 
 	# Byte order marks
 	# NOTE: Keeping this here to educate maintainers

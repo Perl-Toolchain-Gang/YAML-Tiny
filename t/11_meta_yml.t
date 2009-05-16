@@ -234,7 +234,7 @@ END_YAML
 SCOPE: {
 	my $content = load_ok(
 		'Template-Provider-Unicode-Japanese.yml',
-		catfile( 't', 'data', 'Template-Provider-Unicode-Japanese.yml' ),
+		catfile( test_data_directory(), 'Template-Provider-Unicode-Japanese.yml' ),
 		100
 	);
 	yaml_ok(
@@ -269,7 +269,7 @@ SCOPE: {
 SCOPE: {
 	my $content = load_ok(
 		'HTML-WebDAO.yml',
-		catfile( 't', 'data', 'HTML-WebDAO.yml' ),
+		catfile( test_data_directory(), 'HTML-WebDAO.yml' ),
 		100
 	);
 	yaml_ok(
@@ -291,7 +291,7 @@ SCOPE: {
 SCOPE: {
 	my $content = load_ok(
 		'Spreadsheet-Read.yml',
-		catfile( 't', 'data', 'Spreadsheet-Read.yml' ),
+		catfile( test_data_directory(), 'Spreadsheet-Read.yml' ),
 		100
 	);
 	yaml_ok(

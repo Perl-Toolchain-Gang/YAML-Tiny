@@ -2,12 +2,16 @@ package t::lib::Test;
 
 use strict;
 use Exporter   ();
+use File::Spec ();
 use Test::More ();
 
 use vars qw{@ISA @EXPORT};
 BEGIN {
 	@ISA    = qw{ Exporter };
-	@EXPORT = qw{ tests  yaml_ok  yaml_error slurp  load_ok };
+	@EXPORT = qw{
+		tests  yaml_ok  yaml_error slurp  load_ok
+		test_data_directory
+	};
 }
 
 # Do we have the authorative YAML to test against
@@ -62,6 +66,10 @@ sub have_xs{ $HAVE_XS }
 # 4  tests per call to load_ok
 sub tests {
 	return ( tests => count(@_) );
+}
+
+sub test_data_directory {
+	return File::Spec->catdir( 't', 'data' );
 }
 
 sub count {
@@ -267,7 +275,7 @@ sub yaml_ok {
 sub yaml_error {
 	my $string = shift;
 	my $yaml   = eval { YAML::Tiny->read_string( $string ); };
-	Test::More::like( $@, qr/$_[0]/, "YAML::Tiny throws expected error" );
+	Test::More::ok( $@ =~ /$_[0]/, "TAML::Tiny throws expected error" );
 }
 
 sub slurp {
