@@ -28,5 +28,3 @@ END_YAML
 	[ [], {} ],
 	'Empty references',
 );
-
-exit(0);

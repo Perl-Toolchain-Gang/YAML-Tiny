@@ -25,6 +25,17 @@ my $HAVE_YAMLPM = !! (
 );
 sub have_yamlpm { $HAVE_YAMLPM }
 
+# Do we have YAML::Perl to test against?
+eval {
+	require YAML::Perl;
+};
+my $HAVE_YAMLPERL = !! (
+	$YAML::Perl::VERSION
+	and
+	$YAML::Perl::VERSION >= 0.02
+);
+sub have_yamlperl { $HAVE_YAMLPERL }
+
 # Do we have YAML::Syck to test against?
 eval {
 	require YAML::Syck;
@@ -57,7 +68,7 @@ sub count {
 	my $yaml_ok = shift || 0;
 	my $load_ok = shift || 0;
 	my $single  = shift || 0;
-	my $count   = $yaml_ok * 34 + $load_ok * 4 + $single;
+	my $count   = $yaml_ok * 38 + $load_ok * 4 + $single;
 	return $count;
 }
 
@@ -71,10 +82,10 @@ sub yaml_ok {
 	# If YAML itself is available, test with it
 	SKIP: {
 		unless ( $HAVE_YAMLPM ) {
-			Test::More::skip( "Skipping YAML.pm, not available for testing", 8 );
+			Test::More::skip( "Skipping YAML.pm, not available for testing", 7 );
 		}
 		if ( $options{noyamlpm} ) {
-			Test::More::skip( "Skipping YAML.pm for known-broken feature", 8 );
+			Test::More::skip( "Skipping YAML.pm for known-broken feature", 7 );
 		}
 
 		# Test writing with YAML.pm
@@ -90,7 +101,6 @@ sub yaml_ok {
 			Test::More::is( $@, '', "$name: YAML.pm round-trips without error" );
 			Test::More::skip( "Shortcutting after failure", 2 ) if $@;
 			my $round = bless [ @yamlpm_round ], 'YAML::Tiny';
-			Test::More::isa_ok( $round, 'YAML::Tiny' );
 			Test::More::is_deeply( $round, $object, "$name: YAML.pm round-trips correctly" );		
 		}
 
@@ -108,13 +118,13 @@ sub yaml_ok {
 	# If YAML::Syck itself is available, test with it
 	SKIP: {
 		unless ( $HAVE_SYCK ) {
-			Test::More::skip( "Skipping YAML::Syck, not available for testing", 8 );
+			Test::More::skip( "Skipping YAML::Syck, not available for testing", 7 );
 		}
 		if ( $options{nosyck} ) {
-			Test::More::skip( "Skipping YAML::Syck for known-broken feature", 8 );
+			Test::More::skip( "Skipping YAML::Syck for known-broken feature", 7 );
 		}
 		unless ( @$object == 1 ) {
-			Test::More::skip( "Skipping YAML::Syck for unsupported feature", 8 );
+			Test::More::skip( "Skipping YAML::Syck for unsupported feature", 7 );
 		}
 
 		# Test writing with YAML::Syck
@@ -130,7 +140,6 @@ sub yaml_ok {
 			Test::More::is( $@, '', "$name: YAML::Syck round-trips without error" );
 			Test::More::skip( "Shortcutting after failure", 2 ) if $@;
 			my $round = bless [ @syck_round ], 'YAML::Tiny';
-			Test::More::isa_ok( $round, 'YAML::Tiny' );
 			Test::More::is_deeply( $round, $object, "$name: YAML::Syck round-trips correctly" );		
 		}
 
@@ -148,10 +157,10 @@ sub yaml_ok {
 	# If YAML::XS itself is available, test with it
 	SKIP: {
 		unless ( $HAVE_XS ) {
-			Test::More::skip( "Skipping YAML::XS, not available for testing", 8 );
+			Test::More::skip( "Skipping YAML::XS, not available for testing", 7 );
 		}
 		if ( $options{noxs} ) {
-			Test::More::skip( "Skipping YAML::XS for known-broken feature", 8 );
+			Test::More::skip( "Skipping YAML::XS for known-broken feature", 7 );
 		}
 
 		# Test writing with YAML::XS
@@ -167,7 +176,6 @@ sub yaml_ok {
 			Test::More::is( $@, '', "$name: YAML::XS round-trips without error" );
 			Test::More::skip( "Shortcutting after failure", 2 ) if $@;
 			my $round = bless [ @xs_round ], 'YAML::Tiny';
-			Test::More::isa_ok( $round, 'YAML::Tiny' );
 			Test::More::is_deeply( $round, $object, "$name: YAML::XS round-trips correctly" );		
 		}
 
@@ -179,6 +187,42 @@ sub yaml_ok {
 		SKIP: {
 			Test::More::skip( "Shortcutting after failure", 1 ) if $@;
 			Test::More::is_deeply( \@xs_in, $object, "$name: YAML::XS parses correctly" );
+		}
+	}
+
+	# If YAML::Perl is available, test with it
+	SKIP: {
+		unless ( $HAVE_YAMLPERL ) {
+			Test::More::skip( "Skipping YAML::Perl, not available for testing", 7 );
+		}
+		if ( $options{noyamlperl} ) {
+			Test::More::skip( "Skipping YAML::Perl for known-broken feature", 7 );
+		}
+
+		# Test writing with YAML.pm
+		my $yamlperl_out = eval { YAML::Perl::Dump( @$object ) };
+		Test::More::is( $@, '', "$name: YAML::Perl saves without error" );
+		SKIP: {
+			Test::More::skip( "Shortcutting after failure", 4 ) if $@;
+			Test::More::ok(
+				!!(defined $yamlperl_out and ! ref $yamlperl_out),
+				"$name: YAML::Perl serializes correctly",
+			);
+			my @yamlperl_round = eval { YAML::Perl::Load( $yamlperl_out ) };
+			Test::More::is( $@, '', "$name: YAML::Perl round-trips without error" );
+			Test::More::skip( "Shortcutting after failure", 2 ) if $@;
+			my $round = bless [ @yamlperl_round ], 'YAML::Tiny';
+			Test::More::is_deeply( $round, $object, "$name: YAML::Perl round-trips correctly" );		
+		}
+
+		# Test reading with YAML::Perl
+		my $yamlperl_copy = $string;
+		my @yamlperl_in   = eval { YAML::Load( $yamlperl_copy ) };
+		Test::More::is( $@, '', "$name: YAML::Perl loads without error" );
+		Test::More::is( $yamlperl_copy, $string, "$name: YAML::Perl does not modify the input string" );
+		SKIP: {
+			Test::More::skip( "Shortcutting after failure", 1 ) if $@;
+			Test::More::is_deeply( \@yamlperl_in, $object, "$name: YAML::Perl parses correctly" );
 		}
 	}
 

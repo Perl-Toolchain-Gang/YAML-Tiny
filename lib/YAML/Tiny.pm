@@ -3,38 +3,29 @@ package YAML::Tiny;
 use strict;
 use Carp ();
 
+# UTF Support?
+sub HAVE_UTF8 () { $] >= 5.007003 }
 BEGIN {
+	require utf8 if HAVE_UTF8;
+
+	# Class structure
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.36';
-	$YAML::Tiny::errstr    = '';
+	$YAML::Tiny::VERSION   = '1.37';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
-	@YAML::Tiny::EXPORT = qw{
-		Load Dump
-	};
-	@YAML::Tiny::EXPORT_OK = qw{
-		LoadFile DumpFile
-		freeze   thaw
-	};
+	@YAML::Tiny::EXPORT    = qw{ Load Dump };
+	@YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
+
+	# Error storage
+	$YAML::Tiny::errstr    = '';
 }
 
-my $ESCAPE_CHAR = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f\"\n]';
+# The character class of all characters we need to escape
+# NOTE: Inlined, since it's only used once
+# my $RE_ESCAPE   = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f\"\n]';
 
-my %BOM = (
-    "\357\273\277" => 'UTF-8',
-    "\376\377"     => 'UTF-16BE',
-    "\377\376"     => 'UTF-16LE',
-    "\0\0\376\377" => 'UTF-32BE',
-    "\377\376\0\0" => 'UTF-32LE'
-);
-
-sub BOM_MIN_LENGTH () { 2 }
-sub BOM_MAX_LENGTH () { 4 }
-sub HAVE_UTF8      () { $] >= 5.007003 }
-
-BEGIN { require utf8 if HAVE_UTF8 }
-
-# Escapes for unprintable characters
+# Printed form of the unprintable characters in the lowest range
+# of ASCII characters, listed by ASCII ordinal position.
 my @UNPRINTABLE = qw(
 	z    x01  x02  x03  x04  x05  x06  a
 	x08  t    n    v    f    r    x0e  x0f
@@ -81,44 +72,49 @@ sub read {
 
 # Create an object from a string
 sub read_string {
-	my $class = ref $_[0] ? ref shift : shift;
-	my $self  = bless [], $class;
+	my $class  = ref $_[0] ? ref shift : shift;
+	my $self   = bless [], $class;
+	my $string = defined($_[0]) ? shift : return undef;
 
-	my $str = $_[0];
-
-	# Handle special cases
-	return undef unless defined $str;
-
-	foreach my $length ( BOM_MIN_LENGTH .. BOM_MAX_LENGTH ) {
-		if ( my $enc = $BOM{substr($str, 0, $length)} ) {
-			return $class->_error("Stream has a non UTF-8 BOM") unless $enc eq 'UTF-8';
-			substr($str, 0, $length) = ''; # strip UTF-8 bom if found, we'll just ignore it
-		}
+	# Byte order marks
+	# NOTE: Keeping this here to educate maintainers
+	# my %BOM = (
+	#     "\357\273\277" => 'UTF-8',
+	#     "\376\377"     => 'UTF-16BE',
+	#     "\377\376"     => 'UTF-16LE',
+	#     "\377\376\0\0" => 'UTF-32LE'
+	#     "\0\0\376\377" => 'UTF-32BE',
+	# );
+	if ( $string =~ /^(?:\376\377|\377\376|\377\376\0\0|\0\0\376\377)/ ) {
+		return $self->_error("Stream has a non UTF-8 BOM");
+	} else {
+		# Strip UTF-8 bom if found, we'll just ignore it
+		$string =~ s/^\357\273\277//;
 	}
 
-	if ( HAVE_UTF8 ) {
-		utf8::decode($str); # try to decode as utf8
-	}
+	# Try to decode as utf8
+	utf8::decode($string) if HAVE_UTF8;
 
-	return $self unless length $str;
-	unless ( $str =~ /[\012\015]+$/ ) {
-		return $class->_error("Stream does not end with newline character");
+	# Check for some special cases
+	return $self unless length $string;
+	unless ( $string =~ /[\012\015]+\z/ ) {
+		return $self->_error("Stream does not end with newline character");
 	}
 
 	# Split the file into lines
-	my @lines = grep { ! /^\s*(?:\#.*)?$/ }
-	            split /(?:\015{1,2}\012|\015|\012)/, $str;
+	my @lines = grep { ! /^\s*(?:\#.*)?\z/ }
+	            split /(?:\015{1,2}\012|\015|\012)/, $string;
 
 	# Strip the initial YAML header
-	@lines and $lines[0] =~ /^\%YAML[: ][\d\.]+.*$/ and shift @lines;
+	@lines and $lines[0] =~ /^\%YAML[: ][\d\.]+.*\z/ and shift @lines;
 
 	# A nibbling parser
 	while ( @lines ) {
 		# Do we have a document header?
-		if ( $lines[0] =~ /^---\s*(?:(.+)\s*)?$/ ) {
+		if ( $lines[0] =~ /^---\s*(?:(.+)\s*)?\z/ ) {
 			# Handle scalar documents
 			shift @lines;
-			if ( defined $1 and $1 !~ /^(?:\#.+|\%YAML[: ][\d\.]+)$/ ) {
+			if ( defined $1 and $1 !~ /^(?:\#.+|\%YAML[: ][\d\.]+)\z/ ) {
 				push @$self, $self->_read_scalar( "$1", [ undef ], \@lines );
 				next;
 			}
@@ -156,27 +152,29 @@ sub _read_scalar {
 	my ($self, $string, $indent, $lines) = @_;
 
 	# Trim trailing whitespace
-	$string =~ s/\s*$//;
+	$string =~ s/\s*\z//;
 
 	# Explitic null/undef
 	return undef if $string eq '~';
 
 	# Quotes
-	if ( $string =~ /^\'(.*?)\'$/ ) {
+	if ( $string =~ /^\'(.*?)\'\z/ ) {
 		return '' unless defined $1;
-		my $rv = $1;
-		$rv =~ s/\'\'/\'/g;
-		return $rv;
+		$string = $1;
+		$string =~ s/\'\'/\'/g;
+		return $string;
 	}
-	if ( $string =~ /^\"((?:\\.|[^\"])*)\"$/ ) {
-		my $str = $1;
-		$str =~ s/\\"/"/g;
-		$str =~ s/\\([never\\fartz]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
-		return $str;
+	if ( $string =~ /^\"((?:\\.|[^\"])*)\"\z/ ) {
+		# Reusing the variable is a little ugly,
+		# but avoids a new variable and a string copy.
+		$string = $1;
+		$string =~ s/\\"/"/g;
+		$string =~ s/\\([never\\fartz]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
+		return $string;
 	}
 
 	# Special cases
-	die "Unsupported YAML feature" if $string =~ /^['"!&]/;
+	die "Unsupported YAML feature" if $string =~ /^[\'\"!&]/;
 	return {} if $string eq '{}';
 	return [] if $string eq '[]';
 
@@ -187,7 +185,7 @@ sub _read_scalar {
 	die "Multi-line scalar content missing" unless @$lines;
 
 	# Check the indent depth
-	$lines->[0] =~ /^(\s*)/;
+	$lines->[0]   =~ /^(\s*)/;
 	$indent->[-1] = length("$1");
 	if ( defined $indent->[-2] and $indent->[-1] <= $indent->[-2] ) {
 		die "Illegal line indenting";
@@ -202,7 +200,7 @@ sub _read_scalar {
 	}
 
 	my $j = (substr($string, 0, 1) eq '>') ? ' ' : "\n";
-	my $t = (substr($string, 1, 1) eq '-') ? '' : "\n";
+	my $t = (substr($string, 1, 1) eq '-') ? ''  : "\n";
 	return join( $j, @multiline ) . $t;
 }
 
@@ -234,12 +232,12 @@ sub _read_array {
 			push @$array, { };
 			$self->_read_hash( $array->[-1], [ @$indent, $indent2 ], $lines );
 
-		} elsif ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*$/ ) {
+		} elsif ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*\z/ ) {
 			# Array entry with a value
 			shift @$lines;
 			push @$array, $self->_read_scalar( "$2", [ @$indent, undef ], $lines );
 
-		} elsif ( $lines->[0] =~ /^\s*\-\s*$/ ) {
+		} elsif ( $lines->[0] =~ /^\s*\-\s*\z/ ) {
 			shift @$lines;
 			unless ( @$lines ) {
 				push @$array, undef;
@@ -305,7 +303,7 @@ sub _read_hash {
 
 		# Get the key
 		unless ( $lines->[0] =~ s/^\s*([^\'\" ][^\n]*?)\s*:(\s+|$)// ) {
-			die "Unsupported YAML feature" if $lines->[0] =~ /^\s*[?'"]/;
+			die "Unsupported YAML feature" if $lines->[0] =~ /^\s*[?\'\"]/;
 			die "Bad or unsupported hash line";
 		}
 		my $key = $1;
@@ -401,20 +399,20 @@ sub write_string {
 }
 
 sub _write_scalar {
-	my $str = $_[1];
-	return '~'  unless defined $str;
-	if ( $str =~ /$ESCAPE_CHAR/ ) {
-		$str =~ s/\\/\\\\/g;
-		$str =~ s/"/\\"/g;
-		$str =~ s/\n/\\n/g;
-		$str =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
-		return qq{"$str"};
+	my $string = $_[1];
+	return '~'  unless defined $string;
+	return "''" unless length  $string;
+	if ( $string =~ /[\x00-\x08\x0b-\x0d\x0e-\x1f\"\'\n]/ ) {
+		$string =~ s/\\/\\\\/g;
+		$string =~ s/"/\\"/g;
+		$string =~ s/\n/\\n/g;
+		$string =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
+		return qq|"$string"|;
 	}
-	if ( length($str) == 0 or $str =~ /(?:^\W|\s)/ ) {
-		$str =~ s/\'/\'\'/;
-		return "'$str'";
+	if ( $string =~ /(?:^\W|\s)/ ) {
+		return "'$string'";
 	}
-	return $str;
+	return $string;
 }
 
 sub _write_array {

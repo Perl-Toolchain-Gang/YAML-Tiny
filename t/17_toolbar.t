@@ -46,6 +46,5 @@ yaml_ok(
 		]
 	} ],
 	'toolbar.yml',
+	noyamlperl => 1,
 );
-
-exit(0);

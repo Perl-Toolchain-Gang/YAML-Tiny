@@ -144,7 +144,6 @@ yaml_ok(
 		},
 	} ],
 	'vanilla.yml',
-	nosyck => 1,
+	nosyck     => 1,
+	noyamlperl => 1,
 );
-
-exit(0);

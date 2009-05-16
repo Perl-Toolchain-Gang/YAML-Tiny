@@ -124,7 +124,4 @@ END_YAML
 		},
 	} ] } ],
 	'plagger2',
-	nosyck => 1,
 );			
-
-exit(0);

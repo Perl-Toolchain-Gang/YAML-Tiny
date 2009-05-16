@@ -32,5 +32,3 @@ SKIP: {
 	is( $yaml, undef, "file not parsed" );
 	is( YAML::Tiny->errstr, "Stream has a non UTF-8 BOM", "correct error" );
 }
-
-exit(0);

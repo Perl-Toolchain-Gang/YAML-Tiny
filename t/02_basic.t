@@ -47,26 +47,31 @@ yaml_ok(
 	"---\n",
 	[ undef ],
 	'only_header',
+	noyamlperl => 1,
 );
 yaml_ok(
 	"---\n---\n",
 	[ undef, undef ],
 	'two_header',
+	noyamlperl => 1,
 );
 yaml_ok(
 	"--- ~\n",
 	[ undef ],
 	'one_undef',
+	noyamlperl => 1,
 );
 yaml_ok(
 	"---  ~\n",
 	[ undef ],
 	'one_undef2',
+	noyamlperl => 1,
 );
 yaml_ok(
 	"--- ~\n---\n",
 	[ undef, undef ],
 	'two_undef',
+	noyamlperl => 1,
 );
 
 # Just a scalar
@@ -101,6 +106,7 @@ yaml_ok(
 	"---\n- ~\n- bar\n",
 	[ [ undef, 'bar' ] ],
 	'one_listundef',
+	noyamlperl => 1,
 );
 
 # Simple hashs
@@ -114,6 +120,7 @@ yaml_ok(
 	"---\nfoo: bar\nthis: ~\n",
 	[ { this => undef, foo => 'bar' } ],
  	'one_hash2',
+	noyamlperl => 1,
 );
 
 # Simple array inside a hash with an undef
@@ -127,6 +134,7 @@ foo:
 END_YAML
 	[ { foo => [ 'bar', undef, 'baz' ] } ],
 	'array_in_hash',
+	noyamlperl => 1,
 );
 
 # Simple hash inside a hash with an undef
@@ -139,6 +147,7 @@ bar:
 END_YAML
 	[ { foo => undef, bar => { foo => 'bar' } } ],
 	'hash_in_hash',
+	noyamlperl => 1,
 );
 
 # Mixed hash and scalars inside an array
@@ -161,6 +170,7 @@ END_YAML
 		{ foo => 'bar', this => 'that' },
 	] ],
 	'hash_in_array',
+	noyamlperl => 1,
 );
 
 # Simple single quote
@@ -185,14 +195,16 @@ yaml_ok(
 	"--- \"  \"\n",
 	[ '  ' ],
 	"only_spaces",
-	noyamlpm => 1,
+	noyamlpm   => 1,
+	noyamlperl => 1,
 );
 
 yaml_ok(
 	"--- \"  foo\"\n--- \"bar  \"\n",
 	[ "  foo", "bar  " ],
 	"leading_trailing_spaces",
-	noyamlpm => 1,
+	noyamlpm   => 1,
+	noyamlperl => 1,
 );
 
 # Implicit document start
@@ -218,6 +230,7 @@ yaml_ok(
 END_YAML
 	[ [ undef, { foo => 'bar', this => 'that' }, 'baz' ] ],
 	'inline_nested_hash',
+	noyamlperl => 1,
 );
 
 # Empty comments
@@ -239,5 +252,3 @@ yaml_ok(
 	[ { 'a b' => 'c d' } ],
 	'key_with_whitespace',
 );
-
-exit(0);

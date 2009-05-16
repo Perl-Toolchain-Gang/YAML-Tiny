@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(31, 0, 10);
+use Test::More tests(35, 0, 10);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
@@ -68,27 +68,32 @@ yaml_ok(
 	. "     baz\n",
 	[ { foo => "bar baz\n" } ],
 	'simple_multiline',
-	nosyck => 1,
 );
 
 # Piped multi-line scalar
-yaml_ok( <<'END_YAML', [ [ "foo\nbar\n", 1 ] ], 'indented', nosyck => 1 );
+yaml_ok(
+	<<'END_YAML',
 ---
 - |
   foo
   bar
 - 1
 END_YAML
+	[ [ "foo\nbar\n", 1 ] ],
+	'indented',
+);
 
 # ... with a pointless hyphen
-yaml_ok( <<'END_YAML', [ [ "foo\nbar", 1 ] ], 'indented', nosyck => 1 );
+yaml_ok( <<'END_YAML',
 ---
 - |-
   foo
   bar
 - 1
 END_YAML
-
+	[ [ "foo\nbar", 1 ] ],
+	'indented',
+);
 
 
 
@@ -116,8 +121,9 @@ foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
 	'simple_doctype_percent',
-	noyamlpm => 1,
-	noxs     => 1,
+	noyamlpm   => 1,
+	noxs       => 1,
+	noyamlperl => 1,
 );
 
 # Simple header (comment variant)
@@ -129,9 +135,10 @@ foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
 	'predocument_1_0',
-	noyamlpm => 1,
-	nosyck   => 1,
-	noxs     => 1,
+	noyamlpm   => 1,
+	nosyck     => 1,
+	noxs       => 1,
+	noyamlperl => 1,
 );
 
 # Simple inline case (comment variant)
@@ -143,8 +150,9 @@ foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
 	'predocument_1_1',
-	noyamlpm => 1,
-	nosyck   => 1,
+	noyamlpm   => 1,
+	nosyck     => 1,
+	noyamlperl => 1,
 );
 
 # Multiple inline documents (comment variant)
@@ -159,7 +167,6 @@ foo: bar
 END_YAML
 	[ { foo => 'bar' }, [ 1 ], { foo => 'bar' } ],
 	'multi_doctype_comment',
-	# nosyck => 1,
 );
 
 # Simple pre-document case (comment variant)
@@ -171,8 +178,9 @@ foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
 	'predocument_percent',
-	noyamlpm => 1,
-	nosyck   => 1,
+	noyamlpm   => 1,
+	nosyck     => 1,
+	noyamlperl => 1,
 );
 
 # Simple pre-document case (comment variant)
@@ -273,6 +281,7 @@ END_YAML
 		arr      => [ 'foo', undef, 'bar' ],
 	} ],
 	'trailing whitespace',
+	noyamlperl => 1,
 );
 
 
@@ -297,15 +306,35 @@ END_YAML
 
 
 #####################################################################
-# Single Quote Idiosyncracy
+# Quote and Escaping Idiosyncracies
 
 yaml_ok(
 	<<'END_YAML',
 ---
-slash: '\\'
-name: 'O''Reilly'
+name1: 'O''Reilly'
+name2: 'O''Reilly O''Tool'
+name3: 'Double '''' Quote'
 END_YAML
-	[ { slash => "\\\\", name => "O'Reilly" } ],
+	[ {
+		name1 => "O'Reilly",
+		name2 => "O'Reilly O'Tool",
+		name3 => "Double '' Quote",
+	} ],
+	'single quote subtleties',
+);
+
+yaml_ok(
+	<<'END_YAML',
+---
+slash1: '\\'
+slash2: '\\foo'
+slash3: '\\foo\\\\'
+END_YAML
+	[ {
+		slash1 => "\\\\",
+		slash2 => "\\\\foo",
+		slash3 => "\\\\foo\\\\\\\\",
+	} ],
 	'single quote subtleties',
 );
 
@@ -325,7 +354,8 @@ build_requires:
 END_YAML
 	[ { foo => 0, requires => undef, build_requires => undef } ],
 	'empty hash keys',
-	noyamlpm => 1,
+	noyamlpm   => 1,
+	noyamlperl => 1,
 );
 
 yaml_ok(
@@ -337,7 +367,8 @@ yaml_ok(
 END_YAML
 	[ [ 'foo', undef, undef ] ],
 	'empty array keys',
-	noyamlpm => 1,
+	noyamlpm   => 1,
+	noyamlperl => 1,
 );
 
 
@@ -354,7 +385,8 @@ foo: bar
 END_YAML
 	[ { foo => 'bar' } ],
 	'comment header',
-	noyamlpm => 1,
+	noyamlpm   => 1,
+	noyamlperl => 1,
 );
 
 
@@ -426,6 +458,7 @@ END_YAML
 		},
 	} ],
 	'synopsis',
+	noyamlperl => 1,
 );
 
 
@@ -502,6 +535,8 @@ END_YAML
 			note => 'note this test profile',
 		},
 	} ],
+	'Indentation after empty hash value',
+	noyamlperl => 1,
 );
 
 
@@ -570,5 +605,35 @@ bar: value
 END_YAML
 	[ { foo => [ 'list' ], bar => 'value' } ],
 	'Non-indenting sub-list',
-	noyamlpm => 1,
+	noyamlpm   => 1,
+	noyamlperl => 1,
+);
+
+
+
+
+
+
+#####################################################################
+# Check Multiple-Escaping
+
+# RT #42119: write of two single quotes
+yaml_ok(
+	"--- \"A'B'C\"\n",
+	[ "A'B'C" ],
+	'Multiple escaping of quote ok',
+);
+
+# Escapes without whitespace
+yaml_ok(
+	"--- A\\B\\C\n",
+	[ "A\\B\\C" ],
+	'Multiple escaping of escape ok',
+);
+
+# Escapes with whitespace
+yaml_ok(
+	"--- 'A\\B \\C'\n",
+	[ "A\\B \\C" ],
+	'Multiple escaping of escape with whitespace ok',
 );

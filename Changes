@@ -1,5 +1,12 @@
 Revision history for Perl extension YAML-Tiny
 
+1.37 to be released
+	- Call $self->_error instead of $class->_error when we can
+	- Refactoring away some of the code other people have been
+	  contributing lately that most certainly NOT ::Tiny style.
+	- Avoid the need to do '' escaping by moving it to "'"
+	- Added comparative testing with YAML::Perl
+
 1.36 Wed  7 Jan 2009
 	- Fixing missing feature reported by H.Merijn Brand
 
