@@ -15,7 +15,7 @@ BEGIN {
 	# Class structure
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.38';
+	$YAML::Tiny::VERSION   = '1.39';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
 	@YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
