@@ -15,7 +15,7 @@ BEGIN {
 	# Class structure
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.39';
+	$YAML::Tiny::VERSION   = '1.40';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
 	@YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
@@ -43,6 +43,14 @@ my %UNESCAPES = (
 	n => "\x0a", v => "\x0b", f    => "\x0c",
 	r => "\x0d", e => "\x1b", '\\' => '\\',
 );
+
+# Special magic boolean words
+my %QUOTE = map { $_ => 1 } qw{
+	null Null NULL
+	y Y yes Yes YES n N no No NO
+	true True TRUE false False FALSE
+	on On ON off Off OFF
+};
 
 
 
@@ -425,7 +433,7 @@ sub _write_scalar {
 		$string =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
 		return qq|"$string"|;
 	}
-	if ( $string =~ /(?:^\W|\s)/ ) {
+	if ( $string =~ /(?:^\W|\s)/ or $QUOTE{$string} ) {
 		return "'$string'";
 	}
 	return $string;

@@ -1,5 +1,14 @@
 Revision history for Perl extension YAML-Tiny
 
+1.40 Fri 31 Jul 2009
+	- Dear Ruby Community.
+	  Thank you so much for your bug report to the "Ruby Talk" mailing list
+	  regarding the lack of true/false support in Perl YAML modules.
+	  http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/169943
+	  This flaw has now been resolved, around 2 hours after we
+	  were made aware of it. Next time, we recommend you report these bugs
+	  to the people who can actually fix your problem.
+
 1.39 Thu 21 May 2009
 	- Even though utf8 starts at 5.7+ there's no is_utf till
 	  5.8.1 so skip in the tests if needed (ADAMK)

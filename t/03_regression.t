@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(37, 0, 10);
+use Test::More tests(37, 0, 11);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
@@ -654,3 +654,44 @@ yaml_ok(
 	[ "This&that" ],
 	'Ampersand in a quote',
 );
+
+
+
+
+
+######################################################################
+# Check for unescaped boolean keywords
+
+is_deeply( YAML::Tiny->new( [ qw{
+	null Null NULL
+	y Y yes Yes YES n N no No NO
+	true True TRUE false False FALSE
+	on On ON off Off OFF
+} ] )->write_string, <<'END_YAML' );
+---
+- 'null'
+- 'Null'
+- 'NULL'
+- 'y'
+- 'Y'
+- 'yes'
+- 'Yes'
+- 'YES'
+- 'n'
+- 'N'
+- 'no'
+- 'No'
+- 'NO'
+- 'true'
+- 'True'
+- 'TRUE'
+- 'false'
+- 'False'
+- 'FALSE'
+- 'on'
+- 'On'
+- 'ON'
+- 'off'
+- 'Off'
+- 'OFF'
+END_YAML
