@@ -282,6 +282,7 @@ sub slurp {
 	my $file = shift;
 	local $/ = undef;
 	open( FILE, " $file" ) or die "open($file) failed: $!";
+	binmode( FILE, $_[0] ) if @_ > 0 && $] > 5.006;
 	# binmode(FILE); # disable perl's BOM interpretation
 	my $source = <FILE>;
 	close( FILE ) or die "close($file) failed: $!";
