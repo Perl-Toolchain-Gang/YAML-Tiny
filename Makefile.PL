@@ -9,7 +9,7 @@ WriteMakefile1(
 	NAME      => 'YAML::Tiny',
 	ABSTRACT  => 'Read/Write YAML files with as little code as possible',
 	VERSION_FROM   => 'lib/YAML/Tiny.pm',
-	PREREQ_PM => {
+	BUILD_REQUIRES => {
 		'File::Spec' => '0.80',
 		'Test::More' => '0.47',
 		($ENV{AUTOMATED_TESTING} ? (
