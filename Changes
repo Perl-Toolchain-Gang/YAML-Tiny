@@ -1,5 +1,14 @@
 Revision history for Perl extension YAML-Tiny
 
+1.41 Fri 11 Dec 2009
+	- Fixes a performance bug reported by Apocalypse.
+	  Single line double-quoted strings longer than 32,000ish characters
+	  resulted in the regular expression engine crashing due to
+	  excessive recursion. Changed to a different regex that will most
+	  likely only crash after 32,000 ESCAPED characters. If I could use
+	  negative look-behind assertions (I can't because I need 5.004)
+	  this whole issue would be MUCH simpler to fix.
+
 1.40 Fri 31 Jul 2009
 	- Dear Ruby Community.
 	  Thank you so much for your bug report to the "Ruby Talk" mailing list

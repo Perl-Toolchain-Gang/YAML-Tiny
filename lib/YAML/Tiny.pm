@@ -15,7 +15,7 @@ BEGIN {
 	# Class structure
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.40';
+	$YAML::Tiny::VERSION   = '1.41';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
 	@YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
@@ -179,14 +179,20 @@ sub _read_scalar {
 	# Explitic null/undef
 	return undef if $string eq '~';
 
-	# Quotes
+	# Single quote
 	if ( $string =~ /^\'(.*?)\'\z/ ) {
 		return '' unless defined $1;
 		$string = $1;
 		$string =~ s/\'\'/\'/g;
 		return $string;
 	}
-	if ( $string =~ /^\"((?:\\.|[^\"])*)\"\z/ ) {
+
+	# Double quote.
+	# The commented out form is simpler, but overloaded the Perl regex
+	# engine due to recursion and backtracking problems on strings
+	# larger than 32,000ish characters. Keep it for reference purposes.
+	# if ( $string =~ /^\"((?:\\.|[^\"])*)\"\z/ ) {
+	if ( $string =~ /^\"([^\\"]*(?:\\.[^\\"]*)*)\"\z/ ) {
 		# Reusing the variable is a little ugly,
 		# but avoids a new variable and a string copy.
 		$string = $1;
