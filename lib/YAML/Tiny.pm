@@ -961,7 +961,7 @@ Support for nodes optional anchor and tag properties are B<not> required.
 
 Support for node anchors is B<not> required.
 
-Supprot for node tags is B<not> required.
+Support for node tags is B<not> required.
 
 Support for alias nodes is B<not> required.
 
