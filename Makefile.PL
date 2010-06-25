@@ -29,7 +29,9 @@ WriteMakefile1(
 		},
 	},
 	($ENV{AUTOMATED_TESTING} or $ENV{RELEASE_TESTING}) ? (
-		TESTS => 't/*.t xt/*.t',
+		test => {
+			TESTS => 't/*.t xt/*.t',
+		},
 	) : (),
 );
 
