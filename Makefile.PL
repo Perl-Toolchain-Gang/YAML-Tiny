@@ -28,7 +28,7 @@ WriteMakefile1(
 			bugtracker => 'http://rt.cpan.org/NoAuth/ReportBug.html?Queue=YAML-Tiny',
 		},
 	},
-	($ENV{AUTOMATED_TESTING} or $ENV{RELEASE_TESTING}) ? (
+	(-d 'xt' and $ENV{AUTOMATED_TESTING} || $ENV{RELEASE_TESTING}) ? (
 		test => {
 			TESTS => 't/*.t xt/*.t',
 		},
