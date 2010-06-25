@@ -89,6 +89,7 @@ yaml_ok(
 	"--- foo\n--- bar\n",
 	[ 'foo', 'bar' ],
 	'two_scalar',
+	noyamlperl => 1,
 );
 
 # Simple lists
