@@ -28,6 +28,9 @@ WriteMakefile1(
 			bugtracker => 'http://rt.cpan.org/NoAuth/ReportBug.html?Queue=YAML-Tiny',
 		},
 	},
+	($ENV{AUTOMATED_TESTING} or $ENV{RELEASE_TESTING}) ? (
+		TESTS => 't/*.t xt/*.t',
+	) : (),
 );
 
 sub WriteMakefile1 {  #Written by Alexandr Ciornii, version 0.21

@@ -9,6 +9,7 @@ Revision history for Perl extension YAML-Tiny
 	- Added an extra test case for boolean keyword escaping.
 	- YAML::Perl comparison tests were loading the file back in with
 	  YAML.pm by mistake. Corrected this.
+	- Author tests updated and moved into xt/
 
 1.41 Fri 11 Dec 2009
 	- Fixes a performance bug reported by Apocalypse.
