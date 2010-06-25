@@ -15,7 +15,7 @@ BEGIN {
 	# Class structure
 	require 5.004;
 	require Exporter;
-	$YAML::Tiny::VERSION   = '1.41';
+	$YAML::Tiny::VERSION   = '1.42';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
 	@YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
@@ -726,7 +726,7 @@ to file and back again just fine.
 This section of the documentation provides a specification for "YAML Tiny",
 a subset of the YAML specification.
 
-It is based on and described comparatively to the YAML 1.1  Working Draft
+It is based on and described comparatively to the YAML 1.1 Working Draft
 2004-12-28 specification, located at L<http://yaml.org/spec/current.html>.
 
 Terminology and chapter numbers are based on that specification.
@@ -767,7 +767,20 @@ Both line and inline comments are supported.
 Scalars are supported via the plain style, single quote and double quote,
 as well as literal-style and folded-style multi-line scalars.
 
-The use of tags is not supported.
+The use of explicit tags is not supported.
+
+The use of "null" type scalars is supported via the ~ character.
+
+The use of "bool" type scalars is not supported.
+
+However, serializer implementations should take care to explicitly escape
+strings that match a "bool" keyword in the following set to prevent other
+implementations that do support "bool" accidentally reading a string as a
+boolean
+
+  y|Y|yes|Yes|YES|n|N|no|No|NO
+  |true|True|TRUE|false|False|FALSE
+  |on|On|ON|off|Off|OFF
 
 The use of anchors and aliases is not supported.
 
@@ -791,7 +804,7 @@ Because anchors and aliases are not supported, the resulting representation
 graph is thus directed but (unlike the main YAML specification) B<acyclic>.
 
 Circular references/pointers are not possible, and any YAML Tiny serializer
-detecting a circulars should error with an appropriate message.
+detecting a circular reference should error with an appropriate message.
 
 B<Presentation Stream>
 
@@ -1121,7 +1134,7 @@ L<http://use.perl.org/~Alias/journal/29427>, L<http://ali.as/>
 
 =head1 COPYRIGHT
 
-Copyright 2006 - 2009 Adam Kennedy.
+Copyright 2006 - 2010 Adam Kennedy.
 
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.

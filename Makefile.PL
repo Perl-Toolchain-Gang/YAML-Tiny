@@ -1,7 +1,7 @@
 use strict;
 BEGIN {
 	require 5.003_96;
-	$main::VERSION = '1.41';
+	$main::VERSION = '1.42';
 }
 use ExtUtils::MakeMaker;
 

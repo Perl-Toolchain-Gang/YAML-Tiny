@@ -225,7 +225,7 @@ sub yaml_ok {
 
 		# Test reading with YAML::Perl
 		my $yamlperl_copy = $string;
-		my @yamlperl_in   = eval { YAML::Load( $yamlperl_copy ) };
+		my @yamlperl_in   = eval { YAML::Perl::Load( $yamlperl_copy ) };
 		Test::More::is( $@, '', "$name: YAML::Perl loads without error" );
 		Test::More::is( $yamlperl_copy, $string, "$name: YAML::Perl does not modify the input string" );
 		SKIP: {

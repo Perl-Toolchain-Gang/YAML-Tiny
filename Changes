@@ -1,5 +1,15 @@
 Revision history for Perl extension YAML-Tiny
 
+1.42 Fri 25 Jun 2010
+	- No functional changes, upgrading is not required
+	- Clarified documation to explain that YAML::Tiny escapes "bool"
+	  keywords when it writes them as strings so that YAML parsers in
+	  other languages won't get confused, but this does not mean that
+	  YAML::Tiny actually supports boolean types itself.
+	- Added an extra test case for boolean keyword escaping.
+	- YAML::Perl comparison tests were loading the file back in with
+	  YAML.pm by mistake. Corrected this.
+
 1.41 Fri 11 Dec 2009
 	- Fixes a performance bug reported by Apocalypse.
 	  Single line double-quoted strings longer than 32,000ish characters

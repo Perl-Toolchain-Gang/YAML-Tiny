@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(37, 0, 11);
+use Test::More tests(37, 0, 12);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
@@ -661,6 +661,12 @@ yaml_ok(
 
 ######################################################################
 # Check for unescaped boolean keywords
+
+is_deeply(
+	YAML::Tiny->new( 'True' )->write_string,
+	"--- 'True'\n",
+	'Idiomatic trivial boolean string is escaped',
+);
 
 is_deeply( YAML::Tiny->new( [ qw{
 	null Null NULL
