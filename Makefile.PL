@@ -13,10 +13,10 @@ WriteMakefile1(
 		'File::Spec' => '0.80',
 		'Test::More' => '0.47',
 		($ENV{AUTOMATED_TESTING} ? (
-			'YAML'       => '0.68',
+			'YAML'       => '0.71',
 			'YAML::Perl' => '0.02',
-			'YAML::Syck' => '1.07',
-			'YAML::XS'   => '0.29',
+			'YAML::Syck' => '1.10',
+			'YAML::XS'   => '0.33',
 		) : ()),
 	},
 	AUTHOR  => 'Adam Kennedy <adamk@cpan.org>',

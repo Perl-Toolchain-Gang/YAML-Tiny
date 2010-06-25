@@ -11,6 +11,8 @@ Revision history for Perl extension YAML-Tiny
 	  YAML.pm by mistake. Corrected this and added an additional case
 	  that YAML::Perl doesn't support that I wasn't catching.
 	- Author tests updated and moved into xt/
+	- Updated the versions of the other YAML parsers we test ourselves
+	  against to the most recent versions of each.
 
 1.41 Fri 11 Dec 2009
 	- Fixes a performance bug reported by Apocalypse.
