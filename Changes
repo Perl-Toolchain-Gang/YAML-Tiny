@@ -1,5 +1,9 @@
 Revision history for Perl extension YAML-Tiny
 
+1.43 Sat 10 Jul 2010
+	- No functional changes, upgrading is not required
+	- Don't import Carp 'croak' any more, saving a few K
+
 1.42 Fri 25 Jun 2010
 	- No functional changes, upgrading is not required
 	- Clarified documation to explain that YAML::Tiny escapes "bool"

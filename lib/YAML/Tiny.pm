@@ -1,7 +1,6 @@
 package YAML::Tiny;
 
 use strict;
-use Carp 'croak';
 
 # UTF Support?
 sub HAVE_UTF8 () { $] >= 5.007003 }
@@ -15,6 +14,7 @@ BEGIN {
 	# Class structure
 	require 5.004;
 	require Exporter;
+	require Carp;
 	$YAML::Tiny::VERSION   = '1.42';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
@@ -162,7 +162,7 @@ sub read_string {
 			$self->_read_hash( $document, [ length($1) ], \@lines );
 
 		} else {
-			croak("YAML::Tiny failed to classify the line '$lines[0]'");
+			Carp::croak("YAML::Tiny failed to classify the line '$lines[0]'");
 		}
 	}
 
@@ -203,7 +203,7 @@ sub _read_scalar {
 
 	# Special cases
 	if ( $string =~ /^[\'\"!&]/ ) {
-		croak("YAML::Tiny does not support a feature in line '$lines->[0]'");
+		Carp::croak("YAML::Tiny does not support a feature in line '$lines->[0]'");
 	}
 	return {} if $string eq '{}';
 	return [] if $string eq '[]';
@@ -212,13 +212,13 @@ sub _read_scalar {
 	return $string unless $string =~ /^[>|]/;
 
 	# Error
-	croak("YAML::Tiny failed to find multi-line scalar content") unless @$lines;
+	Carp::croak("YAML::Tiny failed to find multi-line scalar content") unless @$lines;
 
 	# Check the indent depth
 	$lines->[0]   =~ /^(\s*)/;
 	$indent->[-1] = length("$1");
 	if ( defined $indent->[-2] and $indent->[-1] <= $indent->[-2] ) {
-		croak("YAML::Tiny found bad indenting in line '$lines->[0]'");
+		Carp::croak("YAML::Tiny found bad indenting in line '$lines->[0]'");
 	}
 
 	# Pull the lines
@@ -252,7 +252,7 @@ sub _read_array {
 		if ( length($1) < $indent->[-1] ) {
 			return 1;
 		} elsif ( length($1) > $indent->[-1] ) {
-			croak("YAML::Tiny found bad indenting in line '$lines->[0]'");
+			Carp::croak("YAML::Tiny found bad indenting in line '$lines->[0]'");
 		}
 
 		if ( $lines->[0] =~ /^(\s*\-\s+)[^\'\"]\S*\s*:(?:\s+|$)/ ) {
@@ -289,7 +289,7 @@ sub _read_array {
 				$self->_read_hash( $array->[-1], [ @$indent, length("$1") ], $lines );
 
 			} else {
-				croak("YAML::Tiny failed to classify line '$lines->[0]'");
+				Carp::croak("YAML::Tiny failed to classify line '$lines->[0]'");
 			}
 
 		} elsif ( defined $indent->[-2] and $indent->[-1] == $indent->[-2] ) {
@@ -303,7 +303,7 @@ sub _read_array {
 			return 1;
 
 		} else {
-			croak("YAML::Tiny failed to classify line '$lines->[0]'");
+			Carp::croak("YAML::Tiny failed to classify line '$lines->[0]'");
 		}
 	}
 
@@ -328,15 +328,15 @@ sub _read_hash {
 		if ( length($1) < $indent->[-1] ) {
 			return 1;
 		} elsif ( length($1) > $indent->[-1] ) {
-			croak("YAML::Tiny found bad indenting in line '$lines->[0]'");
+			Carp::croak("YAML::Tiny found bad indenting in line '$lines->[0]'");
 		}
 
 		# Get the key
 		unless ( $lines->[0] =~ s/^\s*([^\'\" ][^\n]*?)\s*:(\s+|$)// ) {
 			if ( $lines->[0] =~ /^\s*[?\'\"]/ ) {
-				croak("YAML::Tiny does not support a feature in line '$lines->[0]'");
+				Carp::croak("YAML::Tiny does not support a feature in line '$lines->[0]'");
 			}
-			croak("YAML::Tiny failed to classify line '$lines->[0]'");
+			Carp::croak("YAML::Tiny failed to classify line '$lines->[0]'");
 		}
 		my $key = $1;
 
@@ -421,7 +421,7 @@ sub write_string {
 			push @lines, $self->_write_hash( $cursor, $indent, {} );
 
 		} else {
-			croak("Cannot serialize " . ref($cursor));
+			Carp::croak("Cannot serialize " . ref($cursor));
 		}
 	}
 
@@ -549,7 +549,7 @@ sub Dump {
 sub Load {
 	my $self = YAML::Tiny->read_string(@_);
 	unless ( $self ) {
-		croak("Failed to load YAML document from string");
+		Carp::croak("Failed to load YAML document from string");
 	}
 	if ( wantarray ) {
 		return @$self;
@@ -572,7 +572,7 @@ sub DumpFile {
 sub LoadFile {
 	my $self = YAML::Tiny->read($_[0]);
 	unless ( $self ) {
-		croak("Failed to load YAML document from '" . ($_[0] || '') . "'");
+		Carp::croak("Failed to load YAML document from '" . ($_[0] || '') . "'");
 	}
 	if ( wantarray ) {
 		return @$self;

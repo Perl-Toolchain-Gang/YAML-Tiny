@@ -1,7 +1,7 @@
 use strict;
 BEGIN {
 	require 5.003_96;
-	$main::VERSION = '1.42';
+	$main::VERSION = '1.43';
 }
 use ExtUtils::MakeMaker;
 
@@ -49,11 +49,8 @@ sub WriteMakefile1 {  #Written by Alexandr Ciornii, version 0.21
 	delete $params{CONFIGURE_REQUIRES} if $eumm_version < 6.52;
 	delete $params{MIN_PERL_VERSION} if $eumm_version < 6.48;
 	delete $params{META_MERGE} if $eumm_version < 6.46;
-	delete $params{META_ADD} if $eumm_version < 6.46;
 	delete $params{LICENSE} if $eumm_version < 6.31;
 	delete $params{AUTHOR} if $] < 5.005;
-	delete $params{ABSTRACT_FROM} if $] < 5.005;
-	delete $params{BINARY_LOCATION} if $] < 5.005;
 
 	WriteMakefile(%params);
 }
