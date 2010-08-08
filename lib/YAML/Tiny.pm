@@ -15,7 +15,7 @@ BEGIN {
 	require 5.004;
 	require Exporter;
 	require Carp;
-	$YAML::Tiny::VERSION   = '1.43';
+	$YAML::Tiny::VERSION   = '1.44';
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
 	@YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
@@ -26,7 +26,7 @@ BEGIN {
 
 # The character class of all characters we need to escape
 # NOTE: Inlined, since it's only used once
-# my $RE_ESCAPE   = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f\"\n]';
+# my $RE_ESCAPE = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f\"\n]';
 
 # Printed form of the unprintable characters in the lowest range
 # of ASCII characters, listed by ASCII ordinal position.
@@ -592,10 +592,10 @@ sub LoadFile {
 BEGIN {
 	eval {
 		require Scalar::Util;
+		*refaddr = *Scalar::Util::refaddr;
 	};
-	if ( $@ ) {
-		# Failed to load Scalar::Util
-		eval <<'END_PERL';
+	eval <<'END_PERL' if $@;
+# Failed to load Scalar::Util	
 sub refaddr {
 	my $pkg = ref($_[0]) or return undef;
 	if (!!UNIVERSAL::can($_[0], 'can')) {
@@ -609,9 +609,7 @@ sub refaddr {
 	$i;
 }
 END_PERL
-	} else {
-		Scalar::Util->import('refaddr');
-	}
+
 }
 
 1;

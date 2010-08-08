@@ -1,5 +1,10 @@
 Revision history for Perl extension YAML-Tiny
 
+1.44 Sun  8 Aug 2010
+	- No functional changes, upgrading is not required
+	- Minor tweaks to Makefile.PL
+	- Minor cleanup around the refaddr emulation code
+
 1.43 Sat 10 Jul 2010
 	- No functional changes, upgrading is not required
 	- Don't import Carp 'croak' any more, saving a few K
