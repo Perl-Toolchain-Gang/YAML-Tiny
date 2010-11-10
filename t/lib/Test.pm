@@ -275,7 +275,9 @@ sub yaml_ok {
 sub yaml_error {
         my $string = shift;
         my $yaml   = eval { YAML::Tiny->read_string( $string ); };
-        Test::More::ok( $@ =~ /$_[0]/, "TAML::Tiny throws expected error" );
+        Test::More::ok( $@ =~ /$_[0]/, "YAML::Tiny throws expected error" );
+        # NOTE: like() gives better diagnostics...
+        # Test::More::like( $@, qr/$_[0]/, "YAML::Tiny throws expected error" );
 }
 
 sub slurp {

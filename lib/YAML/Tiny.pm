@@ -210,6 +210,9 @@ sub _read_scalar {
 
 	# Regular unquoted string
         if ($string !~ /^[>|]/) {
+            Carp::croak("YAML::Tiny found illegal characters in plain scalar: '$string'") if
+                $string =~ /^(?:-(?:\s|$)|[\@\%\`])/ or
+                $string =~ /:(?:\s|$)/;
             $string =~ s/\s+#.*\z//;
             return $string
         }
