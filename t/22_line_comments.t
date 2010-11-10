@@ -22,17 +22,19 @@ use YAML::Tiny;
 
 
 # Line comments in various places
-# yaml_ok(
-#     <<'END_YAML',
-is_deeply(
-    YAML::Tiny::Load(<<'END_YAML'),
+# is_deeply(
+#     [YAML::Tiny::Load(<<'END_YAML')],
+yaml_ok(
+    <<'END_YAML',
 a: b#content
 c: d #comment
 e:
 - f #comment
 - g# content
-h: 'single'     # comment
-i: "double"     # comment
+h: 'single'                 # comment
+h2: 'single # content'      # comment
+i: "double"                 # comment
+i2: "double # content"      # comment
 j: |        # comment
     literal # content
     block   # content
@@ -50,13 +52,15 @@ END_YAML
                 'g# content',
             ],
             h => 'single',
+            h2 => 'single # content',
             i => 'double',
+            i2 => 'double # content',
             j => "literal # content\nblock   # content\n",
             k => {},
             l => [],
             m => {
                 n => 'o',
-            }
+            },
         },
     ],
     'Properly ignore comments',

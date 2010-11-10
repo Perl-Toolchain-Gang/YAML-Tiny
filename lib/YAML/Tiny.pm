@@ -180,7 +180,7 @@ sub _read_scalar {
 	return undef if $string eq '~';
 
 	# Single quote
-	if ( $string =~ /^\'(.*?)\'\z/ ) {
+	if ( $string =~ /^\'(.*?)\'(?:\s+\#.*)?\z/ ) {
 		return '' unless defined $1;
 		$string = $1;
 		$string =~ s/\'\'/\'/g;
@@ -192,7 +192,7 @@ sub _read_scalar {
 	# engine due to recursion and backtracking problems on strings
 	# larger than 32,000ish characters. Keep it for reference purposes.
 	# if ( $string =~ /^\"((?:\\.|[^\"])*)\"\z/ ) {
-	if ( $string =~ /^\"([^\\"]*(?:\\.[^\\"]*)*)\"\z/ ) {
+	if ( $string =~ /^\"([^\\"]*(?:\\.[^\\"]*)*)\"(?:\s+\#.*)?\z/ ) {
 		# Reusing the variable is a little ugly,
 		# but avoids a new variable and a string copy.
 		$string = $1;
@@ -205,11 +205,14 @@ sub _read_scalar {
 	if ( $string =~ /^[\'\"!&]/ ) {
 		Carp::croak("YAML::Tiny does not support a feature in line '$lines->[0]'");
 	}
-	return {} if $string eq '{}';
-	return [] if $string eq '[]';
+	return {} if $string =~ /^{}(?:\s+\#.*)?\z/;
+	return [] if $string =~ /^\[\](?:\s+\#.*)?\z/;
 
 	# Regular unquoted string
-	return $string unless $string =~ /^[>|]/;
+        if ($string !~ /^[>|]/) {
+            $string =~ s/\s+#.*\z//;
+            return $string
+        }
 
 	# Error
 	Carp::croak("YAML::Tiny failed to find multi-line scalar content") unless @$lines;
@@ -332,7 +335,7 @@ sub _read_hash {
 		}
 
 		# Get the key
-		unless ( $lines->[0] =~ s/^\s*([^\'\" ][^\n]*?)\s*:(\s+|$)// ) {
+		unless ( $lines->[0] =~ s/^\s*([^\'\" ][^\n]*?)\s*:(\s+(?:\#.*)?|$)// ) {
 			if ( $lines->[0] =~ /^\s*[?\'\"]/ ) {
 				Carp::croak("YAML::Tiny does not support a feature in line '$lines->[0]'");
 			}
