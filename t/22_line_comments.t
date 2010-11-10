@@ -9,7 +9,7 @@ BEGIN {
 	$^W = 1;
 }
 
-# use File::Spec::Functions ':ALL';
+use File::Spec::Functions ':ALL';
 use t::lib::Test;
 use Test::More tests(1);
 use YAML::Tiny;
@@ -21,9 +21,6 @@ use YAML::Tiny;
 #####################################################################
 
 
-# Line comments in various places
-# is_deeply(
-#     [YAML::Tiny::Load(<<'END_YAML')],
 yaml_ok(
     <<'END_YAML',
 a: b#content
