@@ -61,4 +61,5 @@ END_YAML
         },
     ],
     'Properly ignore comments',
+    noyamlpm => 1,
 );
