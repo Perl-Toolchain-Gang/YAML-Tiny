@@ -15,7 +15,8 @@ BEGIN {
 	require 5.004;
 	require Exporter;
 	require Carp;
-	$YAML::Tiny::VERSION   = '1.44';
+	$YAML::Tiny::VERSION   = '1.45_01';
+	$YAML::Tiny::VERSION   = eval $YAML::Tiny::VERSION;
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
 	@YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
@@ -203,19 +204,23 @@ sub _read_scalar {
 
 	# Special cases
 	if ( $string =~ /^[\'\"!&]/ ) {
-		Carp::croak("YAML::Tiny does not support a feature in line '$lines->[0]'");
+		Carp::croak("YAML::Tiny does not support a feature in line '$string'");
 	}
 	return {} if $string =~ /^{}(?:\s+\#.*)?\z/;
 	return [] if $string =~ /^\[\](?:\s+\#.*)?\z/;
 
 	# Regular unquoted string
-        if ($string !~ /^[>|]/) {
-            Carp::croak("YAML::Tiny found illegal characters in plain scalar: '$string'") if
-                $string =~ /^(?:-(?:\s|$)|[\@\%\`])/ or
-                $string =~ /:(?:\s|$)/;
-            $string =~ s/\s+#.*\z//;
-            return $string
-        }
+	if ( $string !~ /^[>|]/ ) {
+		if (
+			$string =~ /^(?:-(?:\s|$)|[\@\%\`])/
+			or
+			$string =~ /:(?:\s|$)/
+		) {
+			Carp::croak("YAML::Tiny found illegal characters in plain scalar: '$string'");
+		}
+		$string =~ s/\s+#.*\z//;
+		return $string;
+	}
 
 	# Error
 	Carp::croak("YAML::Tiny failed to find multi-line scalar content") unless @$lines;
@@ -604,7 +609,7 @@ BEGIN {
 # Failed to load Scalar::Util	
 sub refaddr {
 	my $pkg = ref($_[0]) or return undef;
-	if (!!UNIVERSAL::can($_[0], 'can')) {
+	if ( !! UNIVERSAL::can($_[0], 'can') ) {
 		bless $_[0], 'Scalar::Util::Fake';
 	} else {
 		$pkg = undef;
@@ -635,15 +640,19 @@ functionality of XML, except with flexibility and choice, which makes it
 easier to read, but with a formal specification that is more complex than
 XML.
 
-The original pure-Perl implementation L<YAML> costs just over 4 megabytes of
-memory to load. Just like with Windows .ini files (3 meg to load) and CSS
-(3.5 meg to load) the situation is just asking for a B<YAML::Tiny> module, an
-incomplete but correct and usable subset of the functionality, in as little
-code as possible.
+The original pure-Perl implementation L<YAML> costs just over 4 megabytes
+of memory to load. Just like with Windows .ini files (3 meg to load) and
+CSS (3.5 meg to load) the situation is just asking for a B<YAML::Tiny>
+module, an incomplete but correct and usable subset of the functionality,
+in as little code as possible.
 
-Like the other C<::Tiny> modules, YAML::Tiny will have no non-core
-dependencies, not require a compiler, and be back-compatible to at least
-perl 5.005_03, and ideally 5.004.
+Like the other C<::Tiny> modules, YAML::Tiny has no non-core dependencies,
+does not require a compiler to install, is back-compatible to Perl 5.004,
+and can be inlined into other modules if needed.
+
+In exchange for this adding this extreme flexibility, it provides support
+for only a limited subset of YAML. But the subset supported contains most
+of the features for the more common usese of YAML.
 
 =head1 SYNOPSIS
 
@@ -679,7 +688,7 @@ perl 5.005_03, and ideally 5.004.
     # Changing data
     $yaml->[0]->{newsection} = { this => 'that' }; # Add a section
     $yaml->[0]->{section}->{Foo} = 'Not Bar!';     # Change a value
-    delete $yaml->[0]->{section};                  # Delete a value or section
+    delete $yaml->[0]->{section};                  # Delete a value
     
     # Add an entire document
     $yaml->[1] = [ 'foo', 'bar', 'baz' ];
@@ -715,15 +724,16 @@ easily-embeddable module is extremely attractive.
 
 Features will only be added if they are human readable, and can be written
 in a few lines of code. Please don't be offended if your request is
-refused. Someone has to draw the line, and for YAML::Tiny that someone is me.
+refused. Someone has to draw the line, and for YAML::Tiny that someone
+is me.
 
 If you need something with more power move up to L<YAML> (4 megabytes of
 memory overhead) or L<YAML::Syck> (275k, but requires libsyck and a C
 compiler).
 
-To restate, L<YAML::Tiny> does B<not> preserve your comments, whitespace, or
-the order of your YAML data. But it should round-trip from Perl structure
-to file and back again just fine.
+To restate, L<YAML::Tiny> does B<not> preserve your comments, whitespace,
+or the order of your YAML data. But it should round-trip from Perl
+structure to file and back again just fine.
 
 =head1 YAML TINY SPECIFICATION
 
@@ -737,23 +747,24 @@ Terminology and chapter numbers are based on that specification.
 
 =head2 1. Introduction and Goals
 
-The purpose of the YAML Tiny specification is to describe a useful subset of
-the YAML specification that can be used for typical document-oriented
-uses such as configuration files and simple data structure dumps.
+The purpose of the YAML Tiny specification is to describe a useful subset
+of the YAML specification that can be used for typical document-oriented
+use cases such as configuration files and simple data structure dumps.
 
 Many specification elements that add flexibility or extensibility are
 intentionally removed, as is support for complex datastructures, class
 and object-orientation.
 
-In general, YAML Tiny targets only those data structures available in
-JSON, with the additional limitation that only simple keys are supported.
+In general, the YAML Tiny language targets only those data structures
+available in JSON, with the additional limitation that only simple keys
+are supported.
 
 As a result, all possible YAML Tiny documents should be able to be
 transformed into an equivalent JSON document, although the reverse is
 not necesarily true (but will be true in simple cases).
 
 As a result of these simplifications the YAML Tiny specification should
-be implementable in a relatively small amount of code in any language
+be implementable in a (relatively) small amount of code in any language
 that supports Perl Compatible Regular Expressions (PCRE).
 
 =head2 2. Introduction
@@ -1036,8 +1047,8 @@ The constructor C<new> creates and returns an empty C<YAML::Tiny> object.
 
 =head2 read $filename
 
-The C<read> constructor reads a YAML file, and returns a new
-C<YAML::Tiny> object containing the contents of the file. 
+The C<read> constructor reads a YAML file from a file name,
+and returns a new C<YAML::Tiny> object containing the parsed content.
 
 Returns the object on success, or C<undef> on error.
 
@@ -1049,9 +1060,10 @@ the C<$!> variable.
 
 =head2 read_string $string;
 
-The C<read_string> method takes as argument the contents of a YAML file
-(a YAML document) as a string and returns the C<YAML::Tiny> object for
-it.
+The C<read> constructor reads a YAML file from a file name,
+and returns a new C<YAML::Tiny> object containing the parsed content.
+
+Returns the object on success, or C<undef> on error.
 
 =head2 write $filename
 
@@ -1080,9 +1092,11 @@ to explicitly import the functions.
 
   my $string = Dump(list-of-Perl-data-structures);
 
-Turn Perl data into YAML. This function works very much like Data::Dumper::Dumper().
+Turn Perl data into YAML. This function works very much like
+Data::Dumper::Dumper().
 
-It takes a list of Perl data strucures and dumps them into a serialized form.
+It takes a list of Perl data strucures and dumps them into a serialized
+form.
 
 It returns a string containing the YAML stream.
 

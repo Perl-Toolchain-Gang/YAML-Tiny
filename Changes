@@ -1,5 +1,12 @@
 Revision history for Perl extension YAML-Tiny
 
+1.45_01 Tue 7 Dec 2010
+	- Added support for trailing line comments (INGY)
+	- Added checks for some characters that are illegal or reserved
+	  in plain scalars (INGY)
+	- Minor cleaning up of some out of date POD (ADAMK)
+	- Updated AUTOMATED_TESTING dependencies to new versions (ADAMK)
+
 1.44 Sun  8 Aug 2010
 	- No functional changes, upgrading is not required
 	- Minor tweaks to Makefile.PL
