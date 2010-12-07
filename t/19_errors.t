@@ -10,18 +10,30 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests => 1;
+use Test::More tests => 20;
 use YAML::Tiny ();
+
+my $FEATURE = 'does not support a feature';
+my $PLAIN   = 'illegal characters in plain scalar';
 
 
 
 
 
 #####################################################################
-# Missing Features
+# Syntactic Errors
 
-# We don't support raw nodes
-yaml_error( <<'END_YAML', 'does not support a feature' );
+yaml_error( <<'END_YAML', $FEATURE );
+- 'Multiline
+quote'
+END_YAML
+
+yaml_error( <<'END_YAML', $FEATURE );
+- "Multiline
+quote"
+END_YAML
+
+yaml_error( <<'END_YAML', $FEATURE );
 ---
 version: !!perl/hash:version 
   original: v2.0.2
@@ -30,4 +42,32 @@ version: !!perl/hash:version
     - 2
     - 0
     - 2
+END_YAML
+
+yaml_error( <<'END_YAML', $PLAIN );
+- - 2
+END_YAML
+
+yaml_error( <<'END_YAML', $PLAIN );
+foo: -
+END_YAML
+
+yaml_error( <<'END_YAML', $PLAIN );
+foo: @INC
+END_YAML
+
+yaml_error( <<'END_YAML', $PLAIN );
+foo: %INC
+END_YAML
+
+yaml_error( <<'END_YAML', $PLAIN );
+foo: bar:
+END_YAML
+
+yaml_error( <<'END_YAML', $PLAIN );
+foo: bar: baz
+END_YAML
+
+yaml_error( <<'END_YAML', $PLAIN );
+foo: `perl -V`
 END_YAML

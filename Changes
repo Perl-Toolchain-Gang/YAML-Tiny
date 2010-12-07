@@ -1,5 +1,9 @@
 Revision history for Perl extension YAML-Tiny
 
+1.45_02 Unreleased
+	- Adding initial support for exception->errstr conversion
+	- Updating test suite yaml_error to not expect exceptions
+
 1.45_01 Tue 7 Dec 2010
 	- Added support for trailing line comments (INGY)
 	- Added checks for some characters that are illegal or reserved
