@@ -15,8 +15,8 @@ BEGIN {
 	require 5.004;
 	require Exporter;
 	require Carp;
-	$YAML::Tiny::VERSION   = '1.45_02';
-	$YAML::Tiny::VERSION   = eval $YAML::Tiny::VERSION;
+	$YAML::Tiny::VERSION   = '1.46';
+	# $YAML::Tiny::VERSION   = eval $YAML::Tiny::VERSION;
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
 	@YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };

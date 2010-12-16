@@ -1,5 +1,9 @@
 Revision history for Perl extension YAML-Tiny
 
+1.46 Thu 16 Dec 2010
+	- No functional changes
+	- Moving to a production release now CPAN Testers is green again
+
 1.45_02 Tue 7 Dec 2010
 	- Adding experimental support for exception->errstr conversion
 	- Updating test suite yaml_error to not expect exceptions
