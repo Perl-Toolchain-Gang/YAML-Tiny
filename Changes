@@ -1,6 +1,7 @@
 Revision history for Perl extension YAML-Tiny
 
 1.47 Mon 31 Jan 2011
+	- No functional changes
 	- Only depend on the YAML implementations when we are release testing
 
 1.46 Thu 16 Dec 2010
