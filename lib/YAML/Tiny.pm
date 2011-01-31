@@ -15,7 +15,7 @@ BEGIN {
 	require 5.004;
 	require Exporter;
 	require Carp;
-	$YAML::Tiny::VERSION   = '1.47';
+	$YAML::Tiny::VERSION   = '1.48';
 	# $YAML::Tiny::VERSION   = eval $YAML::Tiny::VERSION;
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
@@ -609,12 +609,13 @@ sub LoadFile {
 # Use Scalar::Util if possible, otherwise emulate it
 
 BEGIN {
+	local $@;
 	eval {
 		require Scalar::Util;
-		*refaddr = *Scalar::Util::refaddr;
 	};
-	eval <<'END_PERL' if $@;
-# Failed to load Scalar::Util	
+	if ( $@ or $Scalar::Util::VERSION < 1.18 ) {
+		eval <<'END_PERL' if $@;
+# Scalar::Util failed to load or too old
 sub refaddr {
 	my $pkg = ref($_[0]) or return undef;
 	if ( !! UNIVERSAL::can($_[0], 'can') ) {
@@ -628,7 +629,9 @@ sub refaddr {
 	$i;
 }
 END_PERL
-
+	} else {
+		*refaddr = *Scalar::Util::refaddr;
+	}
 }
 
 1;

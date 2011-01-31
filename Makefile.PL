@@ -1,14 +1,14 @@
 use strict;
 BEGIN {
 	require 5.003_96;
-	$main::VERSION = '1.47';
+	$main::VERSION = '1.48';
 	# $main::VERSION = eval $main::VERSION;
 }
 use ExtUtils::MakeMaker ();
 
 WriteMakefile(
-	NAME      => 'YAML::Tiny',
-	ABSTRACT  => 'Read/Write YAML files with as little code as possible',
+	NAME           => 'YAML::Tiny',
+	ABSTRACT       => 'Read/Write YAML files with as little code as possible',
 	VERSION_FROM   => 'lib/YAML/Tiny.pm',
 	BUILD_REQUIRES => {
 		'File::Spec' => '0.80',
@@ -20,10 +20,10 @@ WriteMakefile(
 			'YAML::XS'   => '0.34',
 		) : ()),
 	},
-	AUTHOR  => 'Adam Kennedy <adamk@cpan.org>',
-	LICENSE => 'perl',
+	AUTHOR           => 'Adam Kennedy <adamk@cpan.org>',
+	LICENSE          => 'perl',
 	MIN_PERL_VERSION => '5.004',
-	META_MERGE => {
+	META_MERGE       => {
 		resources => {
 			repository => 'http://svn.ali.as/cpan/trunk/YAML-Tiny',
 			bugtracker => 'http://rt.cpan.org/NoAuth/ReportBug.html?Queue=YAML-Tiny',
