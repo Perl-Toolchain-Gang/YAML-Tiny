@@ -1,5 +1,10 @@
 Revision history for Perl extension YAML-Tiny
 
+1.49 Tue 8 Mar 2011
+	- No functional changes.
+	- Don't depend on the YAML modules in RELEASE_TESTING, as it can
+	  pollute the advisory META.yml.
+
 1.48 Tue 1 Feb 2011
 	- Fix to the refaddr compatibility where Scalar::Util is installed
 	  but is older than 1.18.

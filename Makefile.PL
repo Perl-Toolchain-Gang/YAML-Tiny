@@ -1,7 +1,7 @@
 use strict;
 BEGIN {
 	require 5.003_96;
-	$main::VERSION = '1.48';
+	$main::VERSION = '1.49';
 	# $main::VERSION = eval $main::VERSION;
 }
 use ExtUtils::MakeMaker ();
@@ -13,12 +13,6 @@ WriteMakefile(
 	BUILD_REQUIRES => {
 		'File::Spec' => '0.80',
 		'Test::More' => '0.47',
-		($ENV{RELEASE_TESTING} ? (
-			'YAML'       => '0.72',
-			'YAML::Perl' => '0.02',
-			'YAML::Syck' => '1.17',
-			'YAML::XS'   => '0.34',
-		) : ()),
 	},
 	AUTHOR           => 'Adam Kennedy <adamk@cpan.org>',
 	LICENSE          => 'perl',
