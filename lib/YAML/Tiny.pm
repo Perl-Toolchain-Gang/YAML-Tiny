@@ -15,7 +15,7 @@ BEGIN {
 	require 5.004;
 	require Exporter;
 	require Carp;
-	$YAML::Tiny::VERSION   = '1.49';
+	$YAML::Tiny::VERSION   = '1.50';
 	# $YAML::Tiny::VERSION   = eval $YAML::Tiny::VERSION;
 	@YAML::Tiny::ISA       = qw{ Exporter  };
 	@YAML::Tiny::EXPORT    = qw{ Load Dump };
@@ -458,7 +458,7 @@ sub _write_scalar {
 		$string =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
 		return qq|"$string"|;
 	}
-	if ( $string =~ /(?:^\W|\s)/ or $QUOTE{$string} ) {
+	if ( $string =~ /(?:^\W|\s|:\z)/ or $QUOTE{$string} ) {
 		return "'$string'";
 	}
 	return $string;

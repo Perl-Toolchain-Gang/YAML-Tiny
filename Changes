@@ -1,5 +1,11 @@
 Revision history for Perl extension YAML-Tiny
 
+1.50 Thu 23 Jun 2011
+	- Major bug fix, all systems dealing with arbitrary data should upgrade.
+	- Simple scalars with no whitespace but ending in a colon like ABC: were
+	  not being quoted, which results in the parser confusing it with a
+	  mapping key and crashing.
+
 1.49 Tue 8 Mar 2011
 	- No functional changes.
 	- Don't depend on the YAML modules in RELEASE_TESTING, as it can

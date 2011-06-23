@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(37, 0, 12);
+use Test::More tests(37, 0, 13);
 use YAML::Tiny qw{
 	Load     Dump
 	LoadFile DumpFile
@@ -701,3 +701,16 @@ is_deeply( YAML::Tiny->new( [ qw{
 - 'Off'
 - 'OFF'
 END_YAML
+
+
+
+
+
+######################################################################
+# Always quote for scalars ending with :
+
+is_deeply(
+	YAML::Tiny->new( [ 'A:' ] )->write_string,
+	"---\n- 'A:'\n",
+	'Simple scalar ending in a colon is correctly quoted',
+);
