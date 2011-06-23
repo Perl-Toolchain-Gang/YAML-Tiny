@@ -1,7 +1,7 @@
 Revision history for Perl extension YAML-Tiny
 
 1.50 Thu 23 Jun 2011
-	- Major bug fix, all systems dealing with arbitrary data should upgrade.
+	- Major bug fix, all code that writes arbitrary data should upgrade.
 	- Simple scalars with no whitespace but ending in a colon like ABC: were
 	  not being quoted, which results in the parser confusing it with a
 	  mapping key and crashing.
