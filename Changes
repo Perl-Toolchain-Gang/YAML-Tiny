@@ -1,5 +1,11 @@
 Revision history for Perl extension YAML-Tiny
 
+1.51 Sun 11 Mar 2012
+	- The fix described in 1.48 was incorrect. Removing an additional
+	  if $@ to fix it properly.
+	- Make the Scalar::Util version check resistant to bugs caused by
+	  development versions.
+
 1.50 Thu 23 Jun 2011
 	- Major bug fix, all code that writes arbitrary data should upgrade.
 	- Simple scalars with no whitespace but ending in a colon like ABC: were
