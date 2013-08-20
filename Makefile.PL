@@ -18,9 +18,15 @@ WriteMakefile(
     LICENSE          => 'perl',
     MIN_PERL_VERSION => '5.004',
     META_MERGE       => {
-        resources => {
-            repository => 'http://svn.ali.as/cpan/trunk/YAML-Tiny',
-            bugtracker => 'http://rt.cpan.org/NoAuth/ReportBug.html?Queue=YAML-Tiny',
+        'meta-spec' => { version => '2' },
+        repository => {
+            url => 'git@github.com:Perl-Toolchain-Gang/YAML-Tiny.git',
+            web => 'http://github.com/Perl-Toolchain-Gang/YAML-Tiny',
+            type => 'git',
+        },
+        bugtracker => {
+            mailto => 'bug-YAML-Tiny@rt.cpan.org',
+            web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=YAML-Tiny',
         },
     },
     (-d 'xt' and $ENV{AUTOMATED_TESTING} || $ENV{RELEASE_TESTING}) ? (
