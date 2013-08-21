@@ -1,5 +1,6 @@
 Changes
 lib/YAML/Tiny.pm
+LICENSE
 Makefile.PL
 MANIFEST
 t/01_compile.t
