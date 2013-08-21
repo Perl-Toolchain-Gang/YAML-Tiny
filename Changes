@@ -1,5 +1,8 @@
 Revision history for Perl extension YAML-Tiny
 
+1.53   2013-08-20
+        - really fixed metadata
+
 1.52   2013-08-20
         - updated repository metadata to reflect move to github
 
