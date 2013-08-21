@@ -1,0 +1,6 @@
+/Makefile
+/Makefile.old
+/MYMETA*
+/blib/
+/pm_to_blib
+/YAML-Tiny-*
