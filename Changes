@@ -155,20 +155,20 @@ Revision history for {{$dist->name}}
           - YAML::Tiny::Load is now fully compatible with YAML.pm in scalar
             context (returns the LAST parsed document).
 
-1.25 20088-01-14
+1.25      2008-01-14
           - Wrote the specification section
 
-1.24_01 22008-01-11
+1.24_01   2008-01-11
           - Adding additional test cases
           - Adding support for YAML header for META.yml
           - Adding support for YAML header for YAML 1.0
           - Adding support for YAML header for YAML 1.1
 
-1.23 20088-01-10
+1.23      2008-01-10
           - Identical to 1.22_01
           - CPAN Testers results positive, pushing to production version
 
-1.22_01 22008-01-09
+1.22_01   2008-01-09
           - Correcting handling of single quote escaping
           - Adding protection for infinite loops caused by circular
             references during serializing.
