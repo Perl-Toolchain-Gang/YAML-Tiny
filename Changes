@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.54      2013-08-22 03:55:41Z (Karen Etheridge)
           - convert to Dist::Zilla
           - Updated format to conform to CPAN::Changes::Spec
 
