@@ -651,7 +651,7 @@ easier to read, but with a formal specification that is more complex than
 XML.
 
 The original pure-Perl implementation L<YAML> costs just over 4 megabytes
-of memory to load. Just like with Windows .ini files (3 meg to load) and
+of memory to load. Just like with Windows F<.ini> files (3 meg to load) and
 CSS (3.5 meg to load) the situation is just asking for a B<YAML::Tiny>
 module, an incomplete but correct and usable subset of the functionality,
 in as little code as possible.
@@ -662,7 +662,7 @@ and can be inlined into other modules if needed.
 
 In exchange for this adding this extreme flexibility, it provides support
 for only a limited subset of YAML. But the subset supported contains most
-of the features for the more common usese of YAML.
+of the features for the more common uses of YAML.
 
 =head1 SYNOPSIS
 
@@ -723,13 +723,17 @@ I said B<human-readable> and not B<geek-readable>. The sort of files that
 your average manager or secretary should be able to look at and make
 sense of.
 
-L<YAML::Tiny> does not generate comments, it won't necesarily preserve the
+=for stopwords normalise
+
+L<YAML::Tiny> does not generate comments, it won't necessarily preserve the
 order of your hashes, and it will normalise if reading in and writing out
 again.
 
 It only supports a very basic subset of the full YAML specification.
 
-Usage is targetted at files like Perl's META.yml, for which a small and
+=for stopwords embeddable
+
+Usage is targeted at files like Perl's META.yml, for which a small and
 easily-embeddable module is extremely attractive.
 
 Features will only be added if they are human readable, and can be written
@@ -738,7 +742,7 @@ refused. Someone has to draw the line, and for YAML::Tiny that someone
 is me.
 
 If you need something with more power move up to L<YAML> (4 megabytes of
-memory overhead) or L<YAML::Syck> (275k, but requires libsyck and a C
+memory overhead) or L<YAML::Syck> (275k, but requires F<libsyck> and a C
 compiler).
 
 To restate, L<YAML::Tiny> does B<not> preserve your comments, whitespace,
@@ -761,8 +765,10 @@ The purpose of the YAML Tiny specification is to describe a useful subset
 of the YAML specification that can be used for typical document-oriented
 use cases such as configuration files and simple data structure dumps.
 
+=for stopwords extensibility
+
 Many specification elements that add flexibility or extensibility are
-intentionally removed, as is support for complex datastructures, class
+intentionally removed, as is support for complex data structures, class
 and object-orientation.
 
 In general, the YAML Tiny language targets only those data structures
@@ -771,7 +777,9 @@ are supported.
 
 As a result, all possible YAML Tiny documents should be able to be
 transformed into an equivalent JSON document, although the reverse is
-not necesarily true (but will be true in simple cases).
+not necessarily true (but will be true in simple cases).
+
+=for stopwords PCRE
 
 As a result of these simplifications the YAML Tiny specification should
 be implementable in a (relatively) small amount of code in any language
@@ -798,6 +806,8 @@ The use of "null" type scalars is supported via the ~ character.
 
 The use of "bool" type scalars is not supported.
 
+=for stopwords serializer
+
 However, serializer implementations should take care to explicitly escape
 strings that match a "bool" keyword in the following set to prevent other
 implementations that do support "bool" accidentally reading a string as a
@@ -815,6 +825,8 @@ The use of directives is supported only for the %YAML directive.
 
 B<Processes>
 
+=for stopwords deserialization
+
 The YAML specification dictates three-phase serialization and three-phase
 deserialization.
 
@@ -825,6 +837,8 @@ Any compliant parser is only required to parse a single document at a
 time. The ability to support streaming documents is optional and most
 likely non-typical.
 
+=for stopwords acyclic
+
 Because anchors and aliases are not supported, the resulting representation
 graph is thus directed but (unlike the main YAML specification) B<acyclic>.
 
@@ -833,6 +847,8 @@ detecting a circular reference should error with an appropriate message.
 
 B<Presentation Stream>
 
+=for stopwords unicode
+
 YAML Tiny is notionally unicode, but support for unicode is required if the
 underlying language or system being used to implement a parser does not
 support Unicode. If unicode is encountered in this case an error should be
@@ -840,9 +856,13 @@ returned.
 
 B<Loading Failure Points>
 
+=for stopwords modality
+
+=for stopwords parsers
+
 YAML Tiny parsers and emitters are not expected to recover from adapt to
 errors. The specific error modality of any implementation is not dictated
-(return codes, exceptions, etc) but is expected to be consistant.
+(return codes, exceptions, etc) but is expected to be consistent.
 
 =head2 4. Syntax
 
@@ -943,13 +963,15 @@ Indentation spaces work as per the YAML specification in all cases.
 Comments work as per the YAML specification in all simple cases.
 Support for indented multi-line comments is B<not> required.
 
-Seperation spaces work as per the YAML specification in all cases.
+Separation spaces work as per the YAML specification in all cases.
 
 B<YAML Tiny Character Stream>
 
 The only directive supported by the YAML Tiny specification is the
 %YAML language/version identifier. Although detected, this directive
 will have no control over the parsing itself.
+
+=for stopwords recognise
 
 The parser must recognise both the YAML 1.0 and YAML 1.1+ formatting
 of this directive (as well as the commented form, although no explicit
@@ -976,7 +998,7 @@ Support for the document boundary marker "---" is required.
 
 Support for the document boundary market "..." is B<not> required.
 
-If necesary, a document boundary should simply by indicated with a
+If necessary, a document boundary should simply by indicated with a
 "---" marker, with not preceding "..." marker.
 
 Support for empty streams (containing no documents) is required.
@@ -1035,6 +1057,8 @@ Support for quoted keys in mappings is B<not> required.
 
 Support for "?"-indicated explicit keys is B<not> required.
 
+=for stopwords endeth
+
 Here endeth the specification.
 
 =head2 Additional Perl-Specific Notes
@@ -1063,7 +1087,7 @@ and returns a new C<YAML::Tiny> object containing the parsed content.
 Returns the object on success, or C<undef> on error.
 
 When C<read> fails, C<YAML::Tiny> sets an error message internally
-you can recover via C<YAML::Tiny-E<gt>errstr>. Although in B<some>
+you can recover via C<< YAML::Tiny->errstr >>. Although in B<some>
 cases a failed C<read> will also set the operating system error
 variable C<$!>, not all errors do and you should not rely on using
 the C<$!> variable.
@@ -1086,6 +1110,8 @@ Returns true on success or C<undef> on error.
 
 Generates the file content for the object and returns it as a string.
 
+=for stopwords errstr
+
 =head2 errstr
 
 When an error occurs, you can retrieve the error message either from the
@@ -1105,7 +1131,7 @@ to explicitly import the functions.
 Turn Perl data into YAML. This function works very much like
 Data::Dumper::Dumper().
 
-It takes a list of Perl data strucures and dumps them into a serialized
+It takes a list of Perl data structures and dumps them into a serialized
 form.
 
 It returns a string containing the YAML stream.
