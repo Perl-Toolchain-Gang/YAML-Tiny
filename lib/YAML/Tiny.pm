@@ -1195,7 +1195,7 @@ Adam Kennedy E<lt>adamk@cpan.orgE<gt>
 
 =item * L<CSS::Tiny>
 
-=item * L<http://use.perl.org/~Alias/journal/29427>
+=item * L<http://use.perl.org/use.perl.org/_Alias/journal/29427.html>
 
 =item * L<http://ali.as/>
 
