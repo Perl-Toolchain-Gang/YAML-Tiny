@@ -1185,8 +1185,21 @@ Adam Kennedy E<lt>adamk@cpan.orgE<gt>
 
 =head1 SEE ALSO
 
-L<YAML>, L<YAML::Syck>, L<Config::Tiny>, L<CSS::Tiny>,
-L<http://use.perl.org/~Alias/journal/29427>, L<http://ali.as/>
+=over 4
+
+=item * L<YAML>
+
+=item * L<YAML::Syck>
+
+=item * L<Config::Tiny>
+
+=item * L<CSS::Tiny>
+
+=item * L<http://use.perl.org/~Alias/journal/29427>
+
+=item * L<http://ali.as/>
+
+=back
 
 =head1 COPYRIGHT
 
