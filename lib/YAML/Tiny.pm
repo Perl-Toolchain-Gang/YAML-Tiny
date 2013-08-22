@@ -594,7 +594,7 @@ sub LoadFile {
 	if ( wantarray ) {
 		return @$self;
 	} else {
-		# Return only the last document to match YAML.pm, 
+		# Return only the last document to match YAML.pm,
 		return $self->[-1];
 	}
 }
@@ -668,7 +668,7 @@ of the features for the more common uses of YAML.
 
     #############################################
     # In your file
-    
+
     ---
     rootproperty: blah
     section:
@@ -676,33 +676,33 @@ of the features for the more common uses of YAML.
       three: four
       Foo: Bar
       empty: ~
-    
-    
-    
+
+
+
     #############################################
     # In your program
-    
+
     use YAML::Tiny;
-    
+
     # Create a YAML file
     my $yaml = YAML::Tiny->new;
-    
+
     # Open the config
     $yaml = YAML::Tiny->read( 'file.yml' );
-    
+
     # Reading properties
     my $root = $yaml->[0]->{rootproperty};
     my $one  = $yaml->[0]->{section}->{one};
     my $Foo  = $yaml->[0]->{section}->{Foo};
-    
+
     # Changing data
     $yaml->[0]->{newsection} = { this => 'that' }; # Add a section
     $yaml->[0]->{section}->{Foo} = 'Not Bar!';     # Change a value
     delete $yaml->[0]->{section};                  # Delete a value
-    
+
     # Add an entire document
     $yaml->[1] = [ 'foo', 'bar', 'baz' ];
-    
+
     # Save the file
     $yaml->write( 'file.conf' );
 
@@ -939,8 +939,8 @@ To provide the ability to support empty sequences
 and mappings, support for the constructs [] (empty sequence) and {}
 (empty mapping) are required.
 
-For example, 
-  
+For example,
+
   %YAML 1.1
   # A document consisting of only an empty mapping
   --- {}

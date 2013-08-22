@@ -29,7 +29,7 @@ yaml_ok(
 		invoice   => 34843,
 		date      => '2001-01-23',
 		'bill-to' => {
-			given  => 'Chris',	
+			given  => 'Chris',
 			family => 'Dumars',
 			address => {
 				lines  => "458 Walkman Dr.\nSuite #292\n",

@@ -268,12 +268,12 @@ END_YAML
 yaml_ok(
 	<<'END_YAML',
 ---
-abstract: Generate fractal curves 
-foo: ~ 
+abstract: Generate fractal curves
+foo: ~
 arr:
-  - foo 
+  - foo
   - ~
-  - 'bar'  
+  - 'bar'
 END_YAML
 	[ {
 		abstract => 'Generate fractal curves',
@@ -428,7 +428,7 @@ SCOPE: {
 		$@ =~ /does not support circular references/,
 		'Got the expected error message',
 	);
-}	
+}
 
 
 

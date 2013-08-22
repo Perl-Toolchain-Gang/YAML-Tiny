@@ -109,7 +109,7 @@ sub yaml_ok {
 			Test::More::is( $@, '', "$name: YAML.pm round-trips without error" );
 			Test::More::skip( "Shortcutting after failure", 2 ) if $@;
 			my $round = bless [ @yamlpm_round ], 'YAML::Tiny';
-			Test::More::is_deeply( $round, $object, "$name: YAML.pm round-trips correctly" );               
+			Test::More::is_deeply( $round, $object, "$name: YAML.pm round-trips correctly" );
 		}
 
 		# Test reading with YAML.pm
@@ -148,7 +148,7 @@ sub yaml_ok {
 			Test::More::is( $@, '', "$name: YAML::Syck round-trips without error" );
 			Test::More::skip( "Shortcutting after failure", 2 ) if $@;
 			my $round = bless [ @syck_round ], 'YAML::Tiny';
-			Test::More::is_deeply( $round, $object, "$name: YAML::Syck round-trips correctly" );            
+			Test::More::is_deeply( $round, $object, "$name: YAML::Syck round-trips correctly" );
 		}
 
 		# Test reading with YAML::Syck
@@ -184,7 +184,7 @@ sub yaml_ok {
 			Test::More::is( $@, '', "$name: YAML::XS round-trips without error" );
 			Test::More::skip( "Shortcutting after failure", 2 ) if $@;
 			my $round = bless [ @xs_round ], 'YAML::Tiny';
-			Test::More::is_deeply( $round, $object, "$name: YAML::XS round-trips correctly" );              
+			Test::More::is_deeply( $round, $object, "$name: YAML::XS round-trips correctly" );
 		}
 
 		# Test reading with YAML::XS
@@ -220,7 +220,7 @@ sub yaml_ok {
 			Test::More::is( $@, '', "$name: YAML::Perl round-trips without error" );
 			Test::More::skip( "Shortcutting after failure", 2 ) if $@;
 			my $round = bless [ @yamlperl_round ], 'YAML::Tiny';
-			Test::More::is_deeply( $round, $object, "$name: YAML::Perl round-trips correctly" );            
+			Test::More::is_deeply( $round, $object, "$name: YAML::Perl round-trips correctly" );
 		}
 
 		# Test reading with YAML::Perl
