@@ -1075,6 +1075,8 @@ specification are not required to retain the distinctiveness of 3 vs "3".
 
 =head1 METHODS
 
+=for Pod::Coverage HAVE_UTF8 refaddr
+
 =head2 new
 
 The constructor C<new> creates and returns an empty C<YAML::Tiny> object.
