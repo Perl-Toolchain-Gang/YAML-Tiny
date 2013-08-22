@@ -3,6 +3,8 @@
 # Testing of scalar-context calls to the compatibility functions
 
 use strict;
+use warnings;
+
 BEGIN {
 	$|  = 1;
 	$^W = 1;

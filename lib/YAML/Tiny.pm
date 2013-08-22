@@ -1,6 +1,7 @@
 package YAML::Tiny;
 
 use strict;
+use warnings;
 
 # UTF Support?
 sub HAVE_UTF8 () { $] >= 5.007003 }

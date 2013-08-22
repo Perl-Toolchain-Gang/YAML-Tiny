@@ -3,6 +3,8 @@
 # Testing of META.yml containing AVAR's name
 
 use strict;
+use warnings;
+
 BEGIN {
 	$|  = 1;
 	$^W = 1;

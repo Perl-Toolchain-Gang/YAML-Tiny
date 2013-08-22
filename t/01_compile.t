@@ -3,6 +3,8 @@
 # Load testing for YAML::Tiny
 
 use strict;
+use warnings;
+
 BEGIN {
 	$|  = 1;
 	$^W = 1;

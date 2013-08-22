@@ -4,6 +4,8 @@
 # files and people will expect them to work.
 
 use strict;
+use warnings;
+
 BEGIN {
 	$|  = 1;
 	$^W = 1;

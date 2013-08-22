@@ -3,6 +3,8 @@
 # Testing Plagger config samples from Miyagawa-san's YAPC::NA 2006 talk
 
 use strict;
+use warnings;
+
 BEGIN {
 	$|  = 1;
 	$^W = 1;

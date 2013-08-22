@@ -1,6 +1,8 @@
 package t::lib::Test;
 
 use strict;
+use warnings;
+
 use Exporter   ();
 use File::Spec ();
 use Test::More ();

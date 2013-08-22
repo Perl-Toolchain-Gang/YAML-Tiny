@@ -3,6 +3,8 @@
 # Testing of a known-bad file from an editor
 
 use strict;
+use warnings;
+
 BEGIN {
 	$|  = 1;
 	$^W = 1;
