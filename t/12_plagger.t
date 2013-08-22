@@ -95,7 +95,7 @@ plugins:
        - '#plagger-ja'
        - '#plagger'
 
-   
+
 END_YAML
 	[ { plugins => [ {
 		module => 'Subscription::Config',
@@ -124,4 +124,4 @@ END_YAML
 		},
 	} ] } ],
 	'plagger2',
-);			
+);
