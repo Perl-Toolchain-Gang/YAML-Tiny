@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Testing of a known-bad file from an editor
 
 use strict;

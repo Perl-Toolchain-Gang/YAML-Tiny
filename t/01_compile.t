@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Load testing for YAML::Tiny
 
 use strict;

@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Testing Plagger config samples from Miyagawa-san's YAPC::NA 2006 talk
 
 use strict;

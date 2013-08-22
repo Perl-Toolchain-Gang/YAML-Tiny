@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Testing documents that should fail
 
 use strict;

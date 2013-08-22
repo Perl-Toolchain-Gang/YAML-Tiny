@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Testing of META.yml containing AVAR's name
 
 use strict;

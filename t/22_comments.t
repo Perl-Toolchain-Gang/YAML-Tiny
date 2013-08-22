@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Testing of inline comments. These comments can be quite useful in config
 # files and people will expect them to work.
 

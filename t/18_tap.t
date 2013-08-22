@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Testing relating to functionality in the Test Anything Protocol
 
 use strict;

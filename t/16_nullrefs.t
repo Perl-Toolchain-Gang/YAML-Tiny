@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Testing for null references
 
 use strict;

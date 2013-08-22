@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Testing of scalar-context calls to the compatibility functions
 
 use strict;

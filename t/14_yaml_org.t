@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Testing of common META.yml examples
 
 use strict;

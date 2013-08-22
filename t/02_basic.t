@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 # Testing of basic document structures
 
 use strict;
