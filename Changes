@@ -1,286 +1,285 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
-         - convert to Dist::Zilla
-         - Updated format to conform to CPAN::Changes::Spec
-
-1.53   2013-08-20
-        - really fixed metadata
-
-1.52 2013-08-20
-    - updated repository metadata to reflect move to github
-
-1.51 2012-03-11
-    - The fix described in 1.48 was incorrect. Removing an additional
-      if $@ to fix it properly.
-    - Make the Scalar::Util version check resistant to bugs caused by
-      development versions.
-
-1.50 2011-06-23
-    - Major bug fix, all code that writes arbitrary data should upgrade.
-    - Simple scalars with no whitespace but ending in a colon like ABC: were
-      not being quoted, which results in the parser confusing it with a
-      mapping key and crashing.
-
-1.49 2011-03-08
-    - No functional changes.
-    - Don't depend on the YAML modules in RELEASE_TESTING, as it can
-      pollute the advisory META.yml.
-
-1.48 2011-02-01
-    - Fix to the refaddr compatibility where Scalar::Util is installed
-      but is older than 1.18.
-
-1.47 2011-01-31
-    - No functional changes
-    - Only depend on the YAML implementations when we are release testing
-
-1.46 2010-12-16
-    - No functional changes
-    - Moving to a production release now CPAN Testers is green again
-
-1.45_02 2010-12-07
-    - Adding experimental support for exception->errstr conversion
-    - Updating test suite yaml_error to not expect exceptions
-
-1.45_01 2010-12-07
-    - Added support for trailing line comments (INGY)
-    - Added checks for some characters that are illegal or reserved
-      in plain scalars (INGY)
-    - Minor cleaning up of some out of date POD (ADAMK)
-    - Updated AUTOMATED_TESTING dependencies to new versions (ADAMK)
-
-1.44 2010-08-08
-    - No functional changes, upgrading is not required
-    - Minor tweaks to Makefile.PL
-    - Minor cleanup around the refaddr emulation code
-
-1.43 2010-07-10
-    - No functional changes, upgrading is not required
-    - Don't import Carp 'croak' any more, saving a few K
-
-1.42 2010-06-25
-    - No functional changes, upgrading is not required
-    - Clarified documation to explain that YAML::Tiny escapes "bool"
-      keywords when it writes them as strings so that YAML parsers in
-      other languages won't get confused, but this does not mean that
-      YAML::Tiny actually supports boolean types itself.
-    - Added an extra test case for boolean keyword escaping.
-    - YAML::Perl comparison tests were loading the file back in with
-      YAML.pm by mistake. Corrected this and added an additional case
-      that YAML::Perl doesn't support that I wasn't catching.
-    - Author tests updated and moved into xt/
-    - Updated the versions of the other YAML parsers we test ourselves
-      against to the most recent versions of each.
-
-1.41 2009-12-11
-    - Fixes a performance bug reported by Apocalypse.
-      Single line double-quoted strings longer than 32,000ish characters
-      resulted in the regular expression engine crashing due to
-      excessive recursion. Changed to a different regex that will most
-      likely only crash after 32,000 ESCAPED characters. If I could use
-      negative look-behind assertions (I can't because I need 5.004)
-      this whole issue would be MUCH simpler to fix.
-
-1.40 2009-07-31
-    - Dear Ruby Community.
-      Thank you so much for your bug report to the "Ruby Talk" mailing list
-      regarding the lack of true/false support in Perl YAML modules.
-      http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/169943
-      This flaw has now been resolved, around 2 hours after we
-      were made aware of it. Next time, we recommend you report these bugs
-      to the people who can actually fix your problem.
-
-1.39 2009-05-21
-    - Even though utf8 starts at 5.7+ there's no is_utf till
-      5.8.1 so skip in the tests if needed (ADAMK)
-
-1.38 2009-05-16
-    - Moving the test suite style closer to Parse::CPAN::Meta
-    - Changed exceptions closer to Parse::CPAN::Meta
-    - Fixed Changes file date for 1.37 :)
-
-1.37 2009-05-16
-    - Call $self->_error instead of $class->_error when we can
-    - Refactoring away some of the code other people have been
-      contributing lately that most certainly NOT ::Tiny style.
-    - Avoid the need to do '' escaping by moving it to "'"
-    - Added comparative testing with YAML::Perl
-
-1.36 2009-01-07
-    - Fixing missing feature reported by H.Merijn Brand
-
-1.35 2008-12-17
-    - Production release for changes in 1.34_01
-    - No other changes
-
-1.34_01 2008-11-19
-    - Improving sub-classability by passing the indent level through
-      to the ->_write_scalar method.
+          - convert to Dist::Zilla
+          - Updated format to conform to CPAN::Changes::Spec
+
+1.53      2013-08-20
+          - really fixed metadata
+
+1.52      2013-08-20
+          - updated repository metadata to reflect move to github
+
+1.51      2012-03-11
+          - The fix described in 1.48 was incorrect. Removing an additional
+            if $@ to fix it properly.
+          - Make the Scalar::Util version check resistant to bugs caused by
+            development versions.
+
+1.50      2011-06-23
+          - Major bug fix, all code that writes arbitrary data should upgrade.
+          - Simple scalars with no whitespace but ending in a colon like ABC: were
+            not being quoted, which results in the parser confusing it with a
+            mapping key and crashing.
+
+1.49      2011-03-08
+          - No functional changes.
+          - Don't depend on the YAML modules in RELEASE_TESTING, as it can
+            pollute the advisory META.yml.
+
+1.48      2011-02-01
+          - Fix to the refaddr compatibility where Scalar::Util is installed
+            but is older than 1.18.
+
+1.47      2011-01-31
+          - No functional changes
+          - Only depend on the YAML implementations when we are release testing
+
+1.46      2010-12-16
+          - No functional changes
+          - Moving to a production release now CPAN Testers is green again
+
+1.45_02   2010-12-07
+          - Adding experimental support for exception->errstr conversion
+          - Updating test suite yaml_error to not expect exceptions
+
+1.45_01   2010-12-07
+          - Added support for trailing line comments (INGY)
+          - Added checks for some characters that are illegal or reserved
+            in plain scalars (INGY)
+          - Minor cleaning up of some out of date POD (ADAMK)
+          - Updated AUTOMATED_TESTING dependencies to new versions (ADAMK)
+
+1.44      2010-08-08
+          - No functional changes, upgrading is not required
+          - Minor tweaks to Makefile.PL
+          - Minor cleanup around the refaddr emulation code
+
+1.43      2010-07-10
+          - No functional changes, upgrading is not required
+          - Don't import Carp 'croak' any more, saving a few K
+
+1.42      2010-06-25
+          - No functional changes, upgrading is not required
+          - Clarified documation to explain that YAML::Tiny escapes "bool"
+            keywords when it writes them as strings so that YAML parsers in
+            other languages won't get confused, but this does not mean that
+            YAML::Tiny actually supports boolean types itself.
+          - Added an extra test case for boolean keyword escaping.
+          - YAML::Perl comparison tests were loading the file back in with
+            YAML.pm by mistake. Corrected this and added an additional case
+            that YAML::Perl doesn't support that I wasn't catching.
+          - Author tests updated and moved into xt/
+          - Updated the versions of the other YAML parsers we test ourselves
+            against to the most recent versions of each.
+
+1.41      2009-12-11
+          - Fixes a performance bug reported by Apocalypse.
+            Single line double-quoted strings longer than 32,000ish characters
+            resulted in the regular expression engine crashing due to
+            excessive recursion. Changed to a different regex that will most
+            likely only crash after 32,000 ESCAPED characters. If I could use
+            negative look-behind assertions (I can't because I need 5.004)
+            this whole issue would be MUCH simpler to fix.
+
+1.40      2009-07-31
+          - Dear Ruby Community.
+            Thank you so much for your bug report to the "Ruby Talk" mailing list
+            regarding the lack of true/false support in Perl YAML modules.
+            http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/169943
+            This flaw has now been resolved, around 2 hours after we
+            were made aware of it. Next time, we recommend you report these bugs
+            to the people who can actually fix your problem.
+
+1.39      2009-05-21
+          - Even though utf8 starts at 5.7+ there's no is_utf till
+            5.8.1 so skip in the tests if needed (ADAMK)
+
+1.38      2009-05-16
+          - Moving the test suite style closer to Parse::CPAN::Meta
+          - Changed exceptions closer to Parse::CPAN::Meta
+          - Fixed Changes file date for 1.37 :)
+
+1.37      2009-05-16
+          - Call $self->_error instead of $class->_error when we can
+          - Refactoring away some of the code other people have been
+            contributing lately that most certainly NOT ::Tiny style.
+          - Avoid the need to do '' escaping by moving it to "'"
+          - Added comparative testing with YAML::Perl
+
+1.36      2009-01-07
+          - Fixing missing feature reported by H.Merijn Brand
+
+1.35      2008-12-17
+          - Production release for changes in 1.34_01
+          - No other changes
 
-1.33 2008-07-24
-    - Export Load and Dump functions by default.
+1.34_01   2008-11-19
+          - Improving sub-classability by passing the indent level through
+            to the ->_write_scalar method.
 
-1.32 2008-05-14
-    - Adding a test to check for correct exceptions
-    - ONLY do comparative tests when the modules to compare to are current.
-      (Prevents false failures in some cases)
+1.33      2008-07-24
+          - Export Load and Dump functions by default.
 
-1.31 2008-05-08
-    - Emergency bugfix release
+1.32      2008-05-14
+          - Adding a test to check for correct exceptions
+          - ONLY do comparative tests when the modules to compare to are current.
+            (Prevents false failures in some cases)
 
-1.30 2008-05-04
-    - Better error reporting of unsupported features
-    - Heavily bump automated testing deps to remove false errors
+1.31      2008-05-08
+          - Emergency bugfix release
 
-1.29 2008-04-12
-    - CPAN Testers passes ok, moving to production version
+1.30      2008-05-04
+          - Better error reporting of unsupported features
+          - Heavily bump automated testing deps to remove false errors
 
-1.28_01 2008-04-05
-    - Adding support for document terminators
-      (To support YAML embedded in TAP streams)
+1.29      2008-04-12
+          - CPAN Testers passes ok, moving to production version
 
-1.27 2008-03-31
-    - Skip 04_scalar.t if no YAML.pm
-    - Implement YAML compatibility + tests for LoadFile
-    - Remove the LICENSE key from Makefile.PL
-      (Which failed on some CPAN Testers setups)
+1.28_01   2008-04-05
+          - Adding support for document terminators
+            (To support YAML embedded in TAP streams)
 
-1.26 2008-03-20
-    - Added extra test cases to validate RT bugs that were fixed
-      previous, but not closed at the time.
-    - Always quote when serialising anything that starts with a non-word
-    - YAML::Tiny::Load is now fully compatible with YAML.pm in scalar
-      context (returns the LAST parsed document).
+1.27      2008-03-31
+          - Skip 04_scalar.t if no YAML.pm
+          - Implement YAML compatibility + tests for LoadFile
+          - Remove the LICENSE key from Makefile.PL
+            (Which failed on some CPAN Testers setups)
 
-1.25 2008-01-14
-    - Wrote the specification section
+1.26      2008-03-20
+          - Added extra test cases to validate RT bugs that were fixed
+            previous, but not closed at the time.
+          - Always quote when serialising anything that starts with a non-word
+          - YAML::Tiny::Load is now fully compatible with YAML.pm in scalar
+            context (returns the LAST parsed document).
 
-1.24_01 2008-01-11
-    - Adding additional test cases
-    - Adding support for YAML header for META.yml
-    - Adding support for YAML header for YAML 1.0
-    - Adding support for YAML header for YAML 1.1
+1.25 20088-01-14
+          - Wrote the specification section
 
-1.23 2008-01-10
-    - Identical to 1.22_01
-    - CPAN Testers results positive, pushing to production version
+1.24_01 22008-01-11
+          - Adding additional test cases
+          - Adding support for YAML header for META.yml
+          - Adding support for YAML header for YAML 1.0
+          - Adding support for YAML header for YAML 1.1
 
-1.22_01 2008-01-09
-    - Correcting handling of single quote escaping
-    - Adding protection for infinite loops caused by circular
-      references during serializing.
-    - Confirmed support for toolbar.yml sample
+1.23 20088-01-10
+          - Identical to 1.22_01
+          - CPAN Testers results positive, pushing to production version
 
-1.21 2007-12-06
-    - Fixing support for unprintable characters
+1.22_01 22008-01-09
+          - Correcting handling of single quote escaping
+          - Adding protection for infinite loops caused by circular
+            references during serializing.
+          - Confirmed support for toolbar.yml sample
 
-1.20 2007-11-19
-    - Correcting class name in @EXPORT_OK declaration
-      (Demetrios Biskinis)
->>>>>>> origin/master
+1.21      2007-12-06
+          - Fixing support for unprintable characters
 
-1.19 2007-11-16
-    - Removing the invalid perl dep
+1.20      2007-11-19
+          - Correcting class name in @EXPORT_OK declaration
+            (Demetrios Biskinis)
 
-1.18 2007-11-05
-    - Adding a new test file
+1.19      2007-11-16
+          - Removing the invalid perl dep
 
-1.17 2007-11-01
-    - Updating from Module::Install to the tinier ExtUtils::MakeMaker
+1.18      2007-11-05
+          - Adding a new test file
 
-1.16 2007-10-22
-    - Updating to newer AUTOMATED_TESTING tests
+1.17      2007-11-01
+          - Updating from Module::Install to the tinier ExtUtils::MakeMaker
 
-1.15 2007-08-25
-    - Incremental release to include an updated version of 99_author.t
-    - Replace a few CODE INCOMPLETE errors with real errors
-      (those parts of the module are now complete)
+1.16      2007-10-22
+          - Updating to newer AUTOMATED_TESTING tests
 
-1.14 2007-08-16
-    - Adding support for empty reference documents
+1.15      2007-08-25
+          - Incremental release to include an updated version of 99_author.t
+          - Replace a few CODE INCOMPLETE errors with real errors
+            (those parts of the module are now complete)
 
-1.13 2007-07-09
-    - Adding a test case for support of multi-byte characters
+1.14      2007-08-16
+          - Adding support for empty reference documents
 
-1.12 2007-06-05
-    - Adding support for open hash/array at EOF
+1.13      2007-07-09
+          - Adding a test case for support of multi-byte characters
 
-1.11 2007-06-05
-    - Forgot to string trailing whitespace in a few cases
-    - 'hashkey: This was mistaken as a hash entry, not a string'
-    - Adding explicit tests from #yaml for single quote escaping
+1.12      2007-06-05
+          - Adding support for open hash/array at EOF
 
-1.10 2007-06-05
-    - Adding support for null hash/arrays
+1.11      2007-06-05
+          - Forgot to string trailing whitespace in a few cases
+          - 'hashkey: This was mistaken as a hash entry, not a string'
+          - Adding explicit tests from #yaml for single quote escaping
 
-1.09 2007-05-21
-    - Fixing a bug in the trivial scalar case
+1.10      2007-06-05
+          - Adding support for null hash/arrays
 
-1.08 2007-05-16
-    - Adding support for |- trimming multiline scalars
+1.09      2007-05-21
+          - Fixing a bug in the trivial scalar case
 
-1.07 2007-05-15
-    - Adding support for whitespace after document headers
+1.08      2007-05-16
+          - Adding support for |- trimming multiline scalars
 
-1.06 2007-05-14
-    - Bug fix to support an additional variant of null hashes
+1.07      2007-05-15
+          - Adding support for whitespace after document headers
 
-1.05 2007-05-02
-    - Bug fix to allow support for keys with spaces
-    - Bug fix to allow empty comments
+1.06      2007-05-14
+          - Bug fix to support an additional variant of null hashes
 
-1.04 2007-02-21
-    - Adding support for LoadFile, DumpFile, freeze and thaw
+1.05      2007-05-02
+          - Bug fix to allow support for keys with spaces
+          - Bug fix to allow empty comments
 
-1.03 2007-01-14
-    - Removing the forward-looking part of the preamble
+1.04      2007-02-21
+          - Adding support for LoadFile, DumpFile, freeze and thaw
 
-1.02 2007-01-14
-    - Fixing exporting
+1.03      2007-01-14
+          - Removing the forward-looking part of the preamble
 
-1.01 2007-01-14
-    - Removed the ugly bold warning
+1.02      2007-01-14
+          - Fixing exporting
 
-1.00 2007-01-14
-    - What the hell, I'm as close as is needed I think
+1.01      2007-01-14
+          - Removed the ugly bold warning
 
-0.90 2007-01-13
-    - Adding support for inline multi-lines
+1.00      2007-01-14
+          - What the hell, I'm as close as is needed I think
 
-0.11 2006-09-25
-    - Fixed bug in regex that detects unheadered ARRAY|HASH
+0.90      2007-01-13
+          - Adding support for inline multi-lines
 
-0.10 2006-08-24
-    - Added double-quote support, making YAML::Tiny a lot more usable
-    - Added Load and Dump for YAML.pm compatibility
-    - Added tests for verifying compatibility with YAML::Syck
+0.11      2006-09-25
+          - Fixed bug in regex that detects unheadered ARRAY|HASH
 
-0.06 2006-07-09
-    - Added more tests
+0.10      2006-08-24
+          - Added double-quote support, making YAML::Tiny a lot more usable
+          - Added Load and Dump for YAML.pm compatibility
+          - Added tests for verifying compatibility with YAML::Syck
 
-0.05 2006-07-08
-    - Added support for nested inline hashes (parse only)
-    - Added support for naked undef array and hash entries
-    - Can now handle sample Plagger configs from Miyagawa-san's talk
-    - Can now handle vanilla.yml from Perl::Dist::Vanilla
+0.06      2006-07-09
+          - Added more tests
 
-0.04 2006-07-08
-    - Added support for implicit document start for array/hash types
-    - Added support for colons in hash keys
-    - Added support for simple single quotes
-    - Can now handle our own META.yml file
+0.05      2006-07-08
+          - Added support for nested inline hashes (parse only)
+          - Added support for naked undef array and hash entries
+          - Can now handle sample Plagger configs from Miyagawa-san's talk
+          - Can now handle vanilla.yml from Perl::Dist::Vanilla
 
-0.03 2006-07-08
-    - Got all of the trivial test cases to pass
-    - Good enough for an initial usable release,
-      but still expected to fail a lot
+0.04      2006-07-08
+          - Added support for implicit document start for array/hash types
+          - Added support for colons in hash keys
+          - Added support for simple single quotes
+          - Can now handle our own META.yml file
 
-0.02 2006-04-26
-    - Added support for a single root-level hash
-    - Correcting POD bugs
+0.03      2006-07-08
+          - Got all of the trivial test cases to pass
+          - Good enough for an initial usable release,
+            but still expected to fail a lot
 
-0.01 2006-04-26
-    - Initial version
-    - Handles only document headers and non-wrapping scalar documents
+0.02      2006-04-26
+          - Added support for a single root-level hash
+          - Correcting POD bugs
+
+0.01      2006-04-26
+          - Initial version
+          - Handles only document headers and non-wrapping scalar documents
 
