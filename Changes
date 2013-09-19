@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          - again packaging with ExtUtils::MakeMaker
 
 1.54      2013-08-22 03:55:41Z (Karen Etheridge)
           - convert to Dist::Zilla
