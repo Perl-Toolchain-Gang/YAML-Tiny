@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.55      2013-09-19 04:07:32Z (Karen Etheridge)
           - again packaging with ExtUtils::MakeMaker
 
 1.54      2013-08-22 03:55:41Z (Karen Etheridge)
