@@ -4,8 +4,8 @@ use strict;
 use warnings;
 
 BEGIN {
-	$|  = 1;
-	$^W = 1;
+    $|  = 1;
+    $^W = 1;
 }
 
 use File::Spec::Functions ':ALL';
@@ -20,27 +20,27 @@ use Test::More tests => 1;
 # Customized Class
 
 SCOPE: {
-	package Foo;
+    package Foo;
 
-	use YAML::Tiny;
+    use YAML::Tiny;
 
-	use vars qw{@ISA};
-	BEGIN {
-		@ISA = 'YAML::Tiny';
-	}
+    use vars qw{@ISA};
+    BEGIN {
+        @ISA = 'YAML::Tiny';
+    }
 
-	sub _write_scalar {
-		my $self   = shift;
-		my $string = shift;
-		my $indent = shift;
-		if ( defined $indent ) {
-			return "'$indent'";
-		} else {
-			return 'undef';
-		}
-	}
+    sub _write_scalar {
+        my $self   = shift;
+        my $string = shift;
+        my $indent = shift;
+        if ( defined $indent ) {
+            return "'$indent'";
+        } else {
+            return 'undef';
+        }
+    }
 
-	1;
+    1;
 }
 
 
@@ -51,6 +51,6 @@ SCOPE: {
 # Generate the value
 
 my $object = Foo->new(
-	{ foo => 'bar' }
+    { foo => 'bar' }
 );
 is( $object->write_string, "---\nfoo: '1'\n", 'Subclassing works' );

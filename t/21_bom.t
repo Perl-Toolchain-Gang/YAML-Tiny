@@ -2,8 +2,8 @@ use strict;
 use warnings;
 
 BEGIN {
-	$|  = 1;
-	$^W = 1;
+    $|  = 1;
+    $^W = 1;
 }
 
 use File::Spec::Functions ':ALL';
@@ -28,7 +28,7 @@ my $yaml      = eval { YAML::Tiny->read_string( $yaml_copy ); };
 is( $@, '', "$name: YAML::Tiny parses without error" );
 is( $yaml_copy, $sample, "$name: YAML::Tiny does not modify the input string" );
 SKIP: {
-	skip( "Shortcutting after failure", 2 ) if $@;
-	is( $yaml, undef, "file not parsed" );
-	is( YAML::Tiny->errstr, "Stream has a non UTF-8 BOM", "correct error" );
+    skip( "Shortcutting after failure", 2 ) if $@;
+    is( $yaml, undef, "file not parsed" );
+    is( YAML::Tiny->errstr, "Stream has a non UTF-8 BOM", "correct error" );
 }

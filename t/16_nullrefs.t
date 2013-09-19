@@ -4,8 +4,8 @@ use strict;
 use warnings;
 
 BEGIN {
-	$|  = 1;
-	$^W = 1;
+    $|  = 1;
+    $^W = 1;
 }
 
 use File::Spec::Functions ':ALL';
@@ -21,10 +21,10 @@ use YAML::Tiny;
 # Example Empty References
 
 yaml_ok(
-	<<'END_YAML',
+    <<'END_YAML',
 --- []
 --- {}
 END_YAML
-	[ [], {} ],
-	'Empty references',
+    [ [], {} ],
+    'Empty references',
 );

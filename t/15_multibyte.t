@@ -4,8 +4,8 @@ use strict;
 use warnings;
 
 BEGIN {
-	$|  = 1;
-	$^W = 1;
+    $|  = 1;
+    $^W = 1;
 }
 
 use File::Spec::Functions ':ALL';
@@ -30,23 +30,23 @@ my $yaml      = eval { YAML::Tiny->read_string( $yaml_copy ); };
 is( $@, '', "$name: YAML::Tiny parses without error" );
 is( $yaml_copy, $sample, "$name: YAML::Tiny does not modify the input string" );
 SKIP: {
-	skip( "Shortcutting after failure", 2 ) if $@;
-	isa_ok( $yaml, 'YAML::Tiny' );
-	is_deeply( $yaml->[0]->{build_requires}, {
-		'Config'     => 0,
-		'Test::More' => 0,
-		'XSLoader'   => 0,
-	}, 'build_requires ok' );
+    skip( "Shortcutting after failure", 2 ) if $@;
+    isa_ok( $yaml, 'YAML::Tiny' );
+    is_deeply( $yaml->[0]->{build_requires}, {
+        'Config'     => 0,
+        'Test::More' => 0,
+        'XSLoader'   => 0,
+    }, 'build_requires ok' );
 }
 
 SKIP: {
-	unless ( YAML::Tiny::HAVE_UTF8() ) {
-		skip("no utf8 support", 2 );
-	}
-	eval { utf8::is_utf8('') };
-	if ( $@ ) {
-		skip("no is_utf8 to test with until 5.8.1", 2);
-	}
-	ok( utf8::is_utf8($yaml->[0]->{author}), "utf8 decoded" );
-	is( length($yaml->[0]->{author}), 39, "utf8 decoded as characters" );
+    unless ( YAML::Tiny::HAVE_UTF8() ) {
+        skip("no utf8 support", 2 );
+    }
+    eval { utf8::is_utf8('') };
+    if ( $@ ) {
+        skip("no is_utf8 to test with until 5.8.1", 2);
+    }
+    ok( utf8::is_utf8($yaml->[0]->{author}), "utf8 decoded" );
+    is( length($yaml->[0]->{author}), 39, "utf8 decoded as characters" );
 }

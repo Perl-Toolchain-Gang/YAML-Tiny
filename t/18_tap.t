@@ -4,8 +4,8 @@ use strict;
 use warnings;
 
 BEGIN {
-	$|  = 1;
-	$^W = 1;
+    $|  = 1;
+    $^W = 1;
 }
 
 use File::Spec::Functions ':ALL';
@@ -22,59 +22,59 @@ use YAML::Tiny ();
 
 # Make sure we support x-foo keys
 yaml_ok(
-	"---\nx-foo: 1\n",
-	[ { 'x-foo' => 1 } ],
-	'x-foo key',
+    "---\nx-foo: 1\n",
+    [ { 'x-foo' => 1 } ],
+    'x-foo key',
 );
 
 # Document ending (hash)
 yaml_ok(
-	  "---\n"
-	. "  foo: bar\n"
-	. "...\n",
-	[ { foo => "bar" } ],
-	'document_end_hash',
-	noyamlpm   => 1,
-	nosyck     => 1,
-	noyamlperl => 1,
+      "---\n"
+    . "  foo: bar\n"
+    . "...\n",
+    [ { foo => "bar" } ],
+    'document_end_hash',
+    noyamlpm   => 1,
+    nosyck     => 1,
+    noyamlperl => 1,
 );
 
 # Document ending (array)
 yaml_ok(
-	  "---\n"
-	. "- foo\n"
-	. "...\n",
-	[ [ 'foo' ] ],
-	'document_end_array',
-	noyamlpm => 1,
-	noyamlperl => 1,
+      "---\n"
+    . "- foo\n"
+    . "...\n",
+    [ [ 'foo' ] ],
+    'document_end_array',
+    noyamlpm => 1,
+    noyamlperl => 1,
 );
 
 # Multiple documents (simple)
 yaml_ok(
-	  "---\n"
-	. "- foo\n"
-	. "...\n"
-	. "---\n"
-	. "- foo\n"
-	. "...\n",
-	[ [ 'foo' ], [ 'foo' ] ],
-	'multi_document_simple',
-	noyamlpm   => 1,
-	noyamlperl => 1,
+      "---\n"
+    . "- foo\n"
+    . "...\n"
+    . "---\n"
+    . "- foo\n"
+    . "...\n",
+    [ [ 'foo' ], [ 'foo' ] ],
+    'multi_document_simple',
+    noyamlpm   => 1,
+    noyamlperl => 1,
 );
 
 # Multiple documents (whitespace-separated)
 yaml_ok(
-	  "---\n"
-	. "- foo\n"
-	. "...\n"
-	. "\n"
-	. "---\n"
-	. "- foo\n"
-	. "...\n",
-	[ [ 'foo' ], [ 'foo' ] ],
-	'multi_document_space',
-	noyamlpm   => 1,
-	noyamlperl => 1,
+      "---\n"
+    . "- foo\n"
+    . "...\n"
+    . "\n"
+    . "---\n"
+    . "- foo\n"
+    . "...\n",
+    [ [ 'foo' ], [ 'foo' ] ],
+    'multi_document_space',
+    noyamlpm   => 1,
+    noyamlperl => 1,
 );
