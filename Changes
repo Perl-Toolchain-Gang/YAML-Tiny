@@ -2,6 +2,7 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
           - read_string documentation error fixed (RT#74409, thanks Tim Heaney!)
+          - re-release with fixed compile test
 
 1.55      2013-09-19 04:07:32Z (Karen Etheridge)
           - again packaging with ExtUtils::MakeMaker
