@@ -1097,7 +1097,7 @@ the C<$!> variable.
 
 =head2 read_string $string;
 
-The C<read> constructor reads a YAML file from a file name,
+The C<read_string> constructor reads YAML data from a string,
 and returns a new C<YAML::Tiny> object containing the parsed content.
 
 Returns the object on success, or C<undef> on error.
