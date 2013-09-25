@@ -431,7 +431,7 @@ the `$!` variable.
 
 ## read\_string $string;
 
-The `read` constructor reads a YAML file from a file name,
+The `read_string` constructor reads YAML data from a string,
 and returns a new `YAML::Tiny` object containing the parsed content.
 
 Returns the object on success, or `undef` on error.
