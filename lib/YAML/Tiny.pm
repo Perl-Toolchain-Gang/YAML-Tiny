@@ -419,10 +419,25 @@ sub write {
     open( CFG, '>' . $file ) or return $self->_error(
         "Failed to open file '$file' for writing: $!"
         );
-    print CFG $self->write_string;
+    print CFG $self->write_utf8_string;
     close CFG;
 
     return 1;
+}
+
+
+# Save an object to a string
+sub write_utf8_string {
+    my $self = shift;
+    my $string = $self->write_string;
+    if ( HAVE_UTF8 ) {
+        utf8::encode( $string );
+    }
+    elsif ( $string =~ /[^\x00-\xFF]/ ) {
+        return $self->_error("Can't UTF-8 encode wide characters on this perl");
+    }
+
+    return $string;
 }
 
 # Save an object to a string
@@ -1127,13 +1142,22 @@ Returns the object on success, or C<undef> on error.
 =head2 write $filename
 
 The C<write> method generates the file content for the properties, and
-writes it to disk to the filename specified.
+writes it to disk to the filename specified.  For Perl 5.8 or later,
+the file will be UTF-8 encoded.
 
 Returns true on success or C<undef> on error.
 
 =head2 write_string
 
-Generates the file content for the object and returns it as a string.
+Generates the file content for the object and returns it as a character
+string.  This may contain non-ASCII characters and should be encoded
+before writing it to a file.
+
+=head2 write_utf8_string
+
+Generates the file content for the object and returns it as a UTF-8
+encoded string.  Will warn if UTF-8 encoding is not available (on
+Perls before 5.8).
 
 =for stopwords errstr
 
