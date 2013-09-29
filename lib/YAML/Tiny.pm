@@ -169,6 +169,9 @@ sub _convert_to_characters {
         if ( ! utf8::valid($string) ) {
             # maybe latin1 got read on a :utf8 layer so launder
             # it through an encode/decode cycle
+            warn  'Read an invalid UTF-8 string (maybe mixed UTF-8 and 8-bit character set).'
+                . 'Attempting to fix, but might double-encode some characters.  Did you'
+                . 'decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?';
             utf8::encode($string);
             utf8::decode($string);
         }
