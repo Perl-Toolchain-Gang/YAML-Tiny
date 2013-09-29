@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 # UTF Support?
-sub HAVE_UTF8 () { $] >= 5.007003 }
+sub HAVE_UTF8 () { $] >= 5.008001 } # for utf8::is_utf8
 BEGIN {
     if ( HAVE_UTF8 ) {
         # The string eval helps hide this from Test::MinimumVersion
@@ -99,24 +99,8 @@ sub read_string {
             die \"Did not provide a string to load";
         }
 
-        # Byte order marks
-        # NOTE: Keeping this here to educate maintainers
-        # my %BOM = (
-        #     "\357\273\277" => 'UTF-8',
-        #     "\376\377"     => 'UTF-16BE',
-        #     "\377\376"     => 'UTF-16LE',
-        #     "\377\376\0\0" => 'UTF-32LE'
-        #     "\0\0\376\377" => 'UTF-32BE',
-        # );
-        if ( $string =~ /^(?:\376\377|\377\376|\377\376\0\0|\0\0\376\377)/ ) {
-            die \"Stream has a non UTF-8 BOM";
-        } else {
-            # Strip UTF-8 bom if found, we'll just ignore it
-            $string =~ s/^\357\273\277//;
-        }
-
-        # Try to decode as utf8
-        utf8::decode($string) if HAVE_UTF8;
+        # String could be characters or raw in various formats
+        $string = $self->_convert_to_characters($string) if HAVE_UTF8;
 
         # Check for some special cases
         return $self unless length $string;
@@ -175,6 +159,44 @@ sub read_string {
     }
 
     return $self;
+}
+
+# given a scalar, get it to decoded characters or die trying
+sub _convert_to_characters {
+    my ($self, $string) = @_;
+    if ( utf8::is_utf8($string) ) {
+        # Perl has it marked as characters, but...
+        if ( ! utf8::valid($string) ) {
+            # maybe latin1 got read on a :utf8 layer so launder
+            # it through an encode/decode cycle
+            utf8::encode($string);
+            utf8::decode($string);
+        }
+    }
+    else {
+        # Perl has it as bytes, so check first for a BOM
+
+        # Byte order marks
+        # NOTE: Keeping this here to educate maintainers
+        # my %BOM = (
+        #     "\357\273\277" => 'UTF-8',
+        #     "\376\377"     => 'UTF-16BE',
+        #     "\377\376"     => 'UTF-16LE',
+        #     "\377\376\0\0" => 'UTF-32LE'
+        #     "\0\0\376\377" => 'UTF-32BE',
+        # );
+
+        if ( $string =~ /^(?:\376\377|\377\376|\377\376\0\0|\0\0\376\377)/ ) {
+            die \"Stream has a non UTF-8 BOM";
+        } else {
+            # Strip UTF-8 bom if found, we'll just ignore it
+            $string =~ s/^\357\273\277//;
+        }
+
+        # Get string to characters from either UTF-8 or Latin-1
+        utf8::decode($string) || utf8::upgrade($string);
+    }
+    return $string;
 }
 
 # Deparse a scalar string to the actual scalar
