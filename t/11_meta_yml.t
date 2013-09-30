@@ -189,7 +189,6 @@ END_YAML
         generated_by => 'ExtUtils::MakeMaker version 6.17',
     } ],
     'Acme-Time-Baby',
-    noyamlperl => 1,
 );
 
 
@@ -262,7 +261,6 @@ SCOPE: {
             version => '1.2.1',
         } ],
         'Template-Provider-Unicode-Japanese',
-        noyamlperl => 1,
     );
 }
 
@@ -391,6 +389,5 @@ SCOPE: {
         } ],
         'Spreadsheet-Read',
         noyamlpm   => 1,
-        noyamlperl => 1,
     );
 }

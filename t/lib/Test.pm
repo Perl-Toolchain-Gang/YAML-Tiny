@@ -31,17 +31,6 @@ my $HAVE_YAMLPM = !! (
 );
 sub have_yamlpm { $HAVE_YAMLPM }
 
-# Do we have YAML::Perl to test against?
-eval {
-    require YAML::Perl;
-};
-my $HAVE_YAMLPERL = !! (
-    $YAML::Perl::VERSION
-    and
-    $YAML::Perl::VERSION >= 0.02
-);
-sub have_yamlperl { $HAVE_YAMLPERL }
-
 # Do we have YAML::Syck to test against?
 eval {
     require YAML::Syck;
@@ -78,7 +67,7 @@ sub count {
     my $yaml_ok = shift || 0;
     my $load_ok = shift || 0;
     my $single  = shift || 0;
-    my $count   = $yaml_ok * 38 + $load_ok * 4 + $single;
+    my $count   = $yaml_ok * 31 + $load_ok * 4 + $single;
     return $count;
 }
 
@@ -197,42 +186,6 @@ sub yaml_ok {
         SKIP: {
             Test::More::skip( "Shortcutting after failure", 1 ) if $@;
             Test::More::is_deeply( \@xs_in, $object, "$name: YAML::XS parses correctly" );
-        }
-    }
-
-    # If YAML::Perl is available, test with it
-    SKIP: {
-        unless ( $HAVE_YAMLPERL ) {
-            Test::More::skip( "Skipping YAML::Perl, not available for testing", 7 );
-        }
-        if ( $options{noyamlperl} ) {
-            Test::More::skip( "Skipping YAML::Perl for known-broken feature", 7 );
-        }
-
-        # Test writing with YAML.pm
-        my $yamlperl_out = eval { YAML::Perl::Dump( @$object ) };
-        Test::More::is( $@, '', "$name: YAML::Perl saves without error" );
-        SKIP: {
-            Test::More::skip( "Shortcutting after failure", 4 ) if $@;
-            Test::More::ok(
-                !!(defined $yamlperl_out and ! ref $yamlperl_out),
-                "$name: YAML::Perl serializes correctly",
-            );
-            my @yamlperl_round = eval { YAML::Perl::Load( $yamlperl_out ) };
-            Test::More::is( $@, '', "$name: YAML::Perl round-trips without error" );
-            Test::More::skip( "Shortcutting after failure", 2 ) if $@;
-            my $round = bless [ @yamlperl_round ], 'YAML::Tiny';
-            Test::More::is_deeply( $round, $object, "$name: YAML::Perl round-trips correctly" );
-        }
-
-        # Test reading with YAML::Perl
-        my $yamlperl_copy = $string;
-        my @yamlperl_in   = eval { YAML::Perl::Load( $yamlperl_copy ) };
-        Test::More::is( $@, '', "$name: YAML::Perl loads without error" );
-        Test::More::is( $yamlperl_copy, $string, "$name: YAML::Perl does not modify the input string" );
-        SKIP: {
-            Test::More::skip( "Shortcutting after failure", 1 ) if $@;
-            Test::More::is_deeply( \@yamlperl_in, $object, "$name: YAML::Perl parses correctly" );
         }
     }
 
