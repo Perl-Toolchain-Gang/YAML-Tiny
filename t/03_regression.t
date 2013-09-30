@@ -123,7 +123,6 @@ END_YAML
     'simple_doctype_percent',
     noyamlpm   => 1,
     noxs       => 1,
-    noyamlperl => 1,
 );
 
 # Simple header (comment variant)
@@ -138,7 +137,6 @@ END_YAML
     noyamlpm   => 1,
     nosyck     => 1,
     noxs       => 1,
-    noyamlperl => 1,
 );
 
 # Simple inline case (comment variant)
@@ -152,7 +150,6 @@ END_YAML
     'predocument_1_1',
     noyamlpm   => 1,
     nosyck     => 1,
-    noyamlperl => 1,
 );
 
 # Multiple inline documents (comment variant)
@@ -180,7 +177,6 @@ END_YAML
     'predocument_percent',
     noyamlpm   => 1,
     nosyck     => 1,
-    noyamlperl => 1,
 );
 
 # Simple pre-document case (comment variant)
@@ -281,7 +277,6 @@ END_YAML
         arr      => [ 'foo', undef, 'bar' ],
     } ],
     'trailing whitespace',
-    noyamlperl => 1,
 );
 
 
@@ -355,7 +350,6 @@ END_YAML
     [ { foo => 0, requires => undef, build_requires => undef } ],
     'empty hash keys',
     noyamlpm   => 1,
-    noyamlperl => 1,
 );
 
 yaml_ok(
@@ -368,7 +362,6 @@ END_YAML
     [ [ 'foo', undef, undef ] ],
     'empty array keys',
     noyamlpm   => 1,
-    noyamlperl => 1,
 );
 
 
@@ -386,7 +379,6 @@ END_YAML
     [ { foo => 'bar' } ],
     'comment header',
     noyamlpm   => 1,
-    noyamlperl => 1,
 );
 
 
@@ -457,7 +449,6 @@ END_YAML
         },
     } ],
     'synopsis',
-    noyamlperl => 1,
 );
 
 
@@ -535,7 +526,6 @@ END_YAML
         },
     } ],
     'Indentation after empty hash value',
-    noyamlperl => 1,
 );
 
 
@@ -605,7 +595,6 @@ END_YAML
     [ { foo => [ 'list' ], bar => 'value' } ],
     'Non-indenting sub-list',
     noyamlpm   => 1,
-    noyamlperl => 1,
 );
 
 

@@ -36,7 +36,6 @@ yaml_ok(
     'document_end_hash',
     noyamlpm   => 1,
     nosyck     => 1,
-    noyamlperl => 1,
 );
 
 # Document ending (array)
@@ -47,7 +46,6 @@ yaml_ok(
     [ [ 'foo' ] ],
     'document_end_array',
     noyamlpm => 1,
-    noyamlperl => 1,
 );
 
 # Multiple documents (simple)
@@ -61,7 +59,6 @@ yaml_ok(
     [ [ 'foo' ], [ 'foo' ] ],
     'multi_document_simple',
     noyamlpm   => 1,
-    noyamlperl => 1,
 );
 
 # Multiple documents (whitespace-separated)
@@ -76,5 +73,4 @@ yaml_ok(
     [ [ 'foo' ], [ 'foo' ] ],
     'multi_document_space',
     noyamlpm   => 1,
-    noyamlperl => 1,
 );
