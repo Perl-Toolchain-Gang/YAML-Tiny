@@ -328,7 +328,7 @@ sub _read_array {
     return 1;
 }
 
-# Parse an array
+# Parse a hash
 sub _read_hash {
     my ($self, $hash, $indent, $lines) = @_;
 
