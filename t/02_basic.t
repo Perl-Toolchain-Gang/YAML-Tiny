@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(30);
+use Test::More tests(31);
 use YAML::Tiny;
 
 
@@ -101,6 +101,12 @@ yaml_ok(
     "---\n- ~\n- bar\n",
     [ [ undef, 'bar' ] ],
     'one_listundef',
+);
+yaml_ok(
+    "---\n- ~\n-\n- \n",
+    [ [ undef, undef, undef ] ],
+    'one_listundefs',
+    noyamlpm   => 1,
 );
 
 # Simple hashs

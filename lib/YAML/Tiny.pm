@@ -280,11 +280,6 @@ sub _read_array {
             push @$array, { };
             $self->_read_hash( $array->[-1], [ @$indent, $indent2 ], $lines );
 
-        } elsif ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*\z/ ) {
-            # Array entry with a value
-            shift @$lines;
-            push @$array, $self->_read_scalar( "$2", [ @$indent, undef ], $lines );
-
         } elsif ( $lines->[0] =~ /^\s*\-\s*\z/ ) {
             shift @$lines;
             unless ( @$lines ) {
@@ -309,6 +304,11 @@ sub _read_array {
             } else {
                 die \"YAML::Tiny failed to classify line '$lines->[0]'";
             }
+
+        } elsif ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*\z/ ) {
+            # Array entry with a value
+            shift @$lines;
+            push @$array, $self->_read_scalar( "$2", [ @$indent, undef ], $lines );
 
         } elsif ( defined $indent->[-2] and $indent->[-1] == $indent->[-2] ) {
             # This is probably a structure like the following...
