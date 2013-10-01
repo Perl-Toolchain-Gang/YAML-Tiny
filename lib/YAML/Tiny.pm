@@ -44,13 +44,8 @@ my %UNESCAPES = (
     r => "\x0d", e => "\x1b", '\\' => '\\',
 );
 
-# Special magic boolean words
-my %QUOTE = map { $_ => 1 } qw{
-    null Null NULL
-    y Y yes Yes YES n N no No NO
-    true True TRUE false False FALSE
-    on On ON off Off OFF
-};
+# Implicit scalars. Unquoted on Dump
+my %QUOTE = map { $_ => 1 } qw{ null true false };
 
 
 
