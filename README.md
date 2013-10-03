@@ -35,26 +35,29 @@ Assuming `file.yml` like this:
       Foo: Bar
       empty: ~
 
+
+
 Read and write `file.yml` like this:
 
     use YAML::Tiny;
 
-    ## Reading and writing a config file
-
     # Open the config
     my $yaml = YAML::Tiny->read( 'file.yml' );
 
-    # Reading properties
+    # Get a reference to the document
+    my ($config) = $yaml->documents;
+
+    # Or read properties directly
     my $root = $yaml->[0]->{rootproperty};
     my $one  = $yaml->[0]->{section}->{one};
     my $Foo  = $yaml->[0]->{section}->{Foo};
 
-    # Changing data
+    # Change data directly
     $yaml->[0]->{newsection} = { this => 'that' }; # Add a section
     $yaml->[0]->{section}->{Foo} = 'Not Bar!';     # Change a value
     delete $yaml->[0]->{section};                  # Delete a value
 
-    # Save the file
+    # Save the document back to the file
     $yaml->write( 'file.yml' );
 
 To create a new YAML file from scratch:
@@ -427,6 +430,14 @@ specification are not required to retain the distinctiveness of 3 vs "3".
 The constructor `new` creates a `YAML::Tiny` object as a blessed array
 reference.  Any arguments provided are taken as separate documents
 to be serialized.
+
+## documents
+
+    my @docs = $yaml->documents;
+    my $count = $yaml->documents;
+
+In list context, returns all documents contained in the object (i.e. a list of
+Perl scalars or references).  In scalar context, returns the count of documents.
 
 ## read $filename
 

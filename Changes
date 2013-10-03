@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          - added documents() method (David Golden)
           - improved SYNOPSIS and documentation of new (David Golden)
 
 1.56      2013-09-25 02:38:19Z (Karen Etheridge)
