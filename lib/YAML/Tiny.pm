@@ -667,8 +667,7 @@ of the features for the more common uses of YAML.
 
 =head1 SYNOPSIS
 
-    #############################################
-    # In your file
+Assuming F<file.yml> like this:
 
     ---
     rootproperty: blah
@@ -678,18 +677,14 @@ of the features for the more common uses of YAML.
       Foo: Bar
       empty: ~
 
-
-
-    #############################################
-    # In your program
+Read and write F<file.yml> like this:
 
     use YAML::Tiny;
 
-    # Create a YAML file
-    my $yaml = YAML::Tiny->new;
+    ## Reading and writing a config file
 
     # Open the config
-    $yaml = YAML::Tiny->read( 'file.yml' );
+    my $yaml = YAML::Tiny->read( 'file.yml' );
 
     # Reading properties
     my $root = $yaml->[0]->{rootproperty};
@@ -701,11 +696,28 @@ of the features for the more common uses of YAML.
     $yaml->[0]->{section}->{Foo} = 'Not Bar!';     # Change a value
     delete $yaml->[0]->{section};                  # Delete a value
 
-    # Add an entire document
-    $yaml->[1] = [ 'foo', 'bar', 'baz' ];
-
     # Save the file
-    $yaml->write( 'file.conf' );
+    $yaml->write( 'file.yml' );
+
+To create a new YAML file from scratch:
+
+    # Create a new object with a single hashref document
+    my $yaml = YAML::Tiny->new( { wibble => "wobble" } );
+
+    # Add an arrayref document
+    push @$yaml, [ 'foo', 'bar', 'baz' ];
+
+    # Save both documents to a file
+    $yaml->write( 'data.yml' );
+
+Then F<data.yml> will contain:
+
+    ---
+    wibble: wobble
+    ---
+    - foo
+    - bar
+    - baz
 
 =head1 DESCRIPTION
 
@@ -1080,7 +1092,9 @@ specification are not required to retain the distinctiveness of 3 vs "3".
 
 =head2 new
 
-The constructor C<new> creates and returns an empty C<YAML::Tiny> object.
+The constructor C<new> creates a C<YAML::Tiny> object as a blessed array
+reference.  Any arguments provided are taken as separate documents
+to be serialized.
 
 =head2 read $filename
 
