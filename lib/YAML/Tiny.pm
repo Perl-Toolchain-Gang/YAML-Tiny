@@ -767,6 +767,109 @@ To restate, L<YAML::Tiny> does B<not> preserve your comments, whitespace,
 or the order of your YAML data. But it should round-trip from Perl
 structure to file and back again just fine.
 
+=head1 METHODS
+
+=for Pod::Coverage HAVE_UTF8 refaddr
+
+=head2 new
+
+The constructor C<new> creates a C<YAML::Tiny> object as a blessed array
+reference.  Any arguments provided are taken as separate documents
+to be serialized.
+
+=head2 documents
+
+    my @docs = $yaml->documents;
+    my $count = $yaml->documents;
+
+In list context, returns all documents contained in the object (i.e. a list of
+Perl scalars or references).  In scalar context, returns the count of documents.
+
+=head2 read $filename
+
+The C<read> constructor reads a YAML file from a file name,
+and returns a new C<YAML::Tiny> object containing the parsed content.
+
+Returns the object on success, or C<undef> on error.
+
+When C<read> fails, C<YAML::Tiny> sets an error message internally
+you can recover via C<< YAML::Tiny->errstr >>. Although in B<some>
+cases a failed C<read> will also set the operating system error
+variable C<$!>, not all errors do and you should not rely on using
+the C<$!> variable.
+
+=head2 read_string $string;
+
+The C<read_string> constructor reads YAML data from a string,
+and returns a new C<YAML::Tiny> object containing the parsed content.
+
+Returns the object on success, or C<undef> on error.
+
+=head2 write $filename
+
+The C<write> method generates the file content for the properties, and
+writes it to disk to the filename specified.
+
+Returns true on success or C<undef> on error.
+
+=head2 write_string
+
+Generates the file content for the object and returns it as a string.
+
+=for stopwords errstr
+
+=head2 errstr
+
+When an error occurs, you can retrieve the error message either from the
+C<$YAML::Tiny::errstr> variable, or using the C<errstr()> method.
+
+=head1 FUNCTIONS
+
+YAML::Tiny implements a number of functions to add compatibility with
+the L<YAML> API. These should be a drop-in replacement, except that
+YAML::Tiny will B<not> export functions by default, and so you will need
+to explicitly import the functions.
+
+=head2 Dump
+
+  my $string = Dump(list-of-Perl-data-structures);
+
+Turn Perl data into YAML. This function works very much like
+Data::Dumper::Dumper().
+
+It takes a list of Perl data structures and dumps them into a serialized
+form.
+
+It returns a string containing the YAML stream.
+
+The structures can be references or plain scalars.
+
+=head2 Load
+
+  my @documents = Load(string-containing-a-YAML-stream);
+
+Turn YAML into Perl data. This is the opposite of Dump.
+
+Just like L<Storable>'s thaw() function or the eval() function in relation
+to L<Data::Dumper>.
+
+It parses a string containing a valid YAML stream into a list of Perl data
+structures.
+
+=head2 freeze() and thaw()
+
+Aliases to Dump() and Load() for L<Storable> fans. This will also allow
+YAML::Tiny to be plugged directly into modules like POE.pm, that use the
+freeze/thaw API for internal serialization.
+
+=head2 DumpFile(filepath, list)
+
+Writes the YAML stream to a file instead of just returning a string.
+
+=head2 LoadFile(filepath)
+
+Reads the YAML stream from a file instead of a string.
+
 =head1 YAML TINY SPECIFICATION
 
 This section of the documentation provides a specification for "YAML Tiny",
@@ -1090,109 +1193,6 @@ from "3" the string.
 Because even Perl itself is not trivially able to understand the difference
 (certainly without XS-based modules) Perl implementations of the YAML Tiny
 specification are not required to retain the distinctiveness of 3 vs "3".
-
-=head1 METHODS
-
-=for Pod::Coverage HAVE_UTF8 refaddr
-
-=head2 new
-
-The constructor C<new> creates a C<YAML::Tiny> object as a blessed array
-reference.  Any arguments provided are taken as separate documents
-to be serialized.
-
-=head2 documents
-
-    my @docs = $yaml->documents;
-    my $count = $yaml->documents;
-
-In list context, returns all documents contained in the object (i.e. a list of
-Perl scalars or references).  In scalar context, returns the count of documents.
-
-=head2 read $filename
-
-The C<read> constructor reads a YAML file from a file name,
-and returns a new C<YAML::Tiny> object containing the parsed content.
-
-Returns the object on success, or C<undef> on error.
-
-When C<read> fails, C<YAML::Tiny> sets an error message internally
-you can recover via C<< YAML::Tiny->errstr >>. Although in B<some>
-cases a failed C<read> will also set the operating system error
-variable C<$!>, not all errors do and you should not rely on using
-the C<$!> variable.
-
-=head2 read_string $string;
-
-The C<read_string> constructor reads YAML data from a string,
-and returns a new C<YAML::Tiny> object containing the parsed content.
-
-Returns the object on success, or C<undef> on error.
-
-=head2 write $filename
-
-The C<write> method generates the file content for the properties, and
-writes it to disk to the filename specified.
-
-Returns true on success or C<undef> on error.
-
-=head2 write_string
-
-Generates the file content for the object and returns it as a string.
-
-=for stopwords errstr
-
-=head2 errstr
-
-When an error occurs, you can retrieve the error message either from the
-C<$YAML::Tiny::errstr> variable, or using the C<errstr()> method.
-
-=head1 FUNCTIONS
-
-YAML::Tiny implements a number of functions to add compatibility with
-the L<YAML> API. These should be a drop-in replacement, except that
-YAML::Tiny will B<not> export functions by default, and so you will need
-to explicitly import the functions.
-
-=head2 Dump
-
-  my $string = Dump(list-of-Perl-data-structures);
-
-Turn Perl data into YAML. This function works very much like
-Data::Dumper::Dumper().
-
-It takes a list of Perl data structures and dumps them into a serialized
-form.
-
-It returns a string containing the YAML stream.
-
-The structures can be references or plain scalars.
-
-=head2 Load
-
-  my @documents = Load(string-containing-a-YAML-stream);
-
-Turn YAML into Perl data. This is the opposite of Dump.
-
-Just like L<Storable>'s thaw() function or the eval() function in relation
-to L<Data::Dumper>.
-
-It parses a string containing a valid YAML stream into a list of Perl data
-structures.
-
-=head2 freeze() and thaw()
-
-Aliases to Dump() and Load() for L<Storable> fans. This will also allow
-YAML::Tiny to be plugged directly into modules like POE.pm, that use the
-freeze/thaw API for internal serialization.
-
-=head2 DumpFile(filepath, list)
-
-Writes the YAML stream to a file instead of just returning a string.
-
-=head2 LoadFile(filepath)
-
-Reads the YAML stream from a file instead of a string.
 
 =head1 SUPPORT
 

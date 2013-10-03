@@ -119,6 +119,105 @@ To restate, [YAML::Tiny](http://search.cpan.org/perldoc?YAML::Tiny) does __not__
 or the order of your YAML data. But it should round-trip from Perl
 structure to file and back again just fine.
 
+# METHODS
+
+## new
+
+The constructor `new` creates a `YAML::Tiny` object as a blessed array
+reference.  Any arguments provided are taken as separate documents
+to be serialized.
+
+## documents
+
+    my @docs = $yaml->documents;
+    my $count = $yaml->documents;
+
+In list context, returns all documents contained in the object (i.e. a list of
+Perl scalars or references).  In scalar context, returns the count of documents.
+
+## read $filename
+
+The `read` constructor reads a YAML file from a file name,
+and returns a new `YAML::Tiny` object containing the parsed content.
+
+Returns the object on success, or `undef` on error.
+
+When `read` fails, `YAML::Tiny` sets an error message internally
+you can recover via `YAML::Tiny->errstr`. Although in __some__
+cases a failed `read` will also set the operating system error
+variable `$!`, not all errors do and you should not rely on using
+the `$!` variable.
+
+## read\_string $string;
+
+The `read_string` constructor reads YAML data from a string,
+and returns a new `YAML::Tiny` object containing the parsed content.
+
+Returns the object on success, or `undef` on error.
+
+## write $filename
+
+The `write` method generates the file content for the properties, and
+writes it to disk to the filename specified.
+
+Returns true on success or `undef` on error.
+
+## write\_string
+
+Generates the file content for the object and returns it as a string.
+
+## errstr
+
+When an error occurs, you can retrieve the error message either from the
+`$YAML::Tiny::errstr` variable, or using the `errstr()` method.
+
+# FUNCTIONS
+
+YAML::Tiny implements a number of functions to add compatibility with
+the [YAML](http://search.cpan.org/perldoc?YAML) API. These should be a drop-in replacement, except that
+YAML::Tiny will __not__ export functions by default, and so you will need
+to explicitly import the functions.
+
+## Dump
+
+    my $string = Dump(list-of-Perl-data-structures);
+
+Turn Perl data into YAML. This function works very much like
+Data::Dumper::Dumper().
+
+It takes a list of Perl data structures and dumps them into a serialized
+form.
+
+It returns a string containing the YAML stream.
+
+The structures can be references or plain scalars.
+
+## Load
+
+    my @documents = Load(string-containing-a-YAML-stream);
+
+Turn YAML into Perl data. This is the opposite of Dump.
+
+Just like [Storable](http://search.cpan.org/perldoc?Storable)'s thaw() function or the eval() function in relation
+to [Data::Dumper](http://search.cpan.org/perldoc?Data::Dumper).
+
+It parses a string containing a valid YAML stream into a list of Perl data
+structures.
+
+## freeze() and thaw()
+
+Aliases to Dump() and Load() for [Storable](http://search.cpan.org/perldoc?Storable) fans. This will also allow
+YAML::Tiny to be plugged directly into modules like POE.pm, that use the
+freeze/thaw API for internal serialization.
+
+## DumpFile(filepath, list)
+
+Writes the YAML stream to a file instead of just returning a string.
+
+## LoadFile(filepath)
+
+Reads the YAML stream from a file instead of a string.
+
 # YAML TINY SPECIFICATION
 
 This section of the documentation provides a specification for "YAML Tiny",
@@ -422,105 +521,6 @@ from "3" the string.
 Because even Perl itself is not trivially able to understand the difference
 (certainly without XS-based modules) Perl implementations of the YAML Tiny
 specification are not required to retain the distinctiveness of 3 vs "3".
-
-# METHODS
-
-## new
-
-The constructor `new` creates a `YAML::Tiny` object as a blessed array
-reference.  Any arguments provided are taken as separate documents
-to be serialized.
-
-## documents
-
-    my @docs = $yaml->documents;
-    my $count = $yaml->documents;
-
-In list context, returns all documents contained in the object (i.e. a list of
-Perl scalars or references).  In scalar context, returns the count of documents.
-
-## read $filename
-
-The `read` constructor reads a YAML file from a file name,
-and returns a new `YAML::Tiny` object containing the parsed content.
-
-Returns the object on success, or `undef` on error.
-
-When `read` fails, `YAML::Tiny` sets an error message internally
-you can recover via `YAML::Tiny->errstr`. Although in __some__
-cases a failed `read` will also set the operating system error
-variable `$!`, not all errors do and you should not rely on using
-the `$!` variable.
-
-## read\_string $string;
-
-The `read_string` constructor reads YAML data from a string,
-and returns a new `YAML::Tiny` object containing the parsed content.
-
-Returns the object on success, or `undef` on error.
-
-## write $filename
-
-The `write` method generates the file content for the properties, and
-writes it to disk to the filename specified.
-
-Returns true on success or `undef` on error.
-
-## write\_string
-
-Generates the file content for the object and returns it as a string.
-
-## errstr
-
-When an error occurs, you can retrieve the error message either from the
-`$YAML::Tiny::errstr` variable, or using the `errstr()` method.
-
-# FUNCTIONS
-
-YAML::Tiny implements a number of functions to add compatibility with
-the [YAML](http://search.cpan.org/perldoc?YAML) API. These should be a drop-in replacement, except that
-YAML::Tiny will __not__ export functions by default, and so you will need
-to explicitly import the functions.
-
-## Dump
-
-    my $string = Dump(list-of-Perl-data-structures);
-
-Turn Perl data into YAML. This function works very much like
-Data::Dumper::Dumper().
-
-It takes a list of Perl data structures and dumps them into a serialized
-form.
-
-It returns a string containing the YAML stream.
-
-The structures can be references or plain scalars.
-
-## Load
-
-    my @documents = Load(string-containing-a-YAML-stream);
-
-Turn YAML into Perl data. This is the opposite of Dump.
-
-Just like [Storable](http://search.cpan.org/perldoc?Storable)'s thaw() function or the eval() function in relation
-to [Data::Dumper](http://search.cpan.org/perldoc?Data::Dumper).
-
-It parses a string containing a valid YAML stream into a list of Perl data
-structures.
-
-## freeze() and thaw()
-
-Aliases to Dump() and Load() for [Storable](http://search.cpan.org/perldoc?Storable) fans. This will also allow
-YAML::Tiny to be plugged directly into modules like POE.pm, that use the
-freeze/thaw API for internal serialization.
-
-## DumpFile(filepath, list)
-
-Writes the YAML stream to a file instead of just returning a string.
-
-## LoadFile(filepath)
-
-Reads the YAML stream from a file instead of a string.
 
 # SUPPORT
 
