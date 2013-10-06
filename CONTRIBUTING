@@ -23,14 +23,9 @@ CPAN client:
   $ mymeta-requires | cpanm
   $ cpan `mymeta-requires`
 
-Likewise, much of the documentation Pod is generated at release time.
-Depending on the distribution, some documentation may be written in a Pod
-dialect called WikiDoc. (See Pod::WikiDoc on CPAN.) If you would like to
-submit a documentation edit, please limit yourself to the documentation you
-see.
+or if you use cpanminus, you can simply do:
 
-If you see typos or documentation issues in the generated docs, please
-email or open a bug ticket instead of patching.
+  $ cpanm --installdeps .
 
 Dist::Zilla is a very powerful authoring tool, but requires a number of
 author-specific plugins.  If you would like to use it for contributing,
