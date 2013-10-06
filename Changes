@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          - fix write method to encode YAML file with UTF-8 (David Golden)
+          - add write_utf8_string method (David Golden)
           - added documents() method (David Golden)
           - improved SYNOPSIS and documentation of new (David Golden)
 
