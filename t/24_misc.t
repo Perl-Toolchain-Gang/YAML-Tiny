@@ -9,7 +9,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More qw(no_plan); # tests => 24;;
+use Test::More tests => 20;;
 use YAML::Tiny;
 use File::Temp qw(tempfile);
 
@@ -22,6 +22,9 @@ use File::Temp qw(tempfile);
     eval { $yaml = $obj->read($file); };
     ok(! YAML::Tiny->errstr, "\$obj->read: No error, as expected");
     isa_ok( $yaml, 'YAML::Tiny' );
+    eval { $yaml->write(); };
+    like( YAML::Tiny->errstr, qr/No file name provided/,
+        "No filename provided to write()");
     $YAML::Tiny::errstr = '';
 }
 
