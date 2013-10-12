@@ -634,9 +634,6 @@ sub DumpFile {
 
 sub LoadFile {
     my $self = YAML::Tiny->read($_[0]);
-    unless ( $self ) {
-        Carp::croak("Failed to load YAML document from '" . ($_[0] || '') . "'");
-    }
     if ( wantarray ) {
         return @$self;
     } else {
