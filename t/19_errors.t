@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests => 20;
+use Test::More tests => 25;
 use YAML::Tiny ();
 
 my $FEATURE = 'does not support a feature';
@@ -71,3 +71,45 @@ END_YAML
 yaml_error( <<'END_YAML', $PLAIN );
 foo: `perl -V`
 END_YAML
+
+#####################################################################
+
+# tests for read()
+{
+    eval { YAML::Tiny->read(); };
+    like(YAML::Tiny->errstr, qr/You did not specify a file name/,
+        "Got expected error: no filename provided to read()");
+    $YAML::Tiny::errstr = '';
+}
+
+{
+    my $file = catfile( test_data_directory(), 'nonexistent.yml' );
+    eval { YAML::Tiny->read($file); };
+    like(YAML::Tiny->errstr, qr/File '$file' does not exist/,
+        "Got expected error: nonexistent filename provided to read()");
+    $YAML::Tiny::errstr = '';
+}
+
+{
+    my $file = catfile( test_data_directory(), '/' );
+    eval { YAML::Tiny->read($file); };
+    like(YAML::Tiny->errstr, qr/'$file' is a directory, not a file/,
+        "Got expected error: directory provided to read()");
+    $YAML::Tiny::errstr = '';
+}
+
+# tests for read_string()
+{
+    eval { YAML::Tiny->read_string(); };
+    like(YAML::Tiny->errstr, qr/Did not provide a string to load/,
+        "Got expected error: no string provided to read_string()");
+    $YAML::Tiny::errstr = '';
+}
+
+{
+    my $str = join("\n" => ('---', '- foo', '---', '- bar', '---'));
+    eval { YAML::Tiny->read_string($str); };
+    like(YAML::Tiny->errstr, qr/Stream does not end with newline character/,
+        "Got expected error: stream did not end with newline");
+    $YAML::Tiny::errstr = '';
+}
