@@ -1032,16 +1032,17 @@ B<Loading Failure Points>
 
 =for stopwords parsers
 
-YAML Tiny parsers and emitters are not expected to recover from adapt to
-errors. The specific error modality of any implementation is not dictated
-(return codes, exceptions, etc) but is expected to be consistent.
+YAML Tiny parsers and emitters are not expected to recover from, or
+adapt to, errors. The specific error modality of any implementation is
+not dictated (return codes, exceptions, etc.) but is expected to be
+consistent.
 
 =head2 4. Syntax
 
 B<Character Set>
 
 YAML Tiny streams are implemented primarily using the ASCII character set,
-although the use of Unicode inside strings is allowed if support by the
+although the use of Unicode inside strings is allowed if supported by the
 implementation.
 
 Specific YAML Tiny encoded document types aiming for maximum compatibility
@@ -1189,7 +1190,7 @@ That is, the following must be equivalent.
 
 B<Nodes>
 
-Support for nodes optional anchor and tag properties are B<not> required.
+Support for nodes optional anchor and tag properties is B<not> required.
 
 Support for node anchors is B<not> required.
 
@@ -1203,7 +1204,7 @@ Support for block nodes is required.
 
 B<Scalar Styles>
 
-Support for all five scalar styles are required as per the YAML
+Support for all five scalar styles is required as per the YAML
 specification, although support for quoted scalars spanning more
 than one line is B<not> required.
 
