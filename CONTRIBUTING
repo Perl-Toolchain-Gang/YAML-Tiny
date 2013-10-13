@@ -1,3 +1,4 @@
+
 CONTRIBUTING
 
 Thank you for considering contributing to this distribution.  This file
@@ -11,6 +12,7 @@ However, you can run tests directly using the 'prove' tool:
 
   $ prove -l
   $ prove -lv t/some_test_file.t
+  $ prove -lvr t/
 
 For most distributions, 'prove' is entirely sufficent for you to test any
 patches you have.
@@ -39,6 +41,26 @@ Once installed, here are some dzil commands you might try:
 
   $ dzil build
   $ dzil test
+  $ dzil test --release
   $ dzil xtest
 
-You can learn more about Dist::Zilla at http://dzil.org/
+You can learn more about Dist::Zilla at http://dzil.org/.
+
+The code for this distribution is hosted at GitHub. The main repository is:
+https://github.com/Perl-Toolchain-Gang/YAML-Tiny.git.
+You can submit code changes by forking the repository, pushing your code
+changes to your clone, and then submitting a pull request. Detailed
+instructions for doing that is available here:
+
+https://help.github.com/
+https://help.github.com/articles/creating-a-pull-request
+
+If you have found a bug, but do not have an accompanying patch to fix it, you
+can submit an issue report here:
+https://rt.cpan.org/Public/Dist/Display.html?Name=YAML-Tiny
+or via bug-YAML-Tiny@rt.cpan.org.
+This is also a good place to send your questions about the usage of this distribution.
+
+
+This file was generated via Dist::Zilla::Plugin::GenerateFile::ShareDir 0.001 from a
+template file originating in Dist-Zilla-PluginBundle-Author-ETHER-0.030.
