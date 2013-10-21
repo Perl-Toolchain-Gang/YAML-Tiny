@@ -137,7 +137,9 @@ sub read_string {
                     shift @lines;
                 }
 
-            } elsif ( $lines[0] =~ /^\s*\-/ ) {
+            # XXX The final '-+$' is to look for -- which ends up being an
+            # error later.
+            } elsif ( $lines[0] =~ /^\s*\-(?:\s|$|-+$)/ ) {
                 # An array at the root
                 my $document = [ ];
                 push @$self, $document;

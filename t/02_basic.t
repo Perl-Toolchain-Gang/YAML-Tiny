@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(31);
+use Test::More tests(32);
 use YAML::Tiny;
 
 
@@ -120,6 +120,12 @@ yaml_ok(
     "---\nfoo: bar\nthis: ~\n",
     [ { this => undef, foo => 'bar' } ],
      'one_hash2',
+);
+
+yaml_ok(
+    "---\n-foo: bar\n",
+    [ { '-foo' => 'bar' } ],
+    'one_hash3',
 );
 
 # Simple array inside a hash with an undef
