@@ -9,7 +9,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests => 20;;
+use Test::More tests => 23;;
 use YAML::Tiny;
 use File::Temp qw(tempfile);
 
@@ -130,4 +130,16 @@ use File::Temp qw(tempfile);
         qr/YAML::Tiny failed to classify line '$str'/,
         "Correctly failed to load non-YAML string"
     );
+    $YAML::Tiny::errstr = '';
+}
+
+{
+    my ($obj, $str, $yaml, $file);
+    $obj = YAML::Tiny->new();
+    isa_ok( $obj, 'YAML::Tiny' );
+    $file = catfile( test_data_directory(), '51491_space_after_hyphen.yml' );
+    eval { $yaml = $obj->read($file); };
+    ok(! YAML::Tiny->errstr, "\$obj->read: No error; CPAN #51491 is fixed");
+    isa_ok( $yaml, 'YAML::Tiny' );
+    $YAML::Tiny::errstr = '';
 }
