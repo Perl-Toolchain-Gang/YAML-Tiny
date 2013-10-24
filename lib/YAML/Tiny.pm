@@ -722,7 +722,7 @@ module, an incomplete but correct and usable subset of the functionality,
 in as little code as possible.
 
 Like the other C<::Tiny> modules, YAML::Tiny has no non-core dependencies,
-does not require a compiler to install, is back-compatible to Perl 5.004,
+does not require a compiler to install, is back-compatible to Perl v5.8.1,
 and can be inlined into other modules if needed.
 
 In exchange for this adding this extreme flexibility, it provides support
@@ -820,9 +820,9 @@ in a few lines of code. Please don't be offended if your request is
 refused. Someone has to draw the line, and for YAML::Tiny that someone
 is me.
 
-If you need something with more power move up to L<YAML> (4 megabytes of
-memory overhead) or L<YAML::Syck> (275k, but requires F<libsyck> and a C
-compiler).
+If you need something with more power move up to L<YAML> (7 megabytes of
+memory overhead) or L<YAML::XS> (6 megabytes memory overhead and requires
+a C compiler).
 
 To restate, L<YAML::Tiny> does B<not> preserve your comments, whitespace,
 or the order of your YAML data. But it should round-trip from Perl
@@ -861,24 +861,30 @@ the C<$!> variable.
 
 =head2 read_string $string;
 
-The C<read_string> constructor reads YAML data from a string,
-and returns a new C<YAML::Tiny> object containing the parsed content.
+The C<read_string> constructor reads YAML data from a character string, and
+returns a new C<YAML::Tiny> object containing the parsed content.  If you have
+read the string from a file yourself, be sure that you have correctly decoded
+it into characters first.
 
 Returns the object on success, or C<undef> on error.
+Use C<< YAML::Tiny->errstr> >> for error details.
 
 =head2 write $filename
 
 The C<write> method generates the file content for the properties, and
-writes it to disk to the filename specified.  For Perl 5.8 or later,
-the file will be UTF-8 encoded.
+writes it to disk using UTF-8 encoding to the filename specified.
 
 Returns true on success or C<undef> on error.
+Use C<< YAML::Tiny->errstr> >> for error details.
 
 =head2 write_string
 
 Generates the file content for the object and returns it as a character
 string.  This may contain non-ASCII characters and should be encoded
 before writing it to a file.
+
+Returns true on success or C<undef> on error.
+Use C<< YAML::Tiny->errstr> >> for error details.
 
 =for stopwords errstr
 
@@ -904,9 +910,12 @@ Data::Dumper::Dumper().
 It takes a list of Perl data structures and dumps them into a serialized
 form.
 
-It returns a string containing the YAML stream.
+It returns a character string containing the YAML stream.  Be sure to encode
+it as UTF-8 before serializing to a file or socket.
 
 The structures can be references or plain scalars.
+
+Dies on any error.
 
 =head2 Load
 
@@ -917,8 +926,10 @@ Turn YAML into Perl data. This is the opposite of Dump.
 Just like L<Storable>'s thaw() function or the eval() function in relation
 to L<Data::Dumper>.
 
-It parses a string containing a valid YAML stream into a list of Perl data
-structures.
+It parses a character string containing a valid YAML stream into a list of Perl data
+structures.  Be sure to decode it correctly if the string came from a file or socket.
+
+Dies on any error.
 
 =head2 freeze() and thaw()
 
@@ -928,11 +939,15 @@ freeze/thaw API for internal serialization.
 
 =head2 DumpFile(filepath, list)
 
-Writes the YAML stream to a file instead of just returning a string.
+Writes the YAML stream to a file with UTF-8 encoding instead of just returning a string.
+
+Dies on any error.
 
 =head2 LoadFile(filepath)
 
-Reads the YAML stream from a file instead of a string.
+Reads the YAML stream from a UTF-8 encoded file instead of a string.
+
+Dies on any error.
 
 =head1 YAML TINY SPECIFICATION
 
@@ -1034,10 +1049,8 @@ B<Presentation Stream>
 
 =for stopwords unicode
 
-YAML Tiny is notionally unicode, but support for unicode is required if the
-underlying language or system being used to implement a parser does not
-support Unicode. If unicode is encountered in this case an error should be
-returned.
+YAML Tiny reads and write UTF-8 encoded files.  Operations on strings expect
+or produce Unicode characters not UTF-8 encoded bytes.
 
 B<Loading Failure Points>
 
@@ -1054,12 +1067,8 @@ consistent.
 
 B<Character Set>
 
-YAML Tiny streams are implemented primarily using the ASCII character set,
-although the use of Unicode inside strings is allowed if supported by the
-implementation.
-
-Specific YAML Tiny encoded document types aiming for maximum compatibility
-should restrict themselves to ASCII.
+YAML Tiny streams are processed in memory as Unicode characters and read/written
+with UTF-8 encoding.
 
 The escaping and unescaping of the 8-bit YAML escapes is required.
 
