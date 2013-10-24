@@ -109,6 +109,7 @@ use File::Temp qw(tempfile);
     my $hashref = { alpha => 'beta', gamma => 'delta' };
 
     my ($fh, $filename) = tempfile;
+    close $fh; # or LOCK_SH will hang
 
     my $rv = YAML::Tiny::DumpFile(
         $filename, $scalar, $arrayref, $hashref);

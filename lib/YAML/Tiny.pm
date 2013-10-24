@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Carp;
+use Config;
 use Fcntl ();
 
 use Exporter;
@@ -13,6 +14,10 @@ our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
 
 # Error storage
 our $errstr    = '';
+
+# Some platforms can't flock :-(
+my $HAS_FLOCK
+    = $Config{d_flock} || $Config{d_fcntl_can_lock} || $Config{d_lockf};
 
 # The character class of all characters we need to escape
 # NOTE: Inlined, since it's only used once
@@ -42,10 +47,6 @@ my %QUOTE = map { $_ => 1 } qw{
     on On ON off Off OFF
 };
 
-
-
-
-
 #####################################################################
 # Implementation
 
@@ -68,14 +69,23 @@ sub read {
     return $class->_error( "'$file' is a directory, not a file" )       unless -f _;
     return $class->_error( "Insufficient permissions to read '$file'" ) unless -r _;
 
-    # Slurp in the file
-    local $/ = undef;
-    local *CFG;
-    unless ( open(CFG, $file) ) {
+    # Open unbuffered with strict UTF-8 decoding and no translation layers
+    open( my $fh, "<:unix:encoding(UTF-8)", $file );
+    unless ( $fh ) {
         return $class->_error("Failed to open file '$file': $!");
     }
-    my $contents = <CFG>;
-    unless ( close(CFG) ) {
+
+    # flock if available (or warn if not possible for OS-specific reasons)
+    if ( $HAS_FLOCK ) {
+        flock( $fh, Fcntl::LOCK_SH() )
+            or warn "Couldn't lock '$file' for reading: $!";
+    }
+
+    # slurp the contents
+    my $contents = do { local $/; <$fh> };
+
+    # close the file (release the lock)
+    unless ( close $fh ) {
         return $class->_error("Failed to close file '$file': $!");
     }
 
