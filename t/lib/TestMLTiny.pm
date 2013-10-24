@@ -77,7 +77,7 @@ sub testml_parse_blocks {
     push @$lines, undef; # sentinel
     while (@$lines) {
         push @$parse, shift @$lines;
-        if ( !@$lines || $lines->[0] =~ /^===\s+\S.*$/ ) {
+        if ( !defined($lines->[0]) or $lines->[0] =~ /^===\s+\S.*$/ ) {
             my $block = parse_testml_block($file, $parse);
             push @$blocks, $block
                 unless exists $block->{SKIP};

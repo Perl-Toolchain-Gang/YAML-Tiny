@@ -319,4 +319,4 @@ one: two
 a b: c d
 
 --- perl
-{ 'a b' => 'c d' }
+[ { 'a b' => 'c d' } ]
