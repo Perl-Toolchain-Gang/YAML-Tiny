@@ -23,7 +23,7 @@ use File::Temp qw(tempfile);
     ok(! YAML::Tiny->errstr, "\$obj->read: No error, as expected");
     isa_ok( $yaml, 'YAML::Tiny' );
     eval { $yaml->write(); };
-    like( YAML::Tiny->errstr, qr/No file name provided/,
+    like( YAML::Tiny->errstr, qr/You did not specify a file name/,
         "No filename provided to write()");
     $YAML::Tiny::errstr = '';
 }

@@ -421,25 +421,37 @@ sub _read_hash {
 # Save an object to a file
 sub write {
     my $self = shift;
-    my $file = shift or return $self->_error('No file name provided');
 
-    # Write it to the file
-    open( CFG, '>' . $file ) or return $self->_error(
-        "Failed to open file '$file' for writing: $!"
-        );
-    print CFG $self->write_utf8_string;
-    close CFG;
+    # Check the file
+    my $file = shift or return $self->_error( 'You did not specify a file name' );
+
+    # Open without truncation (truncate comes after lock)
+    my $flags = Fcntl::O_WRONLY()|Fcntl::O_CREAT();
+    sysopen( my $fh, $file, $flags );
+    unless ( $fh ) {
+        return $self->_error("Failed to open file '$file' for writing: $!");
+    }
+
+    # Use no translation and strict UTF-8
+    binmode( $fh, ":raw:encoding(UTF-8)");
+
+    # flock if available (or warn if not possible for OS-specific reasons)
+    if ( $HAS_FLOCK ) {
+        flock( $fh, Fcntl::LOCK_EX() )
+            or warn "Couldn't lock '$file' for reading: $!";
+    }
+
+    # truncate and spew contents
+    truncate $fh, 0;
+    seek $fh, 0, 0;
+    print {$fh} $self->write_string;
+
+    # close the file (release the lock)
+    unless ( close $fh ) {
+        return $self->_error("Failed to close file '$file': $!");
+    }
 
     return 1;
-}
-
-
-# Save an object to a string
-sub write_utf8_string {
-    my $self = shift;
-    my $string = $self->write_string;
-    utf8::encode( $string );
-    return $string;
 }
 
 # Save an object to a string
@@ -851,12 +863,6 @@ Returns true on success or C<undef> on error.
 Generates the file content for the object and returns it as a character
 string.  This may contain non-ASCII characters and should be encoded
 before writing it to a file.
-
-=head2 write_utf8_string
-
-Generates the file content for the object and returns it as a UTF-8
-encoded string.  Will warn if UTF-8 encoding is not available (on
-Perls before 5.8).
 
 =for stopwords errstr
 
