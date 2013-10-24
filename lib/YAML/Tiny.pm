@@ -3,7 +3,6 @@ use 5.008001; # sane UTF-8 support
 use strict;
 use warnings;
 
-use Carp;
 use Config;
 use Fcntl ();
 
@@ -88,7 +87,6 @@ sub read {
         <$fh>
     };
     if ( my $err = $@ ) {
-        $err =~ s/at \S+ line \d+.*//;
         return $class->_error("Error reading from file '$file': $err");
     }
 
@@ -179,8 +177,7 @@ sub read_string {
     if ( ref $@ eq 'SCALAR' ) {
         return $self->_error(${$@});
     } elsif ( $@ ) {
-        require Carp;
-        Carp::croak($@);
+        $self->_error($@);
     }
 
     return $self;
@@ -441,36 +438,44 @@ sub write_string {
     # Iterate over the documents
     my $indent = 0;
     my @lines  = ();
-    foreach my $cursor ( @$self ) {
-        push @lines, '---';
 
-        # An empty document
-        if ( ! defined $cursor ) {
-            # Do nothing
+    eval {
+        foreach my $cursor ( @$self ) {
+            push @lines, '---';
 
-        # A scalar document
-        } elsif ( ! ref $cursor ) {
-            $lines[-1] .= ' ' . $self->_write_scalar( $cursor, $indent );
+            # An empty document
+            if ( ! defined $cursor ) {
+                # Do nothing
 
-        # A list at the root
-        } elsif ( ref $cursor eq 'ARRAY' ) {
-            unless ( @$cursor ) {
-                $lines[-1] .= ' []';
-                next;
+            # A scalar document
+            } elsif ( ! ref $cursor ) {
+                $lines[-1] .= ' ' . $self->_write_scalar( $cursor, $indent );
+
+            # A list at the root
+            } elsif ( ref $cursor eq 'ARRAY' ) {
+                unless ( @$cursor ) {
+                    $lines[-1] .= ' []';
+                    next;
+                }
+                push @lines, $self->_write_array( $cursor, $indent, {} );
+
+            # A hash at the root
+            } elsif ( ref $cursor eq 'HASH' ) {
+                unless ( %$cursor ) {
+                    $lines[-1] .= ' {}';
+                    next;
+                }
+                push @lines, $self->_write_hash( $cursor, $indent, {} );
+
+            } else {
+                die \("Cannot serialize " . ref($cursor));
             }
-            push @lines, $self->_write_array( $cursor, $indent, {} );
-
-        # A hash at the root
-        } elsif ( ref $cursor eq 'HASH' ) {
-            unless ( %$cursor ) {
-                $lines[-1] .= ' {}';
-                next;
-            }
-            push @lines, $self->_write_hash( $cursor, $indent, {} );
-
-        } else {
-            Carp::croak("Cannot serialize " . ref($cursor));
         }
+    };
+    if ( ref $@ eq 'SCALAR' ) {
+        return $self->_error(${$@});
+    } elsif ( $@ ) {
+        $self->_error($@);
     }
 
     join '', map { "$_\n" } @lines;
@@ -496,7 +501,7 @@ sub _write_scalar {
 sub _write_array {
     my ($self, $array, $indent, $seen) = @_;
     if ( $seen->{refaddr($array)}++ ) {
-        die "YAML::Tiny does not support circular references";
+        die \"YAML::Tiny does not support circular references";
     }
     my @lines  = ();
     foreach my $el ( @$array ) {
@@ -525,7 +530,7 @@ sub _write_array {
             }
 
         } else {
-            die "YAML::Tiny does not support $type references";
+            die \"YAML::Tiny does not support $type references";
         }
     }
 
@@ -535,7 +540,7 @@ sub _write_array {
 sub _write_hash {
     my ($self, $hash, $indent, $seen) = @_;
     if ( $seen->{refaddr($hash)}++ ) {
-        die "YAML::Tiny does not support circular references";
+        die \"YAML::Tiny does not support circular references";
     }
     my @lines  = ();
     foreach my $name ( sort keys %$hash ) {
@@ -565,7 +570,7 @@ sub _write_hash {
             }
 
         } else {
-            die "YAML::Tiny does not support $type references";
+            die \"YAML::Tiny does not support $type references";
         }
     }
 
@@ -575,6 +580,7 @@ sub _write_hash {
 # Set error
 sub _error {
     $errstr = $_[1];
+    $errstr =~ s/ at \S+ line \d+.*//;
     undef;
 }
 
@@ -591,13 +597,19 @@ sub errstr {
 # YAML Compatibility
 
 sub Dump {
-    YAML::Tiny->new(@_)->write_string;
+    my $string = YAML::Tiny->new(@_)->write_string;
+    unless ( defined $string ) {
+        require Carp;
+        Carp::croak("Failed to dump data to YAML string: $errstr");
+    }
+    return $string;
 }
 
 sub Load {
     my $self = YAML::Tiny->read_string(@_);
     unless ( $self ) {
-        Carp::croak("Failed to load YAML document from string");
+        require Carp;
+        Carp::croak("Failed to load YAML document from string: $errstr");
     }
     if ( wantarray ) {
         return @$self;
@@ -614,11 +626,20 @@ BEGIN {
 
 sub DumpFile {
     my $file = shift;
-    YAML::Tiny->new(@_)->write($file);
+    unless ( YAML::Tiny->new(@_)->write($file) ) {
+        require Carp;
+        Carp::croak("Failed to dump data to file '$file': $errstr");
+    }
+    return 1;
 }
 
 sub LoadFile {
-    my $self = YAML::Tiny->read($_[0]);
+    my $file = shift;
+    my $self = YAML::Tiny->read($file);
+    unless ( $self ) {
+        require Carp;
+        Carp::croak("Failed to load YAML document from file '$file': $errstr");
+    }
     if ( wantarray ) {
         return @$self;
     } else {

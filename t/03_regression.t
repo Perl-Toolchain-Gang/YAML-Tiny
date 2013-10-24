@@ -415,9 +415,9 @@ SCOPE: {
     my $string = undef;
        $string = eval { $circ->write_string; };
     is( $string, undef, '->write_string does not return a value' );
-    ok( $@, 'Error string is defined' );
+    ok( my $err = YAML::Tiny->errstr, 'Error string is defined' );
     ok(
-        $@ =~ /does not support circular references/,
+        $err =~ /does not support circular references/,
         'Got the expected error message',
     );
 }
