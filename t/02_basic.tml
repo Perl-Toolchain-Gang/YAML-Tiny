@@ -1,0 +1,322 @@
+#####################################################################
+# Sample Testing
+
+# Test a completely empty document
+=== empty
+--- yaml
+--- perl
+[ ]
+
+
+# Just a newline
+### YAML.pm has a bug where it dies on a single newline
+=== only_newlines
+--- yaml
+\
+\
+--- perl
+[ ]
+
+
+# Just a comment
+=== only_comment
+--- yaml
+\# comment
+--- perl
+[ ]
+
+
+# Empty documents
+=== only_header
+--- yaml
+---
+
+--- perl
+[ undef ]
+
+
+=== two_header
+--- yaml
+---
+---
+
+--- perl
+[ undef, undef ]
+
+
+=== one_undef
+--- yaml
+--- ~
+
+--- perl
+[ undef ]
+
+
+=== one_undef2
+--- yaml
+---  ~
+--- perl
+[ undef ]
+
+
+=== two_undef
+--- yaml
+--- ~
+---
+
+--- perl
+[ undef, undef ]
+
+
+# Just a scalar
+=== one_scalar
+--- yaml
+\--- foo
+
+--- perl
+[ 'foo' ]
+
+
+=== one_scalar2
+--- yaml
+\---  foo
+
+--- perl
+[ 'foo' ]
+
+
+=== two_scalar
+--- yaml
+\--- foo
+\--- bar
+
+--- perl
+[ 'foo', 'bar' ]
+
+
+# Simple lists
+=== one_list1
+--- yaml
+---
+- foo
+
+--- perl
+[ [ 'foo' ] ]
+
+
+=== one_list2
+--- yaml
+---
+- foo
+- bar
+
+--- perl
+[ [ 'foo', 'bar' ] ]
+
+
+=== one_listundef
+--- yaml
+---
+- ~
+- bar
+
+--- perl
+[ [ undef, 'bar' ] ]
+
+
+=== one_listundefs
+--- noyamlpm
+--- yaml
+---
+- ~
+-
+- 
+
+--- perl
+[ [ undef, undef, undef ] ]
+
+
+# Simple hashs
+=== one_hash1
+--- yaml
+---
+foo: bar
+
+--- perl
+[ { foo => 'bar' } ]
+
+
+=== one_hash2
+--- yaml
+---
+foo: bar
+this: ~
+
+--- perl
+[ { this => undef, foo => 'bar' } ]
+
+
+=== one_hash3
+--- yaml
+---
+-foo: bar
+
+--- perl
+[ { '-foo' => 'bar' } ]
+
+
+# Simple array inside a hash with an undef
+=== array_in_hash
+--- yaml
+---
+foo:
+  - bar
+  - ~
+  - baz
+
+--- perl
+[ { foo => [ 'bar', undef, 'baz' ] } ]
+
+
+# Simple hash inside a hash with an undef
+=== hash_in_hash
+--- yaml
+---
+foo: ~
+bar:
+  foo: bar
+
+--- perl
+[ { foo => undef, bar => { foo => 'bar' } } ]
+
+
+# Mixed hash and scalars inside an array
+=== hash_in_array
+--- yaml
+---
+-
+  foo: ~
+  this: that
+- foo
+- ~
+-
+  foo: bar
+  this: that
+
+--- perl
+[ [
+    { foo => undef, this => 'that' },
+    'foo',
+    undef,
+    { foo => 'bar', this => 'that' },
+] ]
+
+
+# Simple single quote
+=== single_quote1
+--- yaml
+---
+- 'foo'
+
+--- perl
+[ [ 'foo' ] ]
+
+
+=== single_spaces
+--- yaml
+---
+- '  '
+--- perl
+[ [ '  ' ] ]
+
+
+=== single_null
+--- yaml
+---
+- ''
+
+--- perl
+[ [ '' ] ]
+
+
+# Double quotes
+=== only_spaces
+--- noyamlpm
+--- yaml
+--- "  "
+
+--- perl
+[ '  ' ]
+
+
+=== leading_trailing_spaces
+--- noyamlpm
+--- yaml
+--- "  foo"
+--- "bar  "
+
+--- perl
+[ "  foo", "bar  " ]
+
+
+# Implicit document start
+=== implicit_hash
+--- yaml
+foo: bar
+
+--- perl
+[ { foo => 'bar' } ]
+
+
+=== implicit_array
+--- yaml
+- foo
+
+--- perl
+[ [ 'foo' ] ]
+
+
+# Inline nested hash
+=== inline_nested_hash
+--- yaml
+---
+- ~
+- foo: bar
+  this: that
+- baz
+
+--- perl
+[ [ undef, { foo => 'bar', this => 'that' }, 'baz' ] ]
+
+
+# Empty comments
+=== empty_comment_in_list
+--- yaml
+---
+- foo
+\#
+- bar
+
+--- perl
+[ [ 'foo', 'bar' ] ]
+
+
+=== empty_comment_in_hash
+--- yaml
+---
+foo: bar
+\# foo
+one: two
+
+--- perl
+[ { foo => 'bar', one => 'two' } ]
+
+
+# Complex keys
+=== key_with_whitespace
+--- yaml
+---
+a b: c d
+
+--- perl
+{ 'a b' => 'c d' }
