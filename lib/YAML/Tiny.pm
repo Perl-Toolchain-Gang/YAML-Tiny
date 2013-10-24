@@ -1,28 +1,18 @@
 package YAML::Tiny;
-
+use 5.008001; # sane UTF-8 support
 use strict;
 use warnings;
 
-# UTF Support?
-sub HAVE_UTF8 () { $] >= 5.008001 } # for utf8::is_utf8
-BEGIN {
-    if ( HAVE_UTF8 ) {
-        # The string eval helps hide this from Test::MinimumVersion
-        eval "require utf8;";
-        die "Failed to load UTF-8 support" if $@;
-    }
+use Carp;
+use Fcntl ();
 
-    # Class structure
-    require 5.004;
-    require Exporter;
-    require Carp;
-    @YAML::Tiny::ISA       = qw{ Exporter  };
-    @YAML::Tiny::EXPORT    = qw{ Load Dump };
-    @YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
+use Exporter;
+our @ISA       = qw{ Exporter  };
+our @EXPORT    = qw{ Load Dump };
+our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
 
-    # Error storage
-    $YAML::Tiny::errstr    = '';
-}
+# Error storage
+our $errstr    = '';
 
 # The character class of all characters we need to escape
 # NOTE: Inlined, since it's only used once
@@ -103,7 +93,7 @@ sub read_string {
         }
 
         # String could be characters or raw in various formats
-        $string = $self->_convert_to_characters($string) if HAVE_UTF8;
+        $string = $self->_convert_to_characters($string);
 
         # Check for some special cases
         return $self unless length $string;
@@ -438,13 +428,7 @@ sub write {
 sub write_utf8_string {
     my $self = shift;
     my $string = $self->write_string;
-    if ( HAVE_UTF8 ) {
-        utf8::encode( $string );
-    }
-    elsif ( $string =~ /[^\x00-\xFF]/ ) {
-        return $self->_error("Can't UTF-8 encode wide characters on this perl");
-    }
-
+    utf8::encode( $string );
     return $string;
 }
 
@@ -589,13 +573,13 @@ sub _write_hash {
 
 # Set error
 sub _error {
-    $YAML::Tiny::errstr = $_[1];
+    $errstr = $_[1];
     undef;
 }
 
 # Retrieve error
 sub errstr {
-    $YAML::Tiny::errstr;
+    $errstr;
 }
 
 
