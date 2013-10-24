@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests => 25;
+use Test::More tests => 26;
 use YAML::Tiny ();
 
 my $FEATURE = 'does not support a feature';
@@ -95,6 +95,14 @@ END_YAML
     eval { YAML::Tiny->read($file); };
     like(YAML::Tiny->errstr, qr/'$file' is a directory, not a file/,
         "Got expected error: directory provided to read()");
+    $YAML::Tiny::errstr = '';
+}
+
+{
+    my $file = test_data_file("latin1.yml");
+    eval { YAML::Tiny->read($file); };
+    like(YAML::Tiny->errstr, qr/\Q$file\E.*does not map to Unicode/,
+        "Got expected error: UTF-8 error");
     $YAML::Tiny::errstr = '';
 }
 

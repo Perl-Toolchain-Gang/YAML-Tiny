@@ -1,34 +1,37 @@
 use strict;
 use warnings;
-
-BEGIN {
-    $|  = 1;
-    $^W = 1;
-}
+use utf8;
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(0, 1, 4);
+use Test::More 0.90;
 use YAML::Tiny;
 
+binmode(Test::More->builder->$_, ":utf8") for qw/output failure_output todo_output/;
 
-
-
-
-#####################################################################
-# Testing that Perl::Smith config files work
-
-my $sample_file = catfile( 't', 'data', 'utf_16_le_bom.yml' );
-my $sample      = load_ok( 'utf_16_le_bom.yml', $sample_file, 3 );
-
-# Does the string parse to the structure
-my $name      = "utf-16";
-my $yaml_copy = $sample;
-my $yaml      = eval { YAML::Tiny->read_string( $yaml_copy ); };
-is( $@, '', "$name: YAML::Tiny parses without error" );
-is( $yaml_copy, $sample, "$name: YAML::Tiny does not modify the input string" );
-SKIP: {
-    skip( "Shortcutting after failure", 2 ) if $@;
+subtest "UTF-16-LE BOM fails" => sub {
+    my $sample_file = test_data_file('utf_16_le_bom.yml');
+    my $yaml      = eval { YAML::Tiny->read( $sample_file ) };
+    is( $@, '', "YAML::Tiny read on UTF-16-LE ran without error" );
     is( $yaml, undef, "file not parsed" );
-    is( YAML::Tiny->errstr, "Stream has a non UTF-8 BOM", "correct error" );
-}
+    like(
+        YAML::Tiny->errstr,
+        qr/Error reading from file.*does not map to Unicode/,
+        "correct error"
+    );
+};
+
+subtest "UTF-8 BOM OK" => sub {
+    $YAML::Tiny::errstr = ''; # clear
+    my $sample_file = test_data_file('utf_8_bom.yml');
+    my $yaml      = eval { YAML::Tiny->read( $sample_file ) };
+    is( $@, '', "YAML::Tiny read on UTF-8 with BOM ran without error" );
+    is( YAML::Tiny->errstr, '', "YAML::Tiny::errstr empty" );
+    is(
+        $yaml->[0]{author},
+        'Ævar Arnfjörð Bjarmason <avar@cpan.org>',
+        "data correct"
+    );
+};
+
+done_testing;
