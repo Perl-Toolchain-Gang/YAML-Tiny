@@ -3,9 +3,6 @@ use 5.008001; # sane UTF-8 support
 use strict;
 use warnings;
 
-use Config;
-use Fcntl ();
-
 use Exporter;
 our @ISA       = qw{ Exporter  };
 our @EXPORT    = qw{ Load Dump };
@@ -15,8 +12,19 @@ our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
 our $errstr    = '';
 
 # Some platforms can't flock :-(
-my $HAS_FLOCK
-    = $Config{d_flock} || $Config{d_fcntl_can_lock} || $Config{d_lockf};
+my $HAS_FLOCK;
+sub _can_flock {
+    if ( defined $HAS_FLOCK ) {
+        return $HAS_FLOCK;
+    }
+    else {
+        require Config;
+        my $c = \%Config::Config;
+        $HAS_FLOCK = grep { $c->{$_} } qw/d_flock d_fcntl_can_lock d_lockf/;
+        require Fcntl if $HAS_FLOCK;
+        return $HAS_FLOCK;
+    }
+}
 
 # The character class of all characters we need to escape
 # NOTE: Inlined, since it's only used once
@@ -75,7 +83,7 @@ sub read {
     }
 
     # flock if available (or warn if not possible for OS-specific reasons)
-    if ( $HAS_FLOCK ) {
+    if ( _can_flock ) {
         flock( $fh, Fcntl::LOCK_SH() )
             or warn "Couldn't lock '$file' for reading: $!";
     }
@@ -398,28 +406,36 @@ sub _read_hash {
 sub write {
     my $self = shift;
 
+    require Fcntl;
+
     # Check the file
     my $file = shift or return $self->_error( 'You did not specify a file name' );
 
-    # Open without truncation (truncate comes after lock)
-    my $flags = Fcntl::O_WRONLY()|Fcntl::O_CREAT();
-    sysopen( my $fh, $file, $flags );
-    unless ( $fh ) {
-        return $self->_error("Failed to open file '$file' for writing: $!");
-    }
-
-    # Use no translation and strict UTF-8
-    binmode( $fh, ":raw:encoding(UTF-8)");
-
+    my $fh;
     # flock if available (or warn if not possible for OS-specific reasons)
-    if ( $HAS_FLOCK ) {
+    if ( _can_flock ) {
+        # Open without truncation (truncate comes after lock)
+        my $flags = Fcntl::O_WRONLY()|Fcntl::O_CREAT();
+        sysopen( $fh, $file, $flags );
+        unless ( $fh ) {
+            return $self->_error("Failed to open file '$file' for writing: $!");
+        }
+
+        # Use no translation and strict UTF-8
+        binmode( $fh, ":raw:encoding(UTF-8)");
+
         flock( $fh, Fcntl::LOCK_EX() )
             or warn "Couldn't lock '$file' for reading: $!";
+
+        # truncate and spew contents
+        truncate $fh, 0;
+        seek $fh, 0, 0;
+    }
+    else {
+        open $fh, ">:unix:encoding(UTF-8)", $file;
     }
 
-    # truncate and spew contents
-    truncate $fh, 0;
-    seek $fh, 0, 0;
+    # serialize and spew to the handle
     print {$fh} $self->write_string;
 
     # close the file (release the lock)
