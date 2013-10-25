@@ -1,3 +1,5 @@
+# Run the appropriate tests from https://github.com/ingydotnet/yaml-spec-tml
+
 use strict;
 use warnings;
 use lib 't/lib';
@@ -10,9 +12,6 @@ sub main {
     for my $file (testml_all_files('t/testml')) {
         note "YAML Spec Test File: $file";
         testml_run_file($file, \&test_yaml_load);
-#         # Run files as subtest:
-#         subtest "YAML Spec Test File: $file",
-#             sub { testml_run_file($file, \&test_yaml_load) };
     }
     done_testing;
 }
