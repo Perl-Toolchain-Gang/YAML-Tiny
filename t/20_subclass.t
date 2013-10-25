@@ -1,18 +1,11 @@
 # Testing documents that should fail
-
 use strict;
 use warnings;
-
-BEGIN {
-    $|  = 1;
-    $^W = 1;
-}
+use lib 't/lib/';
+use Test::More 0.99;
+use TestUtils;
 
 use File::Spec::Functions ':ALL';
-use t::lib::Test;
-use Test::More 0.90;
-
-
 
 
 

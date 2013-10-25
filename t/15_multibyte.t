@@ -1,16 +1,11 @@
 # Testing of META.yml containing AVAR's name
-
 use strict;
 use warnings;
-
-BEGIN {
-    $|  = 1;
-    $^W = 1;
-}
+use lib 't/lib/';
+use Test::More 0.99;
+use TestUtils;
 
 use File::Spec::Functions ':ALL';
-use t::lib::Test;
-use Test::More 0.90;
 use YAML::Tiny;
 
 

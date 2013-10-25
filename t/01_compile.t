@@ -2,20 +2,20 @@
 
 use strict;
 use warnings;
+use lib 't/lib';
 
 BEGIN {
     $|  = 1;
-    $^W = 1;
 }
 
-use File::Spec::Functions ':ALL';
-use Test::More 0.90;
+use Test::More 0.99;
 
 # Check their perl version
 ok( $] >= 5.004, "Your perl is new enough" );
 
 # Does the module load
-use_ok( 'YAML::Tiny'   );
-use_ok( 't::lib::Test' );
+require_ok( 'YAML::Tiny' );
+require_ok( 'TestUtils' );
+require_ok( 'TestMLTiny' );
 
 done_testing;

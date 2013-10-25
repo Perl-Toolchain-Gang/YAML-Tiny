@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More 0.90;
+use Test::More 0.99;
 use YAML::Tiny;
 
 # constructor and documents

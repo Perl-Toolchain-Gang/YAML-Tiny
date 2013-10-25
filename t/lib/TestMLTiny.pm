@@ -5,37 +5,16 @@ use warnings;
 
 use File::Find;
 
+use TestUtils qw/slurp/;
+
 use Exporter   ();
-use vars qw{@ISA @EXPORT};
-BEGIN {
-    @ISA    = qw{ Exporter };
-    @EXPORT = qw{
-        testml_require_json_or_skip_all
-        testml_all_files
-        testml_parse_blocks
-        testml_run_file
-        testml_has_points
-    };
-}
-
-{
-    package main;
-    use Test::More 0.96;
-
-    # Set up output handles for characters
-    if ( $] > '5.008' ) {
-        binmode(Test::More->builder->$_, ":utf8")
-            for qw/output failure_output todo_output/;
-    }
-}
-
-# Prefer JSON to JSON::PP; skip if we don't have at least one
-sub testml_require_json_or_skip_all {
-    for (qw/JSON JSON::PP/) {
-        return $_ if eval "require $_; 1";
-    }
-    main::plan skip_all => "no JSON or JSON::PP";
-}
+our @ISA    = qw{ Exporter };
+our @EXPORT = qw{
+    testml_all_files
+    testml_parse_blocks
+    testml_run_file
+    testml_has_points
+};
 
 sub testml_all_files {
     my ($dir) = @_;
@@ -133,17 +112,6 @@ sub parse_testml_points {
         $block->{$point_name} =~ s/^\\//gm;
     }
     return $block;
-}
-
-sub slurp {
-    my $file = shift;
-    local $/ = undef;
-    open( FILE, " $file" ) or die "open($file) failed: $!";
-    binmode( FILE, $_[0] ) if @_ > 0 && $] > 5.006;
-    # binmode(FILE); # disable perl's BOM interpretation
-    my $source = <FILE>;
-    close( FILE ) or die "close($file) failed: $!";
-    $source;
 }
 
 1;

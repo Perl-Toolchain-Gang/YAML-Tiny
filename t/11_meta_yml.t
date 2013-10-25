@@ -1,22 +1,12 @@
 # Testing of common META.yml examples
-
 use strict;
 use warnings;
-
-BEGIN {
-    $|  = 1;
-    $^W = 1;
-}
+use lib 't/lib/';
+use Test::More 0.99;
+use TestUtils;
 
 use File::Spec::Functions ':ALL';
-use t::lib::Test;
-use Test::More 0.90;
 use YAML::Tiny;
-
-
-#####################################################################
-# Run testml tests:
-t::lib::Test::run_testml_file();
 
 
 #####################################################################

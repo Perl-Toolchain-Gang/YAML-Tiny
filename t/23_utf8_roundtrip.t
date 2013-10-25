@@ -1,19 +1,14 @@
 # Testing of basic document structures
-
 use utf8;
 use strict;
 use warnings;
+use lib 't/lib/';
+use Test::More 0.99;
+use TestUtils;
 
-BEGIN {
-    $|  = 1;
-    $^W = 1;
-}
-
-use Test::More 0.90;
 use YAML::Tiny;
 use File::Basename qw/basename/;
 use File::Temp qw/tempfile/;
-use t::lib::Test qw/slurp/;
 
 my $builder = Test::More->builder;
 binmode $builder->output,         ":utf8";

@@ -1,7 +1,9 @@
 # Testing of common META.yml examples
-
 use strict;
 use warnings;
+use lib 't/lib/';
+use Test::More 0.99;
+use TestUtils;
 
 BEGIN {
     $|  = 1;
@@ -9,8 +11,6 @@ BEGIN {
 }
 
 use File::Spec::Functions ':ALL';
-use t::lib::Test;
-use Test::More 0.90;
 use YAML::Tiny qw{
     Load     Dump
     LoadFile DumpFile
@@ -27,11 +27,6 @@ ok( defined(&LoadFile), 'Found exported LoadFile function' );
 ok( defined(&DumpFile), 'Found exported DumpFile function' );
 ok( defined(&freeze),   'Found exported freeze function'   );
 ok( defined(&thaw),     'Found exported thaw functiona'    );
-
-
-#####################################################################
-# Run testml tests:
-t::lib::Test::run_testml_file();
 
 
 #####################################################################

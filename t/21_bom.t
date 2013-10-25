@@ -1,10 +1,11 @@
+use utf8;
 use strict;
 use warnings;
-use utf8;
+use lib 't/lib/';
+use Test::More 0.99;
+use TestUtils;
 
 use File::Spec::Functions ':ALL';
-use t::lib::Test;
-use Test::More 0.90;
 use YAML::Tiny;
 
 binmode(Test::More->builder->$_, ":utf8") for qw/output failure_output todo_output/;

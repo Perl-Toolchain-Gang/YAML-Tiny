@@ -1,15 +1,17 @@
 # Run the appropriate tests from https://github.com/ingydotnet/yaml-spec-tml
-
 use strict;
 use warnings;
-use lib 't/lib';
+use lib 't/lib/';
+use Test::More 0.99;
+use TestUtils;
 use TestMLTiny;
+
 use YAML::Tiny;
 
-my $JSON = testml_require_json_or_skip_all;
+my $JSON = json_class_or_skip_all();
 
 sub main {
-    for my $file (testml_all_files('t/testml')) {
+    for my $file (testml_all_files('t/tml-spec')) {
         note "YAML Spec Test File: $file";
         testml_run_file($file, \&test_yaml_load);
     }
