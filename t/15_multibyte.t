@@ -39,14 +39,5 @@ SKIP: {
     }, 'build_requires ok' );
 }
 
-SKIP: {
-    unless ( YAML::Tiny::HAVE_UTF8() ) {
-        skip("no utf8 support", 2 );
-    }
-    eval { utf8::is_utf8('') };
-    if ( $@ ) {
-        skip("no is_utf8 to test with until 5.8.1", 2);
-    }
-    ok( utf8::is_utf8($yaml->[0]->{author}), "utf8 decoded" );
-    is( length($yaml->[0]->{author}), 39, "utf8 decoded as characters" );
-}
+ok( utf8::is_utf8($yaml->[0]->{author}), "utf8 decoded" );
+is( length($yaml->[0]->{author}), 39, "utf8 decoded as characters" );

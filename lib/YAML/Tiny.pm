@@ -1,27 +1,29 @@
 package YAML::Tiny;
-
+use 5.008001; # sane UTF-8 support
 use strict;
 use warnings;
 
-# UTF Support?
-sub HAVE_UTF8 () { $] >= 5.008001 } # for utf8::is_utf8
-BEGIN {
-    if ( HAVE_UTF8 ) {
-        # The string eval helps hide this from Test::MinimumVersion
-        eval "require utf8;";
-        die "Failed to load UTF-8 support" if $@;
+use Exporter;
+our @ISA       = qw{ Exporter  };
+our @EXPORT    = qw{ Load Dump };
+our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
+
+# Error storage
+our $errstr    = '';
+
+# Some platforms can't flock :-(
+my $HAS_FLOCK;
+sub _can_flock {
+    if ( defined $HAS_FLOCK ) {
+        return $HAS_FLOCK;
     }
-
-    # Class structure
-    require 5.004;
-    require Exporter;
-    require Carp;
-    @YAML::Tiny::ISA       = qw{ Exporter  };
-    @YAML::Tiny::EXPORT    = qw{ Load Dump };
-    @YAML::Tiny::EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
-
-    # Error storage
-    $YAML::Tiny::errstr    = '';
+    else {
+        require Config;
+        my $c = \%Config::Config;
+        $HAS_FLOCK = grep { $c->{$_} } qw/d_flock d_fcntl_can_lock d_lockf/;
+        require Fcntl if $HAS_FLOCK;
+        return $HAS_FLOCK;
+    }
 }
 
 # The character class of all characters we need to escape
@@ -52,9 +54,17 @@ my %QUOTE = map { $_ => 1 } qw{
     on On ON off Off OFF
 };
 
-
-
-
+my %RE = (
+    # The commented out form is simpler, but overloaded the Perl regex
+    # engine due to recursion and backtracking problems on strings
+    # larger than 32,000ish characters. Keep it for reference purposes.
+    # qr/\"((?:\\.|[^\"])*)\"/
+    capture_double_quoted   => qr/\"([^\\"]*(?:\\.[^\\"]*)*)\"/,
+    capture_single_quoted   => qr/\'([^\']*(?:\'\'[^\']*)*)\'/,
+    capture_unquoted_key    => qr/(.*?)(?=\s*\:(?:\s+|$))/,
+    trailing_comment        => qr/(?:\s+\#.*)?/,
+    key_value_separator     => qr/\s*:(?:\s+(?:\#.*)?|$)/,
+);
 
 #####################################################################
 # Implementation
@@ -78,14 +88,30 @@ sub read {
     return $class->_error( "'$file' is a directory, not a file" )       unless -f _;
     return $class->_error( "Insufficient permissions to read '$file'" ) unless -r _;
 
-    # Slurp in the file
-    local $/ = undef;
-    local *CFG;
-    unless ( open(CFG, $file) ) {
+    # Open unbuffered with strict UTF-8 decoding and no translation layers
+    open( my $fh, "<:unix:encoding(UTF-8)", $file );
+    unless ( $fh ) {
         return $class->_error("Failed to open file '$file': $!");
     }
-    my $contents = <CFG>;
-    unless ( close(CFG) ) {
+
+    # flock if available (or warn if not possible for OS-specific reasons)
+    if ( _can_flock ) {
+        flock( $fh, Fcntl::LOCK_SH() )
+            or warn "Couldn't lock '$file' for reading: $!";
+    }
+
+    # slurp the contents
+    my $contents = eval {
+        use warnings FATAL => 'utf8';
+        local $/;
+        <$fh>
+    };
+    if ( my $err = $@ ) {
+        return $class->_error("Error reading from file '$file': $err");
+    }
+
+    # close the file (release the lock)
+    unless ( close $fh ) {
         return $class->_error("Failed to close file '$file': $!");
     }
 
@@ -102,11 +128,23 @@ sub read_string {
             die \"Did not provide a string to load";
         }
 
-        # String could be characters or raw in various formats
-        $string = $self->_convert_to_characters($string) if HAVE_UTF8;
+        # Check if Perl has it marked as characters, but it's internally
+        # inconsistent.  E.g. maybe latin1 got read on a :utf8 layer
+        if ( utf8::is_utf8($string) && ! utf8::valid($string) ) {
+            die \'Read an invalid UTF-8 string (maybe mixed UTF-8 and 8-bit character set).'
+                . 'Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?';
+        }
+
+        # Ensure Unicode character semantics, even for 0x80-0xff
+        utf8::upgrade($string);
+
+        # Check for and strip any leading UTF-8 BOM
+        $string =~ s/^\x{FEFF}//;
 
         # Check for some special cases
         return $self unless length $string;
+
+        # XXX should we allow this and just add one? -- xdg, 2013-10-24
         unless ( $string =~ /[\012\015]+\z/ ) {
             die \"Stream does not end with newline character";
         }
@@ -159,51 +197,24 @@ sub read_string {
     if ( ref $@ eq 'SCALAR' ) {
         return $self->_error(${$@});
     } elsif ( $@ ) {
-        require Carp;
-        Carp::croak($@);
+        $self->_error($@);
     }
 
     return $self;
 }
 
-# given a scalar, get it to decoded characters or die trying
-sub _convert_to_characters {
+sub _unquote_single {
     my ($self, $string) = @_;
-    if ( utf8::is_utf8($string) ) {
-        # Perl has it marked as characters, but...
-        if ( ! utf8::valid($string) ) {
-            # maybe latin1 got read on a :utf8 layer so launder
-            # it through an encode/decode cycle
-            warn  'Read an invalid UTF-8 string (maybe mixed UTF-8 and 8-bit character set).'
-                . 'Attempting to fix, but might double-encode some characters.  Did you'
-                . 'decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?';
-            utf8::encode($string);
-            utf8::decode($string);
-        }
-    }
-    else {
-        # Perl has it as bytes, so check first for a BOM
+    return '' unless length $string;
+    $string =~ s/\'\'/\'/g;
+    return $string;
+}
 
-        # Byte order marks
-        # NOTE: Keeping this here to educate maintainers
-        # my %BOM = (
-        #     "\357\273\277" => 'UTF-8',
-        #     "\376\377"     => 'UTF-16BE',
-        #     "\377\376"     => 'UTF-16LE',
-        #     "\377\376\0\0" => 'UTF-32LE'
-        #     "\0\0\376\377" => 'UTF-32BE',
-        # );
-
-        if ( $string =~ /^(?:\376\377|\377\376|\377\376\0\0|\0\0\376\377)/ ) {
-            die \"Stream has a non UTF-8 BOM";
-        } else {
-            # Strip UTF-8 bom if found, we'll just ignore it
-            $string =~ s/^\357\273\277//;
-        }
-
-        # Get string to characters from either UTF-8 or Latin-1
-        utf8::decode($string) || utf8::upgrade($string);
-    }
+sub _unquote_double {
+    my ($self, $string) = @_;
+    return '' unless length $string;
+    $string =~ s/\\"/"/g;
+    $string =~ s/\\([never\\fartz]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
     return $string;
 }
 
@@ -218,25 +229,13 @@ sub _read_scalar {
     return undef if $string eq '~';
 
     # Single quote
-    if ( $string =~ /^\'(.*?)\'(?:\s+\#.*)?\z/ ) {
-        return '' unless defined $1;
-        $string = $1;
-        $string =~ s/\'\'/\'/g;
-        return $string;
+    if ( $string =~ /^$RE{capture_single_quoted}$RE{trailing_comment}\z/ ) {
+        return $self->_unquote_single($1);
     }
 
     # Double quote.
-    # The commented out form is simpler, but overloaded the Perl regex
-    # engine due to recursion and backtracking problems on strings
-    # larger than 32,000ish characters. Keep it for reference purposes.
-    # if ( $string =~ /^\"((?:\\.|[^\"])*)\"\z/ ) {
-    if ( $string =~ /^\"([^\\"]*(?:\\.[^\\"]*)*)\"(?:\s+\#.*)?\z/ ) {
-        # Reusing the variable is a little ugly,
-        # but avoids a new variable and a string copy.
-        $string = $1;
-        $string =~ s/\\"/"/g;
-        $string =~ s/\\([never\\fartz]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
-        return $string;
+    if ( $string =~ /^$RE{capture_double_quoted}$RE{trailing_comment}\z/ ) {
+        return $self->_unquote_double($1);
     }
 
     # Special cases
@@ -379,14 +378,25 @@ sub _read_hash {
             die \"YAML::Tiny found bad indenting in line '$lines->[0]'";
         }
 
-        # Get the key
-        unless ( $lines->[0] =~ s/^\s*([^\'\" ][^\n]*?)\s*:(\s+(?:\#.*)?|$)// ) {
-            if ( $lines->[0] =~ /^\s*[?\'\"]/ ) {
-                die \"YAML::Tiny does not support a feature in line '$lines->[0]'";
-            }
+        # Find the key
+        my $key;
+
+        # Quoted keys
+        if ( $lines->[0] =~ s/^\s*$RE{capture_single_quoted}$RE{key_value_separator}// ) {
+            $key = $self->_unquote_single($1);
+        }
+        elsif ( $lines->[0] =~ s/^\s*$RE{capture_double_quoted}$RE{key_value_separator}// ) {
+            $key = $self->_unquote_double($1);
+        }
+        elsif ( $lines->[0] =~ s/^\s*$RE{capture_unquoted_key}$RE{key_value_separator}// ) {
+            $key = $1;
+        }
+        elsif ( $lines->[0] =~ /^\s*\?/ ) {
+            die \"YAML::Tiny does not support a feature in line '$lines->[0]'";
+        }
+        else {
             die \"YAML::Tiny failed to classify line '$lines->[0]'";
         }
-        my $key = $1;
 
         # Do we have a value?
         if ( length $lines->[0] ) {
@@ -421,31 +431,45 @@ sub _read_hash {
 # Save an object to a file
 sub write {
     my $self = shift;
-    my $file = shift or return $self->_error('No file name provided');
 
-    # Write it to the file
-    open( CFG, '>' . $file ) or return $self->_error(
-        "Failed to open file '$file' for writing: $!"
-        );
-    print CFG $self->write_utf8_string;
-    close CFG;
+    require Fcntl;
+
+    # Check the file
+    my $file = shift or return $self->_error( 'You did not specify a file name' );
+
+    my $fh;
+    # flock if available (or warn if not possible for OS-specific reasons)
+    if ( _can_flock ) {
+        # Open without truncation (truncate comes after lock)
+        my $flags = Fcntl::O_WRONLY()|Fcntl::O_CREAT();
+        sysopen( $fh, $file, $flags );
+        unless ( $fh ) {
+            return $self->_error("Failed to open file '$file' for writing: $!");
+        }
+
+        # Use no translation and strict UTF-8
+        binmode( $fh, ":raw:encoding(UTF-8)");
+
+        flock( $fh, Fcntl::LOCK_EX() )
+            or warn "Couldn't lock '$file' for reading: $!";
+
+        # truncate and spew contents
+        truncate $fh, 0;
+        seek $fh, 0, 0;
+    }
+    else {
+        open $fh, ">:unix:encoding(UTF-8)", $file;
+    }
+
+    # serialize and spew to the handle
+    print {$fh} $self->write_string;
+
+    # close the file (release the lock)
+    unless ( close $fh ) {
+        return $self->_error("Failed to close file '$file': $!");
+    }
 
     return 1;
-}
-
-
-# Save an object to a string
-sub write_utf8_string {
-    my $self = shift;
-    my $string = $self->write_string;
-    if ( HAVE_UTF8 ) {
-        utf8::encode( $string );
-    }
-    elsif ( $string =~ /[^\x00-\xFF]/ ) {
-        return $self->_error("Can't UTF-8 encode wide characters on this perl");
-    }
-
-    return $string;
 }
 
 # Save an object to a string
@@ -456,36 +480,44 @@ sub write_string {
     # Iterate over the documents
     my $indent = 0;
     my @lines  = ();
-    foreach my $cursor ( @$self ) {
-        push @lines, '---';
 
-        # An empty document
-        if ( ! defined $cursor ) {
-            # Do nothing
+    eval {
+        foreach my $cursor ( @$self ) {
+            push @lines, '---';
 
-        # A scalar document
-        } elsif ( ! ref $cursor ) {
-            $lines[-1] .= ' ' . $self->_write_scalar( $cursor, $indent );
+            # An empty document
+            if ( ! defined $cursor ) {
+                # Do nothing
 
-        # A list at the root
-        } elsif ( ref $cursor eq 'ARRAY' ) {
-            unless ( @$cursor ) {
-                $lines[-1] .= ' []';
-                next;
+            # A scalar document
+            } elsif ( ! ref $cursor ) {
+                $lines[-1] .= ' ' . $self->_write_scalar( $cursor, $indent );
+
+            # A list at the root
+            } elsif ( ref $cursor eq 'ARRAY' ) {
+                unless ( @$cursor ) {
+                    $lines[-1] .= ' []';
+                    next;
+                }
+                push @lines, $self->_write_array( $cursor, $indent, {} );
+
+            # A hash at the root
+            } elsif ( ref $cursor eq 'HASH' ) {
+                unless ( %$cursor ) {
+                    $lines[-1] .= ' {}';
+                    next;
+                }
+                push @lines, $self->_write_hash( $cursor, $indent, {} );
+
+            } else {
+                die \("Cannot serialize " . ref($cursor));
             }
-            push @lines, $self->_write_array( $cursor, $indent, {} );
-
-        # A hash at the root
-        } elsif ( ref $cursor eq 'HASH' ) {
-            unless ( %$cursor ) {
-                $lines[-1] .= ' {}';
-                next;
-            }
-            push @lines, $self->_write_hash( $cursor, $indent, {} );
-
-        } else {
-            Carp::croak("Cannot serialize " . ref($cursor));
         }
+    };
+    if ( ref $@ eq 'SCALAR' ) {
+        return $self->_error(${$@});
+    } elsif ( $@ ) {
+        $self->_error($@);
     }
 
     join '', map { "$_\n" } @lines;
@@ -511,7 +543,7 @@ sub _write_scalar {
 sub _write_array {
     my ($self, $array, $indent, $seen) = @_;
     if ( $seen->{refaddr($array)}++ ) {
-        die "YAML::Tiny does not support circular references";
+        die \"YAML::Tiny does not support circular references";
     }
     my @lines  = ();
     foreach my $el ( @$array ) {
@@ -540,7 +572,7 @@ sub _write_array {
             }
 
         } else {
-            die "YAML::Tiny does not support $type references";
+            die \"YAML::Tiny does not support $type references";
         }
     }
 
@@ -550,12 +582,12 @@ sub _write_array {
 sub _write_hash {
     my ($self, $hash, $indent, $seen) = @_;
     if ( $seen->{refaddr($hash)}++ ) {
-        die "YAML::Tiny does not support circular references";
+        die \"YAML::Tiny does not support circular references";
     }
     my @lines  = ();
     foreach my $name ( sort keys %$hash ) {
         my $el   = $hash->{$name};
-        my $line = ('  ' x $indent) . "$name:";
+        my $line = ('  ' x $indent) . $self->_write_scalar($name) . ":";
         my $type = ref $el;
         if ( ! $type ) {
             $line .= ' ' . $self->_write_scalar( $el, $indent + 1 );
@@ -580,7 +612,7 @@ sub _write_hash {
             }
 
         } else {
-            die "YAML::Tiny does not support $type references";
+            die \"YAML::Tiny does not support $type references";
         }
     }
 
@@ -589,13 +621,14 @@ sub _write_hash {
 
 # Set error
 sub _error {
-    $YAML::Tiny::errstr = $_[1];
+    $errstr = $_[1];
+    $errstr =~ s/ at \S+ line \d+.*//;
     undef;
 }
 
 # Retrieve error
 sub errstr {
-    $YAML::Tiny::errstr;
+    $errstr;
 }
 
 
@@ -606,13 +639,19 @@ sub errstr {
 # YAML Compatibility
 
 sub Dump {
-    YAML::Tiny->new(@_)->write_string;
+    my $string = YAML::Tiny->new(@_)->write_string;
+    unless ( defined $string ) {
+        require Carp;
+        Carp::croak("Failed to dump data to YAML string: $errstr");
+    }
+    return $string;
 }
 
 sub Load {
     my $self = YAML::Tiny->read_string(@_);
     unless ( $self ) {
-        Carp::croak("Failed to load YAML document from string");
+        require Carp;
+        Carp::croak("Failed to load YAML document from string: $errstr");
     }
     if ( wantarray ) {
         return @$self;
@@ -629,11 +668,20 @@ BEGIN {
 
 sub DumpFile {
     my $file = shift;
-    YAML::Tiny->new(@_)->write($file);
+    unless ( YAML::Tiny->new(@_)->write($file) ) {
+        require Carp;
+        Carp::croak("Failed to dump data to file '$file': $errstr");
+    }
+    return 1;
 }
 
 sub LoadFile {
-    my $self = YAML::Tiny->read($_[0]);
+    my $file = shift;
+    my $self = YAML::Tiny->read($file);
+    unless ( $self ) {
+        require Carp;
+        Carp::croak("Failed to load YAML document from file '$file': $errstr");
+    }
     if ( wantarray ) {
         return @$self;
     } else {
@@ -700,7 +748,7 @@ module, an incomplete but correct and usable subset of the functionality,
 in as little code as possible.
 
 Like the other C<::Tiny> modules, YAML::Tiny has no non-core dependencies,
-does not require a compiler to install, is back-compatible to Perl 5.004,
+does not require a compiler to install, is back-compatible to Perl v5.8.1,
 and can be inlined into other modules if needed.
 
 In exchange for this adding this extreme flexibility, it provides support
@@ -798,9 +846,9 @@ in a few lines of code. Please don't be offended if your request is
 refused. Someone has to draw the line, and for YAML::Tiny that someone
 is me.
 
-If you need something with more power move up to L<YAML> (4 megabytes of
-memory overhead) or L<YAML::Syck> (275k, but requires F<libsyck> and a C
-compiler).
+If you need something with more power move up to L<YAML> (7 megabytes of
+memory overhead) or L<YAML::XS> (6 megabytes memory overhead and requires
+a C compiler).
 
 To restate, L<YAML::Tiny> does B<not> preserve your comments, whitespace,
 or the order of your YAML data. But it should round-trip from Perl
@@ -839,18 +887,21 @@ the C<$!> variable.
 
 =head2 read_string $string;
 
-The C<read_string> constructor reads YAML data from a string,
-and returns a new C<YAML::Tiny> object containing the parsed content.
+The C<read_string> constructor reads YAML data from a character string, and
+returns a new C<YAML::Tiny> object containing the parsed content.  If you have
+read the string from a file yourself, be sure that you have correctly decoded
+it into characters first.
 
 Returns the object on success, or C<undef> on error.
+Use C<< YAML::Tiny->errstr> >> for error details.
 
 =head2 write $filename
 
 The C<write> method generates the file content for the properties, and
-writes it to disk to the filename specified.  For Perl 5.8 or later,
-the file will be UTF-8 encoded.
+writes it to disk using UTF-8 encoding to the filename specified.
 
 Returns true on success or C<undef> on error.
+Use C<< YAML::Tiny->errstr> >> for error details.
 
 =head2 write_string
 
@@ -858,11 +909,8 @@ Generates the file content for the object and returns it as a character
 string.  This may contain non-ASCII characters and should be encoded
 before writing it to a file.
 
-=head2 write_utf8_string
-
-Generates the file content for the object and returns it as a UTF-8
-encoded string.  Will warn if UTF-8 encoding is not available (on
-Perls before 5.8).
+Returns true on success or C<undef> on error.
+Use C<< YAML::Tiny->errstr> >> for error details.
 
 =for stopwords errstr
 
@@ -888,9 +936,12 @@ Data::Dumper::Dumper().
 It takes a list of Perl data structures and dumps them into a serialized
 form.
 
-It returns a string containing the YAML stream.
+It returns a character string containing the YAML stream.  Be sure to encode
+it as UTF-8 before serializing to a file or socket.
 
 The structures can be references or plain scalars.
+
+Dies on any error.
 
 =head2 Load
 
@@ -901,8 +952,10 @@ Turn YAML into Perl data. This is the opposite of Dump.
 Just like L<Storable>'s thaw() function or the eval() function in relation
 to L<Data::Dumper>.
 
-It parses a string containing a valid YAML stream into a list of Perl data
-structures.
+It parses a character string containing a valid YAML stream into a list of Perl data
+structures.  Be sure to decode it correctly if the string came from a file or socket.
+
+Dies on any error.
 
 =head2 freeze() and thaw()
 
@@ -912,11 +965,15 @@ freeze/thaw API for internal serialization.
 
 =head2 DumpFile(filepath, list)
 
-Writes the YAML stream to a file instead of just returning a string.
+Writes the YAML stream to a file with UTF-8 encoding instead of just returning a string.
+
+Dies on any error.
 
 =head2 LoadFile(filepath)
 
-Reads the YAML stream from a file instead of a string.
+Reads the YAML stream from a UTF-8 encoded file instead of a string.
+
+Dies on any error.
 
 =head1 YAML TINY SPECIFICATION
 
@@ -1018,10 +1075,8 @@ B<Presentation Stream>
 
 =for stopwords unicode
 
-YAML Tiny is notionally unicode, but support for unicode is required if the
-underlying language or system being used to implement a parser does not
-support Unicode. If unicode is encountered in this case an error should be
-returned.
+YAML Tiny reads and write UTF-8 encoded files.  Operations on strings expect
+or produce Unicode characters not UTF-8 encoded bytes.
 
 B<Loading Failure Points>
 
@@ -1038,12 +1093,8 @@ consistent.
 
 B<Character Set>
 
-YAML Tiny streams are implemented primarily using the ASCII character set,
-although the use of Unicode inside strings is allowed if supported by the
-implementation.
-
-Specific YAML Tiny encoded document types aiming for maximum compatibility
-should restrict themselves to ASCII.
+YAML Tiny streams are processed in memory as Unicode characters and read/written
+with UTF-8 encoding.
 
 The escaping and unescaping of the 8-bit YAML escapes is required.
 

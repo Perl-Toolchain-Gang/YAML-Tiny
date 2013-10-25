@@ -12,7 +12,7 @@ BEGIN {
     @ISA    = qw{ Exporter };
     @EXPORT = qw{
         tests  yaml_ok  yaml_error slurp  load_ok
-        test_data_directory
+        test_data_directory test_data_file
     };
 }
 
@@ -61,6 +61,10 @@ sub tests {
 
 sub test_data_directory {
     return File::Spec->catdir( 't', 'data' );
+}
+
+sub test_data_file {
+    return File::Spec->catfile( test_data_directory(), shift );
 }
 
 sub count {
@@ -254,7 +258,7 @@ sub load_ok {
     my $size = shift;
     Test::More::ok( -f $file, "Found $name" );
     Test::More::ok( -r $file, "Can read $name" );
-    my $content = slurp( $file );
+    my $content = slurp( $file, ":encoding(UTF-8)" );
     Test::More::ok( (defined $content and ! ref $content), "Loaded $name" );
     Test::More::ok( ($size < length $content), "Content of $name larger than $size bytes" );
     return $content;

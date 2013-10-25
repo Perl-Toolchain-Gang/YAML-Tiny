@@ -36,7 +36,7 @@ SCOPE: {
         if ( defined $indent ) {
             return "'$indent'";
         } else {
-            return 'undef';
+            return $string;
         }
     }
 
