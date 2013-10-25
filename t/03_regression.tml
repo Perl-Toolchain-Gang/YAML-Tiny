@@ -420,17 +420,14 @@ the key: the value
 #####################################################################
 # Special Characters
 
-#yaml_ok(
-#    <<'END_YAML',
-#---
-#- "Ingy d\xC3\xB6t Net"
-#END_YAML
-#    [ [ "Ingy d\xC3\xB6t Net" ] ],
-#);
-
-
-
-
+=== Special Characters
+--- SKIP
+# Encoding failure
+--- yaml
+---
+- "Ingy d\xC3\xB6t Net"
+--- perl
+[ [ "Ingy d\xC3\xB6t Net" ] ]
 
 
 ######################################################################
