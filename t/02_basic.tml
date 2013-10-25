@@ -320,3 +320,12 @@ a b: c d
 
 --- perl
 [ { 'a b' => 'c d' } ]
+
+=== quoted_empty_key
+--- yaml
+---
+'': foo
+
+--- perl
+[ { '' => 'foo' } ]
+
