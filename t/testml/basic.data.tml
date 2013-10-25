@@ -6,8 +6,7 @@ a: b
 {"a":"b"}
 
 === double quoted keys
---- SKIP
-# This is currently busted in YAML::Tiny
+# Hash with quoted key with embedded newline
 --- yaml
 "a\nb": c
 --- json
