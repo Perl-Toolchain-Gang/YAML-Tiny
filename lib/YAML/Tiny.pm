@@ -54,6 +54,18 @@ my %QUOTE = map { $_ => 1 } qw{
     on On ON off Off OFF
 };
 
+my %RE = (
+    # The commented out form is simpler, but overloaded the Perl regex
+    # engine due to recursion and backtracking problems on strings
+    # larger than 32,000ish characters. Keep it for reference purposes.
+    # qr/\"((?:\\.|[^\"])*)\"/
+    capture_double_quoted   => qr/\"([^\\"]*(?:\\.[^\\"]*)*)\"/,
+    capture_single_quoted   => qr/\'([^\']*(?:\'\'[^\']*)*)\'/,
+    capture_unquoted_key    => qr/(.*?)(?=\s*\:(?:\s+|$))/,
+    trailing_comment        => qr/(?:\s+\#.*)?/,
+    key_value_separator     => qr/\s*:(?:\s+(?:\#.*)?|$)/,
+);
+
 #####################################################################
 # Implementation
 
@@ -191,6 +203,21 @@ sub read_string {
     return $self;
 }
 
+sub _unquote_single {
+    my ($self, $string) = @_;
+    return '' unless length $string;
+    $string =~ s/\'\'/\'/g;
+    return $string;
+}
+
+sub _unquote_double {
+    my ($self, $string) = @_;
+    return '' unless length $string;
+    $string =~ s/\\"/"/g;
+    $string =~ s/\\([never\\fartz]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
+    return $string;
+}
+
 # Deparse a scalar string to the actual scalar
 sub _read_scalar {
     my ($self, $string, $indent, $lines) = @_;
@@ -202,25 +229,13 @@ sub _read_scalar {
     return undef if $string eq '~';
 
     # Single quote
-    if ( $string =~ /^\'(.*?)\'(?:\s+\#.*)?\z/ ) {
-        return '' unless defined $1;
-        $string = $1;
-        $string =~ s/\'\'/\'/g;
-        return $string;
+    if ( $string =~ /^$RE{capture_single_quoted}$RE{trailing_comment}\z/ ) {
+        return $self->_unquote_single($1);
     }
 
     # Double quote.
-    # The commented out form is simpler, but overloaded the Perl regex
-    # engine due to recursion and backtracking problems on strings
-    # larger than 32,000ish characters. Keep it for reference purposes.
-    # if ( $string =~ /^\"((?:\\.|[^\"])*)\"\z/ ) {
-    if ( $string =~ /^\"([^\\"]*(?:\\.[^\\"]*)*)\"(?:\s+\#.*)?\z/ ) {
-        # Reusing the variable is a little ugly,
-        # but avoids a new variable and a string copy.
-        $string = $1;
-        $string =~ s/\\"/"/g;
-        $string =~ s/\\([never\\fartz]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
-        return $string;
+    if ( $string =~ /^$RE{capture_double_quoted}$RE{trailing_comment}\z/ ) {
+        return $self->_unquote_double($1);
     }
 
     # Special cases
@@ -363,14 +378,25 @@ sub _read_hash {
             die \"YAML::Tiny found bad indenting in line '$lines->[0]'";
         }
 
-        # Get the key
-        unless ( $lines->[0] =~ s/^\s*([^\'\" ][^\n]*?)\s*:(\s+(?:\#.*)?|$)// ) {
-            if ( $lines->[0] =~ /^\s*[?\'\"]/ ) {
-                die \"YAML::Tiny does not support a feature in line '$lines->[0]'";
-            }
+        # Find the key
+        my $key;
+
+        # Quoted keys
+        if ( $lines->[0] =~ s/^\s*$RE{capture_single_quoted}$RE{key_value_separator}// ) {
+            $key = $self->_unquote_single($1);
+        }
+        elsif ( $lines->[0] =~ s/^\s*$RE{capture_double_quoted}$RE{key_value_separator}// ) {
+            $key = $self->_unquote_double($1);
+        }
+        elsif ( $lines->[0] =~ s/^\s*$RE{capture_unquoted_key}$RE{key_value_separator}// ) {
+            $key = $1;
+        }
+        elsif ( $lines->[0] =~ /^\s*\?/ ) {
+            die \"YAML::Tiny does not support a feature in line '$lines->[0]'";
+        }
+        else {
             die \"YAML::Tiny failed to classify line '$lines->[0]'";
         }
-        my $key = $1;
 
         # Do we have a value?
         if ( length $lines->[0] ) {
