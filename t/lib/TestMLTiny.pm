@@ -47,7 +47,6 @@ sub testml_all_files {
     return sort @files;
 }
 
-use XXX;
 sub testml_run_file {
     my ($file, $callback) = @_;
     my $blocks = testml_parse_blocks($file);
