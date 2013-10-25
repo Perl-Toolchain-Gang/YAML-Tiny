@@ -9,7 +9,7 @@ BEGIN {
     $^W = 1;
 }
 
-use Test::More;
+use Test::More 0.90;
 use YAML::Tiny;
 use File::Basename qw/basename/;
 use File::Temp qw/tempfile/;
@@ -25,8 +25,6 @@ my @cases = (
     { label => "latin1", name => "Mengué" },
     { label => "wide",   name => "あ"     },
 );
-
-plan tests => 8*@cases;
 
 my @warnings;
 local $SIG{__WARN__} = sub { push @warnings, $_[0] };
@@ -71,4 +69,4 @@ for my $c ( @cases ) {
         or diag @warnings;
 }
 
-
+done_testing;

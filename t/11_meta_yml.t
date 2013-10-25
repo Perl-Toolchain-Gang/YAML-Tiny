@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests => (5 + 3 * 5);
+use Test::More 0.90;
 use YAML::Tiny;
 
 
@@ -189,3 +189,5 @@ SCOPE: {
         );
     };
 }
+
+done_testing;

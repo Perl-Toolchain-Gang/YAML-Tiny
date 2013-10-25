@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests(0, 1, 6);
+use Test::More 0.90;
 use YAML::Tiny;
 
 
@@ -41,3 +41,5 @@ SKIP: {
 
 ok( utf8::is_utf8($yaml->[0]->{author}), "utf8 decoded" );
 is( length($yaml->[0]->{author}), 39, "utf8 decoded as characters" );
+
+done_testing;

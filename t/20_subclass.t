@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests => 1;
+use Test::More 0.90;
 
 
 
@@ -54,3 +54,5 @@ my $object = Foo->new(
     { foo => 'bar' }
 );
 is( $object->write_string, "---\nfoo: '1'\n", 'Subclassing works' );
+
+done_testing;

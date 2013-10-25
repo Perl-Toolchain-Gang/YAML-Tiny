@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More 0.90;
 use YAML::Tiny;
 
 # constructor and documents
@@ -13,3 +13,5 @@ use YAML::Tiny;
     is_deeply( [ $yaml->documents ], \@docs, "documents (list)" );
     is( scalar $yaml->documents, 2, "documents (scalar)" );
 }
+
+done_testing;

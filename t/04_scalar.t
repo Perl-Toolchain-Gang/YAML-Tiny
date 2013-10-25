@@ -10,15 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More;
-BEGIN {
-    if ( t::lib::Test->have_yamlpm ) {
-        plan( tests => 18 );
-    } else {
-        plan( skip_all => 'Requires YAML.pm' );
-        exit(0);
-    }
-}
+use Test::More 0.90;
 
 use YAML       ();
 use YAML::Tiny ();
@@ -118,3 +110,5 @@ SCOPE: {
     is_deeply( $two_scalar_pm, [ 'bar' ],        'two: Parsed correctly'       );
     is_deeply( $two_scalar_pm, $two_scalar_tiny, 'two: Scalar context matches' );
 }
+
+done_testing;

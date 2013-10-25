@@ -9,7 +9,7 @@ BEGIN {
 }
 
 use File::Spec::Functions ':ALL';
-use Test::More tests => 3;
+use Test::More 0.90;
 
 # Check their perl version
 ok( $] >= 5.004, "Your perl is new enough" );
@@ -17,3 +17,5 @@ ok( $] >= 5.004, "Your perl is new enough" );
 # Does the module load
 use_ok( 'YAML::Tiny'   );
 use_ok( 't::lib::Test' );
+
+done_testing;

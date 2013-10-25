@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests => 26;
+use Test::More 0.90;
 use YAML::Tiny ();
 
 my $FEATURE = 'does not support a feature';
@@ -121,3 +121,5 @@ END_YAML
         "Got expected error: stream did not end with newline");
     $YAML::Tiny::errstr = '';
 }
+
+done_testing;

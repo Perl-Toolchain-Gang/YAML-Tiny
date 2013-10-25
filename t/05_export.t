@@ -8,7 +8,7 @@ BEGIN {
     $^W = 1;
 }
 
-use Test::More tests => 6;
+use Test::More 0.90;
 use YAML::Tiny;
 
 
@@ -20,3 +20,5 @@ ok not(defined &main::DumpFile), 'Dump is exported';
 
 ok \&main::Load == \&YAML::Tiny::Load, 'Load is YAML::Tiny';
 ok \&main::Dump == \&YAML::Tiny::Dump, 'Dump is YAML::Tiny';
+
+done_testing;

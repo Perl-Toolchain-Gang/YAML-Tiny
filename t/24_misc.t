@@ -9,7 +9,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests => 23;;
+use Test::More 0.90;
 use YAML::Tiny;
 use File::Temp qw(tempfile);
 
@@ -144,3 +144,5 @@ use File::Temp qw(tempfile);
     isa_ok( $yaml, 'YAML::Tiny' );
     $YAML::Tiny::errstr = '';
 }
+
+done_testing;

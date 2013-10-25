@@ -10,7 +10,7 @@ BEGIN {
 
 use File::Spec::Functions ':ALL';
 use t::lib::Test;
-use Test::More tests => (37 + 13);
+use Test::More 0.90;
 use YAML::Tiny qw{
     Load     Dump
     LoadFile DumpFile
@@ -108,3 +108,5 @@ is_deeply(
     "---\n- 'A:'\n",
     'Simple scalar ending in a colon is correctly quoted',
 );
+
+done_testing;
