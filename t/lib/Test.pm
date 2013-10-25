@@ -14,6 +14,8 @@ BEGIN {
         tests  yaml_ok  yaml_error slurp  load_ok
         test_data_directory test_data_file
     };
+    $|  = 1;
+    $^W = 1;
 }
 
 # Do we have the authorative YAML to test against
@@ -262,6 +264,39 @@ sub load_ok {
     Test::More::ok( (defined $content and ! ref $content), "Loaded $name" );
     Test::More::ok( ($size < length $content), "Content of $name larger than $size bytes" );
     return $content;
+}
+
+sub run_testml_file {
+    my ($plan) = @_;
+    local @INC = ('lib', 't/lib', @INC);
+    require TestMLTiny;
+    TestMLTiny->import;
+    require YAML::Tiny;
+
+    Test::More::plan tests => $plan if $plan;
+
+    my (undef, $testml_file) = caller;
+    $testml_file .= 'ml';
+    testml_run_file(
+        $testml_file,
+        sub {
+            my ($block) = @_;
+            my ($label, $yaml, $perl) =
+                @{$block}{qw(Label yaml perl)};
+            $perl = eval $perl; die $@ if $@;
+            my %flags = ();
+            for (qw(noyamlpm nosyck noxs)) {
+                if (defined($block->{$_})) {
+                    $flags{$_} =1;
+                }
+            }
+
+            Test::More::subtest "$block->{Label}", sub {
+                Test::More::plan tests => 31;
+                yaml_ok($yaml, $perl, $label, %flags);
+            };
+        }
+    );
 }
 
 1;
