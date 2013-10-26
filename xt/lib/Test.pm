@@ -1,4 +1,4 @@
-package t::lib::Test;
+package xt::lib::Test;
 
 use strict;
 use warnings;

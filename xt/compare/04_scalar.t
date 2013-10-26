@@ -9,7 +9,7 @@ BEGIN {
 }
 
 use File::Spec::Functions ':ALL';
-use t::lib::Test;
+use xt::lib::Test;
 use Test::More 0.90;
 
 use YAML       ();
