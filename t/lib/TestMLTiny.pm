@@ -3,33 +3,45 @@ package TestMLTiny;
 use strict;
 use warnings;
 
+use Test::More 0.99;
 use File::Find;
 
-use TestUtils qw/slurp/;
+use TestUtils;
 
 use Exporter   ();
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
-    testml_all_files
-    testml_parse_blocks
+    testml_run_all_files
     testml_run_file
+    testml_parse_blocks
     testml_has_points
+    test_yaml_perl
+    test_yaml_json
 };
 
-sub testml_all_files {
-    my ($dir) = @_;
+sub testml_run_all_files {
+    my ($dir, $callback, $label) = @_;
+
     my @files;
     File::Find::find(
         sub { push @files, $File::Find::name if -f and /\.tml$/ },
         $dir
     );
-    return sort @files;
+
+    testml_run_file($_, $callback, $label) for sort @files;
+
+    done_testing;
 }
 
 sub testml_run_file {
-    my ($file, $callback) = @_;
+    my ($file, $callback, $label) = @_;
+
     my $blocks = testml_parse_blocks($file);
-    $callback->($_) for @$blocks;
+
+    subtest "$label: $file" => sub {
+        plan tests => scalar @$blocks;
+        $callback->($_) for @$blocks;
+    };
 }
 
 sub testml_has_points {
@@ -112,6 +124,47 @@ sub parse_testml_points {
         $block->{$point_name} =~ s/^\\//gm;
     }
     return $block;
+}
+
+sub test_yaml_perl {
+    my ($block) = @_;
+    my ($label, $yaml, $perl) =
+        @{$block}{qw(Label yaml perl)};
+    $perl = eval $perl; die $@ if $@;
+    my %flags = ();
+    for (qw(serializes)) {
+        if (defined($block->{$_})) {
+            $flags{$_} = 1;
+        }
+    }
+
+    subtest "$block->{Label}", sub {
+        yaml_ok($yaml, $perl, $label, %flags);
+    };
+}
+
+sub test_yaml_json {
+    my ($class, $json, $block) = @_;
+
+    testml_has_points($block, qw(yaml json)) or return;
+
+    my $loader = do { no strict 'refs'; \&{"${class}::Load"} };
+
+    subtest "$block->{Label}", sub {
+        # test YAML Load
+        my $object = eval {
+            $loader->($block->{yaml});
+        };
+        my $err = $@;
+        ok !$err, "YAML loads";
+        return if $err;
+
+        # test YAML->Perl->JSON
+        # N.B. round-trip JSON to decode any \uNNNN escapes and get to characters
+        my $want = $json->new->encode($json->new->decode($block->{json}));
+        my $got = $json->new->encode($object);
+        is $got, $want, "Load is accurate";
+    };
 }
 
 1;

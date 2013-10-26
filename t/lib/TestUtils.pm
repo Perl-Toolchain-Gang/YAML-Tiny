@@ -18,15 +18,15 @@ our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
     tests  yaml_ok  yaml_error slurp  load_ok
     test_data_directory test_data_file
-    json_class_or_skip_all
+    json_class
 };
 
 # Prefer JSON to JSON::PP; skip if we don't have at least one
-sub json_class_or_skip_all {
+sub json_class {
     for (qw/JSON JSON::PP/) {
         return $_ if eval "require $_; 1";
     }
-    plan skip_all => "no JSON or JSON::PP";
+    return;
 }
 
 sub test_data_directory {
