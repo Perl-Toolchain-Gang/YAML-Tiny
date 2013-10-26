@@ -2,7 +2,8 @@ use strict;
 use warnings;
 use lib 't/lib/';
 use TestUtils;
-use TestMLTiny;
-use YAML::Tiny;
+use TestMLBridge;
 
-run_all_testml_files('t/tml-local', \&test_yaml_perl, "Real-world examples");
+run_all_testml_files(
+    "Real-world examples", 't/tml-world', \&test_yaml_perl
+);

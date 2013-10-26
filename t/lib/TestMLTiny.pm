@@ -1,32 +1,28 @@
+# TestMLTiny is a small, one file module that offers the data format of TestML
+# and a test file runner method.
 package TestMLTiny;
 
 use strict;
 use warnings;
 
-use Test::More 0.99;
-use File::Find;
-
-use TestUtils;
+# TODO - This class should be truly standalone, not dependent on a local
+# utility lib.
+use TestUtils 'slurp';
 
 use Exporter   ();
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
     testml_run_file
-    testml_parse_blocks
     testml_has_points
-    test_yaml_perl
-    test_yaml_json
+    testml_parse_blocks
 };
 
 sub testml_run_file {
-    my ($file, $callback, $label) = @_;
+    my ($file, $code) = @_;
 
     my $blocks = testml_parse_blocks($file);
 
-    subtest "$label: $file" => sub {
-        plan tests => scalar @$blocks;
-        $callback->($_) for @$blocks;
-    };
+    $code->($file, $blocks);
 }
 
 sub testml_has_points {
@@ -53,7 +49,7 @@ sub testml_parse_blocks {
     while (@$lines) {
         push @$parse, shift @$lines;
         if ( !defined($lines->[0]) or $lines->[0] =~ /^===\s+\S.*$/ ) {
-            my $block = parse_testml_block($file, $parse);
+            my $block = _parse_testml_block($file, $parse);
             push @$blocks, $block
                 unless exists $block->{SKIP};
             last if exists $block->{LAST};
@@ -62,13 +58,12 @@ sub testml_parse_blocks {
         last if !defined($lines->[0]);
     }
 
-    # Take first ONLY block if one exists
     my $only = [ grep { exists $_->{ONLY} } @$blocks ];
 
     return @$only ? $only : $blocks;
 }
 
-sub parse_testml_block {
+sub _parse_testml_block {
     my ($file, $lines) = @_;
 
     # extract test block name
@@ -78,17 +73,18 @@ sub parse_testml_block {
     shift @$lines until $lines->[0] =~ /^--- +\w+/;
 
     # extract test block points
-    my $block = parse_testml_points($file, $label, $lines);
+    my $block = _parse_testml_points($file, $label, $lines);
     $block->{Label} = $label;
 
     return $block;
 }
 
-sub parse_testml_points {
+sub _parse_testml_points {
     my ($file, $label, $lines) = @_;
 
     my $block = {};
 
+    # XXX Need to support TestML single line points.
     $lines->[0] =~ /^--- +(\w+)$/
         or die "$file block $label does not start with a valid point";
 
@@ -109,47 +105,6 @@ sub parse_testml_points {
         $block->{$point_name} =~ s/^\\//gm;
     }
     return $block;
-}
-
-sub test_yaml_perl {
-    my ($block) = @_;
-    my ($label, $yaml, $perl) =
-        @{$block}{qw(Label yaml perl)};
-    $perl = eval $perl; die $@ if $@;
-    my %flags = ();
-    for (qw(serializes)) {
-        if (defined($block->{$_})) {
-            $flags{$_} = 1;
-        }
-    }
-
-    subtest "$block->{Label}", sub {
-        yaml_ok($yaml, $perl, $label, %flags);
-    };
-}
-
-sub test_yaml_json {
-    my ($class, $json, $block) = @_;
-
-    testml_has_points($block, qw(yaml json)) or return;
-
-    my $loader = do { no strict 'refs'; \&{"${class}::Load"} };
-
-    subtest "$block->{Label}", sub {
-        # test YAML Load
-        my $object = eval {
-            $loader->($block->{yaml});
-        };
-        my $err = $@;
-        ok !$err, "YAML loads";
-        return if $err;
-
-        # test YAML->Perl->JSON
-        # N.B. round-trip JSON to decode any \uNNNN escapes and get to characters
-        my $want = $json->new->encode($json->new->decode($block->{json}));
-        my $got = $json->new->encode($object);
-        is $got, $want, "Load is accurate";
-    };
 }
 
 1;

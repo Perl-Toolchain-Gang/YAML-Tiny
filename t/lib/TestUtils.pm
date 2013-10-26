@@ -5,6 +5,7 @@ use warnings;
 
 use Exporter   ();
 use File::Spec ();
+use File::Find ();
 
 use Test::More 0.99;
 
@@ -20,6 +21,7 @@ our @EXPORT = qw{
     tests  yaml_ok  yaml_error slurp  load_ok
     test_data_directory test_data_file
     json_class
+    plan
 };
 
 # Prefer JSON to JSON::PP; skip if we don't have at least one
@@ -39,10 +41,18 @@ sub test_data_file {
 }
 
 sub run_all_testml_files {
+    my ($label, $dir, $bridge, @args) = @_;
+
     require TestMLTiny;
     TestMLTiny->import;
 
-    my ($dir, $callback, $label) = @_;
+    my $code = sub {
+        my ($file, $blocks) = @_;
+        subtest "$label: $file" => sub {
+            plan tests => scalar @$blocks;
+            $bridge->($_, @args) for @$blocks;
+        };
+    };
 
     my @files;
     File::Find::find(
@@ -50,7 +60,7 @@ sub run_all_testml_files {
         $dir
     );
 
-    testml_run_file($_, $callback, $label) for sort @files;
+    testml_run_file($_, $code) for sort @files;
 
     done_testing;
 }
@@ -110,17 +120,6 @@ sub yaml_error {
     # like( $@, qr/$_[0]/, "YAML::Tiny throws expected error" );
 }
 
-sub slurp {
-    my $file = shift;
-    local $/ = undef;
-    open( FILE, " $file" ) or die "open($file) failed: $!";
-    binmode( FILE, $_[0] ) if @_ > 0 && $] > 5.006;
-    # binmode(FILE); # disable perl's BOM interpretation
-    my $source = <FILE>;
-    close( FILE ) or die "close($file) failed: $!";
-    $source;
-}
-
 sub load_ok {
     my $name = shift;
     my $file = shift;
@@ -131,6 +130,17 @@ sub load_ok {
     ok( (defined $content and ! ref $content), "Loaded $name" );
     ok( ($size < length $content), "Content of $name larger than $size bytes" );
     return $content;
+}
+
+sub slurp {
+    my $file = shift;
+    local $/ = undef;
+    open( FILE, " $file" ) or die "open($file) failed: $!";
+    binmode( FILE, $_[0] ) if @_ > 0 && $] > 5.006;
+    # binmode(FILE); # disable perl's BOM interpretation
+    my $source = <FILE>;
+    close( FILE ) or die "close($file) failed: $!";
+    $source;
 }
 
 1;
