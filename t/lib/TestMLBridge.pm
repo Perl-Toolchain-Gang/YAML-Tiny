@@ -35,6 +35,8 @@ sub test_yaml_perl {
 
 sub test_yaml_json {
     my ($block, $json, $yaml) = @_;
+    $json ||= do { require JSON::PP; 'JSON::PP' };
+    $yaml ||= do { require YAML::Tiny; 'YAML::Tiny' };
 
     testml_has_points($block, qw(yaml json)) or return;
 

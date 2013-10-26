@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# This is a TestML test runner. Here are some usages:
+
+# t/tml             # Run all TestML tests.
+# t/tml -v          # Run all with prove options
+# t/tml t/tml-local/02_basic.tml
+# t/tml 02          # Short for t/**02**.tml
+# t/tml t/tml-local/02_basic.tml t/tml-local/11_meta_yml.tml
+# t/tml 02 11       # Same as above
+# t/tml -v 02 11    # With -v
+# t/tml 02 -v 11    # Options can be anywhere
+# t/tml world
+
+# Set custom bridges for some tests:
+export testml_bridge_t_tml_spec_basic_data_tml=test_yaml_json
+
+main() {
+  local opts=() args=()
+  for arg; do
+    case "$arg" in
+    -*) opts+=("$arg");;
+    *)  args+=("$arg");;
+    esac
+  done
+  [ ${#args[@]} == 0 ] && args=('')
+  shopt -s globstar nullglob
+  #set -x
+  for (( i = 0; i < ${#args[@]}; i++ )); do
+    local path="${args[$i]}"
+    if [ ! -f "$path" ]; then
+      p="$(echo t/*/*${args[$i]}*.tml)"
+      if [ -n "$p" ]; then
+        args[$i]="$p"
+      fi
+    fi
+    if [ ! -f "${args[$i]}" ]; then
+      p="$(echo t/*${args[$i]}*/*.tml)"
+      if [ -n "$p" ]; then
+        args[$i]="$p"
+      fi
+    fi
+  done
+  local testml=${0%/*}/testml
+  exec prove -e "$testml" "${opts[@]}" ${args[@]}
+}
+
+main "$@"
