@@ -11,27 +11,12 @@ use TestUtils;
 use Exporter   ();
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
-    testml_run_all_files
     testml_run_file
     testml_parse_blocks
     testml_has_points
     test_yaml_perl
     test_yaml_json
 };
-
-sub testml_run_all_files {
-    my ($dir, $callback, $label) = @_;
-
-    my @files;
-    File::Find::find(
-        sub { push @files, $File::Find::name if -f and /\.tml$/ },
-        $dir
-    );
-
-    testml_run_file($_, $callback, $label) for sort @files;
-
-    done_testing;
-}
 
 sub testml_run_file {
     my ($file, $callback, $label) = @_;

@@ -16,6 +16,7 @@ BEGIN {
 
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
+    run_all_testml_files
     tests  yaml_ok  yaml_error slurp  load_ok
     test_data_directory test_data_file
     json_class
@@ -35,6 +36,23 @@ sub test_data_directory {
 
 sub test_data_file {
     return File::Spec->catfile( test_data_directory(), shift );
+}
+
+sub run_all_testml_files {
+    require TestMLTiny;
+    TestMLTiny->import;
+
+    my ($dir, $callback, $label) = @_;
+
+    my @files;
+    File::Find::find(
+        sub { push @files, $File::Find::name if -f and /\.tml$/ },
+        $dir
+    );
+
+    testml_run_file($_, $callback, $label) for sort @files;
+
+    done_testing;
 }
 
 sub yaml_ok {

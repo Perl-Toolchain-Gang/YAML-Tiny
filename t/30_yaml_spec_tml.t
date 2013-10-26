@@ -11,7 +11,7 @@ use YAML::Tiny;
 my $JSON = json_class()
     or plan skip_all => "no JSON or JSON::PP";
 
-testml_run_all_files(
+run_all_testml_files(
     't/tml-spec',
     sub { test_yaml_json("YAML::Tiny", $JSON, @_) },
     "YAML Spec Test File"
