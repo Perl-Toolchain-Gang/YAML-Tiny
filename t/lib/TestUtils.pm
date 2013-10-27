@@ -8,6 +8,7 @@ use File::Spec ();
 use File::Find ();
 
 use Test::More 0.99;
+use TestMLTiny;
 
 BEGIN {
     $|  = 1;
@@ -42,9 +43,6 @@ sub test_data_file {
 
 sub run_all_testml_files {
     my ($label, $dir, $bridge, @args) = @_;
-
-    require TestMLTiny;
-    TestMLTiny->import;
 
     my $code = sub {
         my ($file, $blocks) = @_;
