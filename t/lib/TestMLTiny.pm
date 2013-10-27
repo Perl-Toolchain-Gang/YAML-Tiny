@@ -5,10 +5,6 @@ package TestMLTiny;
 use strict;
 use warnings;
 
-# TODO - This class should be truly standalone, not dependent on a local
-# utility lib.
-use TestUtils 'slurp';
-
 use Exporter   ();
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
@@ -36,7 +32,9 @@ sub testml_has_points {
 sub testml_parse_blocks {
     my ($file) = @_;
 
-    my $testml = slurp($file, ":encoding(UTF-8)");
+    my $testml = do {
+        open my $fh, "<:raw:encoding(UTF-8)", $file; local $/; <$fh>
+    };
     my $lines = [ grep { ! /^#/ } split /\n/, $testml ];
 
     shift @$lines while @$lines and $lines->[0] =~ /^ *$/;
