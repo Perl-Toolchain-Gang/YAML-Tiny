@@ -113,9 +113,7 @@ sub yaml_error {
     my $like   = shift;
     my $yaml   = YAML::Tiny->read_string( $string );
     is( $yaml, undef, '->read_string returns undef' );
-    ok( YAML::Tiny->errstr =~ /$like/, "Got expected error" );
-    # NOTE: like() gives better diagnostics (but requires 5.005)
-    # like( $@, qr/$_[0]/, "YAML::Tiny throws expected error" );
+    like( YAML::Tiny->errstr,  qr/$like/, "Got expected error" );
 }
 
 sub load_ok {
