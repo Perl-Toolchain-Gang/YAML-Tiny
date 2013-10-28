@@ -11,22 +11,7 @@ BEGIN {
 }
 
 use File::Spec::Functions ':ALL';
-use YAML::Tiny qw{
-    Load     Dump
-    LoadFile DumpFile
-    freeze   thaw
-};
-
-
-#####################################################################
-# Check Exports
-
-ok( defined(&Load),     'Found exported Load function'     );
-ok( defined(&Dump),     'Found exported Dump function'     );
-ok( defined(&LoadFile), 'Found exported LoadFile function' );
-ok( defined(&DumpFile), 'Found exported DumpFile function' );
-ok( defined(&freeze),   'Found exported freeze function'   );
-ok( defined(&thaw),     'Found exported thaw functiona'    );
+use YAML::Tiny;
 
 
 #####################################################################
