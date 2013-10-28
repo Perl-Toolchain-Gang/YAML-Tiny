@@ -7,9 +7,6 @@ use Test::More 0.99;
 use YAML::Tiny;
 
 subtest "default exports" => sub {
-    package main::with_default;
-    use Test::More;
-    use YAML::Tiny;
     ok( defined(&Load),         'Found exported Load function'   );
     ok( defined(&Dump),         'Found exported Dump function'   );
     ok( \&main::Load == \&YAML::Tiny::Load, 'Load is YAML::Tiny' );
