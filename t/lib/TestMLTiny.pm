@@ -40,9 +40,8 @@ sub testml_parse_blocks {
     };
     my $lines = [ grep { ! /^#/ } split /\n/, $testml ];
 
-    shift @$lines while @$lines and $lines->[0] =~ /^ *$/;
-    $lines->[0] =~ /^===/
-        or die "$file does not start with a valid block";
+    # Skip over possible TestML code:
+    shift @$lines while @$lines and $lines->[0] !~ /^===/;
 
     my $blocks = [];
     my $parse = [];

@@ -1,52 +1,35 @@
-# Test the first 2048 Unicode code points as mapping key/value
+# Test unicode strings in key and value contexts
 
-# *code.dump_code_key_value == *yaml
-# *yaml.load_yaml.dump_yaml == *yaml
-# *code.code_key_value.dump_yaml.load_yaml === *code.code_key_value
+%TestML 0.1.0
+
+# Make a mapping { "$code" : "$code" } where code is a unicode code point:
+
+# Dump mapping matches *yaml
+*code.dump_code_key_value == *yaml
+
+# Load *yaml then dump matches *yaml
+*yaml.load_yaml.dump_yaml == *yaml
+
+# Dump mapping the load memory-matches mapping
+*code.code_key_value.dump_yaml.load_yaml === *code.code_key_value
 
 
+# 0 == \0 "null"
+#
+# \z is the other YAML "null" encoding. Most implementations (including
+# libyaml), seem to go with \0 when emitting.
 === Code point 0
 --- code: 0
 --- yaml
 "\0": "\0"
 
-
+# 1-6 use \x0<1-6>
 === Code point 1
 --- code: 1
 --- yaml
 "\x01": "\x01"
 
-
-=== Code point 2
---- code: 2
---- yaml
-"\x02": "\x02"
-
-
-=== Code point 3
---- code: 3
---- yaml
-"\x03": "\x03"
-
-
-=== Code point 4
---- code: 4
---- yaml
-"\x04": "\x04"
-
-
-=== Code point 5
---- code: 5
---- yaml
-"\x05": "\x05"
-
-
-=== Code point 6
---- code: 6
---- yaml
-"\x06": "\x06"
-
-
+# 7 == \a "alarm"
 === Code point 7
 --- code: 7
 --- yaml
