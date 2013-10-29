@@ -2,6 +2,17 @@
 
 %TestML 0.1.0
 
+###
+# These tests target unicode characters that are handled special or known to be
+# problematic. Test YNY (YAML→Native→YAML) and NYN roundtripping.
+#
+# YAML scalar emission does quoting based on first character, presence of
+# escape characters, and special ambiguous cases like ': '. These ones
+# character strings go a long way towards making sure an implementation is
+# correct.
+###
+
+
 # Make a mapping { "$code" : "$code" } where code is a unicode code point:
 
 # Dump mapping matches *yaml
@@ -86,366 +97,219 @@
 "\e": "\e"
 
 
+# Space character needs quotes.
 === Code point 32
 --- code: 32
 --- yaml
 ' ': ' '
 
 
+# ! is a tag indicator. Needs quotes.
 === Code point 33
 --- code: 33
 --- yaml
 '!': '!'
 
 
+# Quote single quotes with double quotes.
 === Code point 34
 --- code: 34
 --- yaml
 '"': '"'
 
 
+# '#' is comment character. Needs quotes.
 === Code point 35
 --- code: 35
 --- yaml
 '#': '#'
 
 
+# $ has no special meaning. No quotes.
 === Code point 36
 --- code: 36
 --- yaml
 $: $
 
 
+# % is directive indicator. Needs quotees.
 === Code point 37
 --- code: 37
 --- yaml
 '%': '%'
 
 
+# & is anchor indicator. Needs quotes.
 === Code point 38
 --- code: 38
 --- yaml
 '&': '&'
 
 
+# Quote double quotes with single quotes.
 === Code point 39
 --- code: 39
 --- yaml
 "'": "'"
 
 
+# ( has no special meaning. No quotes.
 === Code point 40
 --- code: 40
 --- yaml
 (: (
 
 
+# ) has no special meaning. No quotes.
 === Code point 41
 --- code: 41
 --- yaml
 ): )
 
 
+# * is an alias indicator. Needs quotes.
 === Code point 42
 --- code: 42
 --- yaml
 '*': '*'
 
 
+# + has no special meaning. No quotes.
 === Code point 43
 --- code: 43
 --- yaml
 +: +
 
 
+# , is a list separator. Needs quotes.
 === Code point 44
 --- code: 44
 --- yaml
 ',': ','
 
 
+# - is a sequence element marker. In many contexts it is not ambiguous when
+# unquoted, but in others it is ambiguous. libyaml always quotes it so going
+# with that for now.
 === Code point 45
 --- code: 45
 --- yaml
 '-': '-'
 
 
+# . has no special meaning. No quotes.
 === Code point 46
 --- code: 46
 --- yaml
 .: .
 
 
+# / has no special meaning. No quotes.
 === Code point 47
 --- code: 47
 --- yaml
 /: /
 
 
+# 48-57 → 0-9 "digitss"
+# These values are strings, so must quote them.
 === Code point 48
 --- code: 48
 --- yaml
 '0': '0'
 
 
-=== Code point 49
---- code: 49
---- yaml
-'1': '1'
-
-
-=== Code point 50
---- code: 50
---- yaml
-'2': '2'
-
-
-=== Code point 51
---- code: 51
---- yaml
-'3': '3'
-
-
-=== Code point 52
---- code: 52
---- yaml
-'4': '4'
-
-
-=== Code point 53
---- code: 53
---- yaml
-'5': '5'
-
-
-=== Code point 54
---- code: 54
---- yaml
-'6': '6'
-
-
-=== Code point 55
---- code: 55
---- yaml
-'7': '7'
-
-
-=== Code point 56
---- code: 56
---- yaml
-'8': '8'
-
-
-=== Code point 57
---- code: 57
---- yaml
-'9': '9'
-
-
+# : is a key/value separator. It is not always ambigous when not quoted, but
+# libyaml always quotes it at start of a string. Probably wise. Going with that
+# for now.
 === Code point 58
 --- code: 58
 --- yaml
 ':': ':'
 
 
+# ; has no special meaning. No quotes.
 === Code point 59
 --- code: 59
 --- yaml
 ;: ;
 
 
+# < has no special meaning. No quotes.
 === Code point 60
 --- code: 60
 --- yaml
 <: <
 
 
+# = has no special meaning. No quotes.
 === Code point 61
 --- code: 61
 --- yaml
 =: =
 
 
+# > is a folded scalar indicator. Needs quotes.
 === Code point 62
 --- code: 62
 --- yaml
 '>': '>'
 
 
+# ? is a mapping key indicator. Needs quotes.
 === Code point 63
 --- code: 63
 --- yaml
 '?': '?'
 
 
+# @ is a reserved character. Needs quotes.
+# TODO Check spec on this.
 === Code point 64
 --- code: 64
 --- yaml
 '@': '@'
 
 
+# 65-90 → A-Z "upper case letters". No quotes.
 === Code point 65
 --- code: 65
 --- yaml
 A: A
 
 
-=== Code point 66
---- code: 66
---- yaml
-B: B
-
-
-=== Code point 67
---- code: 67
---- yaml
-C: C
-
-
-=== Code point 68
---- code: 68
---- yaml
-D: D
-
-
-=== Code point 69
---- code: 69
---- yaml
-E: E
-
-
-=== Code point 70
---- code: 70
---- yaml
-F: F
-
-
-=== Code point 71
---- code: 71
---- yaml
-G: G
-
-
-=== Code point 72
---- code: 72
---- yaml
-H: H
-
-
-=== Code point 73
---- code: 73
---- yaml
-I: I
-
-
-=== Code point 74
---- code: 74
---- yaml
-J: J
-
-
-=== Code point 75
---- code: 75
---- yaml
-K: K
-
-
-=== Code point 76
---- code: 76
---- yaml
-L: L
-
-
-=== Code point 77
---- code: 77
---- yaml
-M: M
-
-
+# Some implementations think N means false. This should not be the case in a
+# default schema. No quotes.
+#
+# NOTE:
+#   http://yaml.org/type/bool.html suggests that many simple strings should be
+#   loaded as boolean, but this is an outdated concept. Currently, only the
+#   words true/false/null (lower case) should be loaded specially (not as
+#   strings).  This may become even more restrictive in the future. ie Only
+#   true/false/null in a flow context.
 === Code point 78
 --- code: 78
 --- yaml
 N: N
 
 
-=== Code point 79
---- code: 79
---- yaml
-O: O
-
-
-=== Code point 80
---- code: 80
---- yaml
-P: P
-
-
-=== Code point 81
---- code: 81
---- yaml
-Q: Q
-
-
-=== Code point 82
---- code: 82
---- yaml
-R: R
-
-
-=== Code point 83
---- code: 83
---- yaml
-S: S
-
-
-=== Code point 84
---- code: 84
---- yaml
-T: T
-
-
-=== Code point 85
---- code: 85
---- yaml
-U: U
-
-
-=== Code point 86
---- code: 86
---- yaml
-V: V
-
-
-=== Code point 87
---- code: 87
---- yaml
-W: W
-
-
-=== Code point 88
---- code: 88
---- yaml
-X: X
-
-
+# Some implementations think Y means true. This should not be the case in a
+# default schema. No quotes.
 === Code point 89
 --- code: 89
 --- yaml
 Y: Y
 
 
-=== Code point 90
---- code: 90
---- yaml
-Z: Z
-
-
+# [ is a flow sequence start indicator. Needs quotes.
 === Code point 91
 --- code: 91
 --- yaml
 '[': '['
 
 
+# \ is an escape indicator in double quoted strings. Used on its own it has no
+# special meaning. No quotes.
 === Code point 92
 --- SKIP
 --- code: 92
@@ -453,208 +317,86 @@ Z: Z
 \: \
 
 
+# ] is a flow sequence end indicator. Needs quotes.
 === Code point 93
 --- code: 93
 --- yaml
 ']': ']'
 
 
+# ^ has no special meaning. No quotes.
 === Code point 94
 --- code: 94
 --- yaml
 ^: ^
 
 
+# _ has no special meaning. No quotes.
 === Code point 95
 --- code: 95
 --- yaml
 _: _
 
 
+# ` is a reserved character. Needs quotes.
 === Code point 96
 --- code: 96
 --- yaml
 '`': '`'
 
 
+# 65-90 → a-z "lower case letters". No quotes.
 === Code point 97
 --- code: 97
 --- yaml
 a: a
 
 
-=== Code point 98
---- code: 98
---- yaml
-b: b
-
-
-=== Code point 99
---- code: 99
---- yaml
-c: c
-
-
-=== Code point 100
---- code: 100
---- yaml
-d: d
-
-
-=== Code point 101
---- code: 101
---- yaml
-e: e
-
-
-=== Code point 102
---- code: 102
---- yaml
-f: f
-
-
-=== Code point 103
---- code: 103
---- yaml
-g: g
-
-
-=== Code point 104
---- code: 104
---- yaml
-h: h
-
-
-=== Code point 105
---- code: 105
---- yaml
-i: i
-
-
-=== Code point 106
---- code: 106
---- yaml
-j: j
-
-
-=== Code point 107
---- code: 107
---- yaml
-k: k
-
-
-=== Code point 108
---- code: 108
---- yaml
-l: l
-
-
-=== Code point 109
---- code: 109
---- yaml
-m: m
-
-
+# Some implementations think n means false. This should not be the case in a
+# default schema. No quotes.
 === Code point 110
 --- code: 110
 --- yaml
 n: n
 
 
-=== Code point 111
---- code: 111
---- yaml
-o: o
-
-
-=== Code point 112
---- code: 112
---- yaml
-p: p
-
-
-=== Code point 113
---- code: 113
---- yaml
-q: q
-
-
-=== Code point 114
---- code: 114
---- yaml
-r: r
-
-
-=== Code point 115
---- code: 115
---- yaml
-s: s
-
-
-=== Code point 116
---- code: 116
---- yaml
-t: t
-
-
-=== Code point 117
---- code: 117
---- yaml
-u: u
-
-
-=== Code point 118
---- code: 118
---- yaml
-v: v
-
-
-=== Code point 119
---- code: 119
---- yaml
-w: w
-
-
-=== Code point 120
---- code: 120
---- yaml
-x: x
-
-
+# Some implementations think y means true. This should not be the case in a
+# default schema. No quotes.
 === Code point 121
 --- code: 121
 --- yaml
 y: y
 
 
-=== Code point 122
---- code: 122
---- yaml
-z: z
-
-
+# { is a flow mapping start indicator. Needs quotes.
 === Code point 123
 --- code: 123
 --- yaml
 '{': '{'
 
 
+# | is a literal scalar indicator. Needs quotes.
 === Code point 124
 --- code: 124
 --- yaml
 '|': '|'
 
 
+# } is a flow mapping end indicator. Needs quotes.
 === Code point 125
 --- code: 125
 --- yaml
 '}': '}'
 
 
+# A single ~ has long been used as a plain scalar representation of null. This
+# should be deprecated, but may take a while.
 === Code point 126
 --- code: 126
 --- yaml
 '~': '~'
+--- unquoted
+~: ~
 
 
 # 127 → "escape"
