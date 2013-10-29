@@ -5,5 +5,5 @@ use TestUtils;
 use TestBridge;
 
 run_all_testml_files(
-    "Real-world examples", 't/tml-world', \&test_yaml_perl
+    "Real-world examples", 't/tml-world', \&test_local
 );

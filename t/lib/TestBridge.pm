@@ -15,22 +15,43 @@ our @EXPORT = qw{
     test_yaml_json
     test_yaml_perl
     test_code_point
+    test_local
 };
 
+my %ERROR = (
+    E_CIRCULAR => qr{\QYAML::Tiny does not support circular references},
+);
 
 # use XXX -with => 'YAML::XS';
 
+my %DISPATCH = (
+    "yaml perl" => \&test_yaml_perl,
+    "dump yaml" => \&test_dump_yaml,
+    "dump error" => \&test_dump_error,
+);
+
+sub test_local {
+    my ($block) = @_;
+
+    while ( my ( $spec, $code ) = each %DISPATCH ) {
+        my @points = testml_has_points($block, split " ", $spec);
+        $code->($block, @points) if @points;
+    }
+}
 
 sub test_yaml_perl {
     my ($block) = @_;
+
     my ($yaml, $perl, $label) =
       testml_has_points($block, qw(yaml perl)) or return;
+
     my %options = ();
     for (qw(serializes)) {
         if (defined($block->{$_})) {
             $options{$_} = 1;
         }
     }
+
     my $expected = eval $perl; die $@ if $@;
     bless $expected, 'YAML::Tiny';
 
@@ -69,6 +90,33 @@ sub test_yaml_perl {
             is( $output, $yaml, 'Serializes ok' );
         }
 
+    };
+}
+
+sub test_dump_yaml {
+    my ($block, $dump, $yaml, $label) = @_;
+
+    my $input = eval "no strict; $dump"; die $@ if $@;
+
+    subtest $label, sub {
+        my $result = eval { YAML::Tiny->new( $input )->write_string };
+        is( $@, '', "write_string lives" );
+        is( $result, $yaml, "dumped YAML correct" );
+    };
+}
+
+sub test_dump_error {
+    my ($block, $dump, $error, $label) = @_;
+
+    my $input = eval "no strict; $dump"; die $@ if $@;
+    chomp $error;
+    my $expected = $ERROR{$error};
+
+    subtest $label, sub {
+        my $result = eval { YAML::Tiny->new( $input )->write_string };
+        is( $@, '', "write_string lives" );
+        ok( !$result, "returned false" );
+        like( YAML::Tiny->errstr, $expected, "errstr correct" );
     };
 }
 
