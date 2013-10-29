@@ -6,7 +6,6 @@
 
 
 === Code point 0
---- LAST
 --- code: 0
 --- yaml
 "\0": "\0"
@@ -243,7 +242,7 @@ $: $
 === Code point 39
 --- code: 39
 --- yaml
-'''': ''''
+"'": "'"
 
 
 === Code point 40
@@ -559,6 +558,7 @@ Z: Z
 
 
 === Code point 92
+--- SKIP
 --- code: 92
 --- yaml
 \: \
@@ -967,6 +967,7 @@ z: z
 
 
 === Code point 160
+--- SKIP
 --- code: 160
 --- yaml
  :  

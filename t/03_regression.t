@@ -40,43 +40,18 @@ SCOPE: {
 # Check for unescaped boolean keywords
 
 is_deeply(
-    YAML::Tiny->new( 'True' )->write_string,
-    "--- 'True'\n",
+    YAML::Tiny->new( 'true' )->write_string,
+    "--- 'true'\n",
     'Idiomatic trivial boolean string is escaped',
 );
 
 is_deeply( YAML::Tiny->new( [ qw{
-    null Null NULL
-    y Y yes Yes YES n N no No NO
-    true True TRUE false False FALSE
-    on On ON off Off OFF
+    null true false
 } ] )->write_string, <<'END_YAML' );
 ---
 - 'null'
-- 'Null'
-- 'NULL'
-- 'y'
-- 'Y'
-- 'yes'
-- 'Yes'
-- 'YES'
-- 'n'
-- 'N'
-- 'no'
-- 'No'
-- 'NO'
 - 'true'
-- 'True'
-- 'TRUE'
 - 'false'
-- 'False'
-- 'FALSE'
-- 'on'
-- 'On'
-- 'ON'
-- 'off'
-- 'Off'
-- 'OFF'
 END_YAML
 
 

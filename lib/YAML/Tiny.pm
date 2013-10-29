@@ -8,6 +8,9 @@ our @ISA       = qw{ Exporter  };
 our @EXPORT    = qw{ Load Dump };
 our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
 
+# XXX Use to detect nv or iv for now. Find something better (Ingy).
+use Data::Dumper;
+
 # Error storage
 our $errstr    = '';
 
@@ -34,25 +37,22 @@ sub _can_flock {
 # of ASCII characters, listed by ASCII ordinal position.
 my @UNPRINTABLE = qw(
     0    x01  x02  x03  x04  x05  x06  a
-    x08  t    n    v    f    r    x0e  x0f
+    b    t    n    v    f    r    x0E  x0F
     x10  x11  x12  x13  x14  x15  x16  x17
-    x18  x19  x1a  e    x1c  x1d  x1e  x1f
+    x18  x19  x1A  e    x1C  x1D  x1E  x1F
 );
 
 # Printable characters for escapes
 my %UNESCAPES = (
-    0 => "\x00",
-    z => "\x00", a => "\x07", t    => "\x09",
+    0 => "\x00", z => "\x00", N    => "\x85",
+    a => "\x07", b => "\x08", t    => "\x09",
     n => "\x0a", v => "\x0b", f    => "\x0c",
     r => "\x0d", e => "\x1b", '\\' => '\\',
 );
 
 # Special magic boolean words
 my %QUOTE = map { $_ => 1 } qw{
-    null Null NULL
-    y Y yes Yes YES n N no No NO
-    true True TRUE false False FALSE
-    on On ON off Off OFF
+    null true false
 };
 
 my %RE = (
@@ -215,7 +215,7 @@ sub _unquote_double {
     my ($self, $string) = @_;
     return '' unless length $string;
     $string =~ s/\\"/"/g;
-    $string =~ s/\\([never\\fartz0]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
+    $string =~ s/\\([Nnever\\fartz0b]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
     return $string;
 }
 
@@ -478,6 +478,8 @@ sub write_string {
     my $self = shift;
     return '' unless @$self;
 
+    local $Data::Dumper::Terse = 1;
+
     # Iterate over the documents
     my $indent = 0;
     my @lines  = ();
@@ -524,18 +526,26 @@ sub write_string {
     join '', map { "$_\n" } @lines;
 }
 
+# use XXX -with => 'YAML::XS';
 sub _write_scalar {
     my $string = $_[1];
     return '~'  unless defined $string;
     return "''" unless length  $string;
-    if ( $string =~ /[\x00-\x08\x0b-\x0d\x0e-\x1f\"\'\n]/ ) {
+    if (Scalar::Util::looks_like_number($string)) {
+        $string = Data::Dumper::Dumper($string);
+        chomp $string;
+        return $string;
+    }
+    if ( $string =~ /[\x00-\x09\x0b-\x0d\x0e-\x1f\x7f-\x9f\'\n]/ ) {
         $string =~ s/\\/\\\\/g;
         $string =~ s/"/\\"/g;
         $string =~ s/\n/\\n/g;
+        $string =~ s/[\x85]/\\N/g;
         $string =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
+        $string =~ s/([\x7f-\x9f])/'\x' . uc(unpack "H*", $1)/ge;
         return qq|"$string"|;
     }
-    if ( $string =~ /(?:^\W|\s|:\z)/ or $QUOTE{$string} ) {
+    if ( $string =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/ or $QUOTE{$string} ) {
         return "'$string'";
     }
     return $string;

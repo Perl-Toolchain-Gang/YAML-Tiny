@@ -17,6 +17,10 @@ our @EXPORT = qw{
     test_code_point
 };
 
+
+# use XXX -with => 'YAML::XS';
+
+
 sub test_yaml_perl {
     my ($block) = @_;
     my ($yaml, $perl, $label) =
