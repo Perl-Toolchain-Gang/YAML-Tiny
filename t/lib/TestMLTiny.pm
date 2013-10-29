@@ -23,10 +23,13 @@ sub testml_run_file {
 
 sub testml_has_points {
     my ($block, @points) = @_;
+    my @values;
     for my $point (@points) {
-        defined $block->{$point} or return 0;
+        defined $block->{$point} or return;
+        push @values, $block->{$point};
     }
-    return 1;
+    push @values, $block->{Label};
+    return @values;
 }
 
 sub testml_parse_blocks {
@@ -38,7 +41,7 @@ sub testml_parse_blocks {
     my $lines = [ grep { ! /^#/ } split /\n/, $testml ];
 
     shift @$lines while @$lines and $lines->[0] =~ /^ *$/;
-    $lines->[0] =~ /^===\s+\S.*$/
+    $lines->[0] =~ /^===/
         or die "$file does not start with a valid block";
 
     my $blocks = [];
@@ -46,7 +49,7 @@ sub testml_parse_blocks {
     push @$lines, undef; # sentinel
     while (@$lines) {
         push @$parse, shift @$lines;
-        if ( !defined($lines->[0]) or $lines->[0] =~ /^===\s+\S.*$/ ) {
+        if ( !defined($lines->[0]) or $lines->[0] =~ /^===/ ) {
             my $block = _parse_testml_block($file, $parse);
             push @$blocks, $block
                 unless exists $block->{SKIP};
@@ -64,8 +67,8 @@ sub testml_parse_blocks {
 sub _parse_testml_block {
     my ($file, $lines) = @_;
 
-    # extract test block name
-    my ($label) = $lines->[0] =~ /^===\s+(.*)$/;
+    # extract test block label
+    my ($label) = $lines->[0] =~ /^===(?:\s+(.*))?$/;
     die "Invalid TestML block label in $file: $lines->[0]\n"
         unless defined $label && length $label;
     shift @$lines until $lines->[0] =~ /^--- +\w+/;
@@ -82,25 +85,33 @@ sub _parse_testml_points {
 
     my $block = {};
 
-    # XXX Need to support TestML single line points.
-    $lines->[0] =~ /^--- +(\w+)$/
-        or die "$file block $label does not start with a valid point";
-
-    my $point_name = '';
-    for my $line ( @$lines ) {
-        if ( $line =~ /^--- (\w+)$/ ) {
+    while (@$lines) {
+        my $line = shift @$lines;
+        $line =~ /^--- +(\w+)/
+            or die "Invalid TestML line in '$file':\n'$line'";
+        my $point_name = $1;
+        die "$file block $label repeats $point_name"
+            if exists $block->{$point_name};
+        $block->{$point_name} = '';
+        if ($line =~ /^--- +(\w+): +(.*?) *$/) {
+            $block->{$1} .= "$2\n";
+        }
+        elsif ($line =~ /^--- +(\w+)$/) {
             $point_name = $1;
-            die "$file block $label repeats $point_name"
-                if exists $block->{$point_name};
-            $block->{$point_name} = '';
+            while ( @$lines ) {
+                $line = shift @$lines;
+                if ($line =~ /^--- \w+/) {
+                    unshift @$lines, $line;
+                    last;
+                }
+                $block->{$point_name} .= "$line\n";
+            }
+            $block->{$point_name} =~ s/\n\s*\z/\n/;
+            $block->{$point_name} =~ s/^\\//gm;
         }
         else {
-            $block->{$point_name} .= "$line\n";
+            die "Invalid TestML line in '$file':\n'$line'";
         }
-    }
-    for $point_name ( keys %$block ) {
-        $block->{$point_name} =~ s/\n\s*\z/\n/;
-        $block->{$point_name} =~ s/^\\//gm;
     }
     return $block;
 }

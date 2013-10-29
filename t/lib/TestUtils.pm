@@ -19,10 +19,9 @@ BEGIN {
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
     run_all_testml_files
-    tests  yaml_ok  yaml_error slurp  load_ok
+    yaml_ok yaml_error load_ok
     test_data_directory test_data_file
-    json_class
-    plan
+    json_class slurp
 };
 
 # Prefer JSON to JSON::PP; skip if we don't have at least one

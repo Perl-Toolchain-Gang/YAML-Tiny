@@ -14,12 +14,13 @@ our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
     test_yaml_json
     test_yaml_perl
+    test_code_point
 };
 
 sub test_yaml_perl {
     my ($block) = @_;
-    my ($label, $yaml, $perl) =
-        @{$block}{qw(Label yaml perl)};
+    my ($yaml, $perl, $label) =
+      testml_has_points($block, qw(yaml perl)) or return;
     $perl = eval $perl; die $@ if $@;
     my %flags = ();
     for (qw(serializes)) {
@@ -34,18 +35,16 @@ sub test_yaml_perl {
 }
 
 sub test_yaml_json {
-    my ($block, $json, $yaml) = @_;
-    $json ||= do { require JSON::PP; 'JSON::PP' };
-    $yaml ||= do { require YAML::Tiny; 'YAML::Tiny' };
+    my ($block, $json_lib) = @_;
+    $json_lib ||= do { require JSON::PP; 'JSON::PP' };
 
-    testml_has_points($block, qw(yaml json)) or return;
+    my ($yaml, $json, $label) =
+      testml_has_points($block, qw(yaml json)) or return;
 
-    my $loader = do { no strict 'refs'; \&{"${yaml}::Load"} };
-
-    subtest "$block->{Label}", sub {
+    subtest "$label", sub {
         # test YAML Load
         my $object = eval {
-            $loader->($block->{yaml});
+            YAML::Tiny::Load($yaml);
         };
         my $err = $@;
         ok !$err, "YAML loads";
@@ -54,10 +53,33 @@ sub test_yaml_json {
         # test YAML->Perl->JSON
         # N.B. round-trip JSON to decode any \uNNNN escapes and get to
         # characters
-        my $want = $json->new->encode($json->new->decode($block->{json}));
-        my $got = $json->new->encode($object);
+        my $want = $json_lib->new->encode(
+            $json_lib->new->decode($json)
+        );
+        my $got = $json_lib->new->encode($object);
         is $got, $want, "Load is accurate";
     };
+}
+
+sub test_code_point {
+    my ($block) = @_;
+
+    my ($code, $yaml, $label) =
+        testml_has_points($block, qw(code yaml)) or return;
+
+    subtest "$label - Unicode map key/value test" => sub {
+        my $data = { chr($code) => chr($code) };
+        my $dump = YAML::Tiny::Dump($data);
+        $dump =~ s/^---\n//;
+        is $dump, $yaml, "Dump key and value of code point char $code";
+
+        my $yny = YAML::Tiny::Dump(YAML::Tiny::Load($yaml));
+        $yny =~ s/^---\n//;
+        is $yny, $yaml, "YAML for code point $code YNY roundtrips";
+
+        my $nyn = YAML::Tiny::Load(YAML::Tiny::Dump($data));
+        is_deeply $nyn, $data, "YAML for code point $code NYN roundtrips";
+    }
 }
 
 1;

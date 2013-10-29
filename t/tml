@@ -14,6 +14,7 @@
 
 # Set custom bridges for some tests:
 export testml_bridge_t_tml_spec_basic_data_tml=test_yaml_json
+export testml_bridge_t_tml_spec_unicode_tml=test_code_point
 
 main() {
   local opts=() args=()
