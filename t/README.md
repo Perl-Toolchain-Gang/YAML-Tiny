@@ -40,7 +40,7 @@ The test libraries are:
 * TestBridge
 
 The TestUtils library contains utility functions and some testing functions
-that have not yet been migrated to TestMLBridge.  Going forward, new testing
+that have not yet been migrated to TestBridge.  Going forward, new testing
 functions should not be added (i.e. nothing that uses Test::More).
 
 The TestMLTiny library contains functions for parsing and executing TestML

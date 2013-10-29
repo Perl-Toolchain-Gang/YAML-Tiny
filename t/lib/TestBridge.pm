@@ -1,4 +1,4 @@
-package TestMLBridge;
+package TestBridge;
 
 use strict;
 use warnings;

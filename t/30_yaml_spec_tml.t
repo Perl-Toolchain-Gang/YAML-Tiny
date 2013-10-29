@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use lib 't/lib/';
 use TestMLTiny;
-use TestMLBridge;
+use TestBridge;
 use TestUtils;
 
 my $JSON = json_class()
