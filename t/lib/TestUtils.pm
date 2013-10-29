@@ -19,7 +19,7 @@ BEGIN {
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
     run_all_testml_files
-    yaml_ok yaml_error load_ok
+    yaml_error load_ok
     test_data_directory test_data_file
     json_class slurp
 };
@@ -60,51 +60,6 @@ sub run_all_testml_files {
     testml_run_file($_, $code) for sort @files;
 
     done_testing;
-}
-
-sub yaml_ok {
-    my $string  = shift;
-    my $object  = shift;
-    my $name    = shift || 'unnamed';
-    my %options = ( @_ );
-    bless $object, 'YAML::Tiny';
-
-    # Does the string parse to the structure
-    my $yaml_copy = $string;
-    my $yaml      = eval { YAML::Tiny->read_string( $yaml_copy ); };
-    is( $@, '', "$name: YAML::Tiny parses without error" );
-    is( $yaml_copy, $string, "$name: YAML::Tiny does not modify the input string" );
-    SKIP: {
-        skip( "Shortcutting after failure", 2 ) if $@;
-        isa_ok( $yaml, 'YAML::Tiny' );
-        is_deeply( $yaml, $object, "$name: YAML::Tiny parses correctly" );
-    }
-
-    # Does the structure serialize to the string.
-    # We can't test this by direct comparison, because any
-    # whitespace or comments would be lost.
-    # So instead we parse back in.
-    my $output = eval { $object->write_string };
-    is( $@, '', "$name: YAML::Tiny serializes without error" );
-    SKIP: {
-        skip( "Shortcutting after failure", 5 ) if $@;
-        ok(
-            !!(defined $output and ! ref $output),
-            "$name: YAML::Tiny serializes correctly",
-        );
-        my $roundtrip = eval { YAML::Tiny->read_string( $output ) };
-        is( $@, '', "$name: YAML::Tiny round-trips without error" );
-        skip( "Shortcutting after failure", 2 ) if $@;
-        isa_ok( $roundtrip, 'YAML::Tiny' );
-        is_deeply( $roundtrip, $object, "$name: YAML::Tiny round-trips correctly" );
-
-        # Testing the serialization
-        skip( "Shortcutting perfect serialization tests", 1 ) unless $options{serializes};
-        is( $output, $string, 'Serializes ok' );
-    }
-
-    # Return true as a convenience
-    return 1;
 }
 
 sub yaml_error {

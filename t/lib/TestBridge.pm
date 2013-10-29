@@ -25,16 +25,50 @@ sub test_yaml_perl {
     my ($block) = @_;
     my ($yaml, $perl, $label) =
       testml_has_points($block, qw(yaml perl)) or return;
-    $perl = eval $perl; die $@ if $@;
-    my %flags = ();
+    my %options = ();
     for (qw(serializes)) {
         if (defined($block->{$_})) {
-            $flags{$_} = 1;
+            $options{$_} = 1;
         }
     }
+    my $expected = eval $perl; die $@ if $@;
+    bless $expected, 'YAML::Tiny';
 
-    subtest "$block->{Label}", sub {
-        yaml_ok($yaml, $perl, $label, %flags);
+    subtest $label, sub {
+        # Does the string parse to the structure
+        my $yaml_copy = $yaml;
+        my $got       = eval { YAML::Tiny->read_string( $yaml_copy ); };
+        is( $@, '', "YAML::Tiny parses without error" );
+        is( $yaml_copy, $yaml, "YAML::Tiny does not modify the input string" );
+        SKIP: {
+            skip( "Shortcutting after failure", 2 ) if $@;
+            isa_ok( $got, 'YAML::Tiny' );
+            is_deeply( $got, $expected, "YAML::Tiny parses correctly" );
+        }
+
+        # Does the structure serialize to the string.
+        # We can't test this by direct comparison, because any
+        # whitespace or comments would be lost.
+        # So instead we parse back in.
+        my $output = eval { $expected->write_string };
+        is( $@, '', "YAML::Tiny serializes without error" );
+        SKIP: {
+            skip( "Shortcutting after failure", 5 ) if $@;
+            ok(
+                !!(defined $output and ! ref $output),
+                "YAML::Tiny serializes to scalar",
+            );
+            my $roundtrip = eval { YAML::Tiny->read_string( $output ) };
+            is( $@, '', "YAML::Tiny round-trips without error" );
+            skip( "Shortcutting after failure", 2 ) if $@;
+            isa_ok( $roundtrip, 'YAML::Tiny' );
+            is_deeply( $roundtrip, $expected, "YAML::Tiny round-trips correctly" );
+
+            # Testing the serialization
+            skip( "Shortcutting perfect serialization tests", 1 ) unless $options{serializes};
+            is( $output, $yaml, 'Serializes ok' );
+        }
+
     };
 }
 
