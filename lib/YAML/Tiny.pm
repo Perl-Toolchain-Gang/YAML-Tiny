@@ -33,7 +33,7 @@ sub _can_flock {
 # Printed form of the unprintable characters in the lowest range
 # of ASCII characters, listed by ASCII ordinal position.
 my @UNPRINTABLE = qw(
-    z    x01  x02  x03  x04  x05  x06  a
+    0    x01  x02  x03  x04  x05  x06  a
     x08  t    n    v    f    r    x0e  x0f
     x10  x11  x12  x13  x14  x15  x16  x17
     x18  x19  x1a  e    x1c  x1d  x1e  x1f
@@ -41,6 +41,7 @@ my @UNPRINTABLE = qw(
 
 # Printable characters for escapes
 my %UNESCAPES = (
+    0 => "\x00",
     z => "\x00", a => "\x07", t    => "\x09",
     n => "\x0a", v => "\x0b", f    => "\x0c",
     r => "\x0d", e => "\x1b", '\\' => '\\',
@@ -214,7 +215,7 @@ sub _unquote_double {
     my ($self, $string) = @_;
     return '' unless length $string;
     $string =~ s/\\"/"/g;
-    $string =~ s/\\([never\\fartz]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
+    $string =~ s/\\([never\\fartz0]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
     return $string;
 }
 
