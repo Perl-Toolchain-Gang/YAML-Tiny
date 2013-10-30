@@ -24,3 +24,10 @@
 \---
 - 'A:'
 
+=== Empty double-quote
+--- yaml
+\---
+- ""
+--- perl
+[ [ "" ] ]
+
