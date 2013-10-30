@@ -9,15 +9,6 @@ use File::Spec::Functions ':ALL';
 use YAML::Tiny;
 use File::Temp qw(tempfile);
 
-# tests for write()
-{
-    my $obj = YAML::Tiny->new();
-    eval { $obj->write(); };
-    like( YAML::Tiny->errstr, qr/You did not specify a file name/,
-        "No filename provided to write()");
-    $YAML::Tiny::errstr = '';
-}
-
 # tests for read_string()
 {
     my ($obj, $str, $yaml);
