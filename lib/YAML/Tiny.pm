@@ -132,8 +132,9 @@ sub read_string {
         # Check if Perl has it marked as characters, but it's internally
         # inconsistent.  E.g. maybe latin1 got read on a :utf8 layer
         if ( utf8::is_utf8($string) && ! utf8::valid($string) ) {
-            die \'Read an invalid UTF-8 string (maybe mixed UTF-8 and 8-bit character set).'
-                . 'Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?';
+            die \(
+                'Read an invalid UTF-8 string (maybe mixed UTF-8 and 8-bit character set).'
+                . 'Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?' );
         }
 
         # Ensure Unicode character semantics, even for 0x80-0xff

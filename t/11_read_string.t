@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use lib 't/lib/';
 use Test::More 0.99;
+use TestUtils;
 use TestBridge;
 
 use YAML::Tiny ();
@@ -32,6 +33,19 @@ subtest 'read_string as object method' => sub {
     );
     isnt( $obj, $obj2, "objects are different" );
     is_deeply( $obj, $obj2, "objects have same content" );
+};
+
+subtest 'invalid UTF-8' => sub {
+    # get invalid UTF-8 by reading Latin-1 with lax :utf8 layer
+    my $string = do {
+        local $SIG{__WARN__} = sub {};
+        slurp( test_data_file('latin1.yml'), ":utf8" );
+    };
+    my $obj = eval { YAML::Tiny->read_string($string); };
+    is( $obj, undef, "read_string should return undef" );
+    error_like( qr/invalid UTF-8 string/,
+        "Got expected error about invalid UTF-8 string"
+    );
 };
 
 done_testing;
