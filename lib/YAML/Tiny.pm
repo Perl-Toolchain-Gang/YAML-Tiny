@@ -145,11 +145,6 @@ sub read_string {
         # Check for some special cases
         return $self unless length $string;
 
-        # XXX should we allow this and just add one? -- xdg, 2013-10-24
-        unless ( $string =~ /[\012\015]+\z/ ) {
-            die \"Stream does not end with newline character";
-        }
-
         # Split the file into lines
         my @lines = grep { ! /^\s*(?:\#.*)?\z/ }
                 split /(?:\015{1,2}\012|\015|\012)/, $string;

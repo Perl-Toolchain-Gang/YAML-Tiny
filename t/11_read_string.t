@@ -22,9 +22,7 @@ use YAML::Tiny ();
 {
     my $str = join("\n" => ('---', '- foo', '---', '- bar', '---'));
     eval { YAML::Tiny->read_string($str); };
-    error_like(qr/Stream does not end with newline character/,
-        "Got expected error: stream did not end with newline"
-    );
+    is( YAML::Tiny->errstr, '', "YAML without newline is OK");
 }
 
 done_testing;
