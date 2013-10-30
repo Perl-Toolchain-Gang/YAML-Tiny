@@ -87,13 +87,18 @@ sub _parse_testml_points {
     while (@$lines) {
         my $line = shift @$lines;
         $line =~ /^--- +(\w+)/
-            or die "Invalid TestML line in '$file':\n'$line'";
+            or die "Invalid TestML line in '$file' block '$label':\n'$line'";
         my $point_name = $1;
         die "$file block $label repeats $point_name"
             if exists $block->{$point_name};
         $block->{$point_name} = '';
         if ($line =~ /^--- +(\w+): +(.*?) *$/) {
             $block->{$1} .= "$2\n";
+            # eat any subsequent lines to the next point or block
+            while ( @$lines ) {
+                last if $lines->[0] =~ /^(?:---|===) +\w/;
+                shift @$lines;
+            }
         }
         elsif ($line =~ /^--- +(\w+)$/) {
             $point_name = $1;
