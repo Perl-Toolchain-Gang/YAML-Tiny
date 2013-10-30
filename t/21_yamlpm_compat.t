@@ -1,13 +1,16 @@
-# Testing of statements in the YAML-Tiny codebase not exercised elsewhere.
 use strict;
 use warnings;
 use lib 't/lib/';
 use Test::More 0.99;
-use TestUtils;
-
-use File::Spec::Functions ':ALL';
-use YAML::Tiny;
+use TestBridge;
 use File::Temp qw(tempfile);
+
+#--------------------------------------------------------------------------#
+# This file test that the YAML.pm compatible Dump/Load/DumpFile/LoadFile
+# work as documented
+#--------------------------------------------------------------------------#
+
+use YAML::Tiny;
 
 {
     my $scalar = 'this is a string';
@@ -47,11 +50,10 @@ use File::Temp qw(tempfile);
     my $str = "This is not real YAML";
     my @yamldocsloaded;
     eval { @yamldocsloaded = YAML::Tiny::Load("$str\n"); };
-    like(YAML::Tiny->errstr,
+    error_like(
         qr/YAML::Tiny failed to classify line '$str'/,
         "Correctly failed to load non-YAML string"
     );
-    $YAML::Tiny::errstr = '';
 }
 
 done_testing;
