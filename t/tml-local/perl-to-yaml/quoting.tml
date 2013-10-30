@@ -1,14 +1,14 @@
 === Quote boolean-like string (scalar)
 # Strings that could be confused with booleans should be quoted
---- dump
-'true'
+--- perl
+[ 'true' ]
 
 --- yaml
 \--- 'true'
 
 === Quote boolean-like string (list)
---- dump
-[ qw{ null true false } ]
+--- perl
+[ [ qw{ null true false } ] ]
 
 --- yaml
 \---
@@ -17,17 +17,10 @@
 - 'false'
 
 === Quote scalars ending in colon
---- dump
-[ 'A:' ]
+--- perl
+[ [ 'A:' ] ]
 
 --- yaml
 \---
 - 'A:'
-
-=== Empty double-quote
---- yaml
-\---
-- ""
---- perl
-[ [ "" ] ]
 

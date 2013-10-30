@@ -40,7 +40,7 @@ The test libraries are:
 * TestUtils
 
 The TestML::Tiny library contains functions for parsing and executing TestML
-tests with callbacks.  TestML is a data-driven testing language; TestMLTiny
+tests with callbacks.  TestML is a data-driven testing language; TestML::Tiny
 implements a small subset of its features. See the section on TestML, below,
 for an example. Generally, bugs should be patched upstream on CPAN and then
 a new Test::Tiny CPAN release can be copied here and pod-stripped.
@@ -124,7 +124,8 @@ should not be modified except to skip testing features that YAML::Tiny does not
 support
 
 * t/tml-local — these test files are YAML::Tiny's own unit tests; generally new
-test cases for coverage or correctness should be added here
+test cases for coverage or correctness should be added here; these are
+broken into subdirectories, described later
 
 * t/tml-world — these test files represent "real world" YAML and their
 corresponding expected Perl output
@@ -134,3 +135,23 @@ YAML, it's best to add it to a t/tml-local file (or create a new one).  If the
 problem can only be seen in the context of the entire YAML document, include it
 in t/tml-world.  If the problem relates to encoding, it should be put into
 t/data instead.
+
+# t/tml-local subdirectories
+
+The subdirectories in t/tml-local define four types of tests:
+
+* perl-to-yaml: test that perl data dump to an expected YAML string
+
+* yaml-roundtrip: test that a YAML string loads to an expected perl data
+  structure; also tests that the perl data can be dumped and loaded back;
+
+* dump-error: test that certain perl data trigger expected errors
+
+* load-error: test that certain YAML strings trigger expected errors
+
+All .tml files in a t/tml-local directory must have the TestML
+test points required by the corresponding test functions defined
+in the TestBridge library.
+
+Generally, files should be grouped by data type or feature so that
+related tests are kept together.

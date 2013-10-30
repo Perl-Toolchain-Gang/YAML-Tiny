@@ -20,13 +20,17 @@ our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
     run_all_testml_files
     run_testml_file
+    test_yaml_roundtrip
+    test_perl_to_yaml
+    test_dump_error
+    test_load_error
     test_yaml_json
-    test_yaml_perl
     test_code_point
-    test_local
     error_like
 };
 
+# regular expressions for checking error messages; incomplete, but more
+# can be added as more error messages get test coverage
 my %ERROR = (
     E_CIRCULAR => qr{\QYAML::Tiny does not support circular references},
     E_FEATURE  => qr{\QYAML::Tiny does not support a feature},
@@ -34,6 +38,14 @@ my %ERROR = (
 );
 
 # use XXX -with => 'YAML::XS';
+
+#--------------------------------------------------------------------------#
+# run_all_testml_files
+#
+# Iterate over all .tml files in a directory using a particular test bridge
+# code # reference.  Each file is wrapped in a subtest with a test plan
+# equal to the number of blocks.
+#--------------------------------------------------------------------------#
 
 sub run_all_testml_files {
     my ($label, $dir, $bridge, @args) = @_;
@@ -53,8 +65,6 @@ sub run_all_testml_files {
     );
 
     run_testml_file($_, $code) for sort @files;
-
-    done_testing;
 }
 
 sub run_testml_file {
@@ -79,23 +89,28 @@ sub _testml_has_points {
     return @values;
 }
 
-my %DISPATCH = (
-    "yaml perl" => \&test_yaml_perl,
-    "dump yaml" => \&test_dump_yaml,
-    "dump error" => \&test_dump_error,
-    "yaml error" => \&test_yaml_error,
-);
+#--------------------------------------------------------------------------#
+# test_yaml_roundtrip
+#
+# two blocks: perl, yaml
+#
+# Tests that a YAML string loads to the expected perl data.  Also, tests
+# roundtripping from perl->YAML->perl.
+#
+# We can't compare the YAML for roundtripping because YAML::Tiny doesn't
+# preserve order and comments.  Therefore, all we can test is that given input
+# YAML we can produce output YAML that produces the same Perl data as the
+# input.
+#
+# The perl must be an array reference of data to serialize:
+#
+# [ $thing1, $thing2, ... ]
+#
+# However, if a test point called 'serializes' exists, the output YAML is
+# expected to match the input YAML and will be checked for equality.
+#--------------------------------------------------------------------------#
 
-sub test_local {
-    my ($block) = @_;
-
-    while ( my ( $spec, $code ) = each %DISPATCH ) {
-        my @points = _testml_has_points($block, split " ", $spec);
-        $code->($block, @points) if @points;
-    }
-}
-
-sub test_yaml_perl {
+sub test_yaml_roundtrip {
     my ($block) = @_;
 
     my ($yaml, $perl, $label) =
@@ -150,35 +165,80 @@ sub test_yaml_perl {
     };
 }
 
-sub test_dump_yaml {
-    my ($block, $dump, $yaml, $label) = @_;
+#--------------------------------------------------------------------------#
+# test_perl_to_yaml
+#
+# two blocks: perl, yaml
+#
+# Tests that perl references serialize correctly to a specific YAML output
+#
+# The perl must be an array reference of data to serialize:
+#
+# [ $thing1, $thing2, ... ]
+#--------------------------------------------------------------------------#
 
-    my $input = eval "no strict; $dump"; die $@ if $@;
+sub test_perl_to_yaml {
+    my ($block) = @_;
+
+    my ($perl, $yaml, $label) =
+      _testml_has_points($block, qw(perl yaml)) or return;
+
+    my $input = eval "no strict; $perl"; die $@ if $@;
 
     subtest $label, sub {
-        my $result = eval { YAML::Tiny->new( $input )->write_string };
+        my $result = eval { YAML::Tiny->new( @$input )->write_string };
         is( $@, '', "write_string lives" );
         is( $result, $yaml, "dumped YAML correct" );
     };
 }
 
-sub test_dump_error {
-    my ($block, $dump, $error, $label) = @_;
+#--------------------------------------------------------------------------#
+# test_dump_error
+#
+# two blocks: perl, error 
+#
+# Tests that perl references result in an error when dumped
+#
+# The perl must be an array reference of data to serialize:
+#
+# [ $thing1, $thing2, ... ]
+#
+# The error must be a key in the %ERROR hash in this file
+#--------------------------------------------------------------------------#
 
-    my $input = eval "no strict; $dump"; die $@ if $@;
+sub test_dump_error {
+    my ($block) = @_;
+
+    my ($perl, $error, $label) =
+      _testml_has_points($block, qw(perl error)) or return;
+
+    my $input = eval "no strict; $perl"; die $@ if $@;
     chomp $error;
     my $expected = $ERROR{$error};
 
     subtest $label, sub {
-        my $result = eval { YAML::Tiny->new( $input )->write_string };
+        my $result = eval { YAML::Tiny->new( @$input )->write_string };
         is( $@, '', "write_string lives" );
         ok( !$result, "returned false" );
         error_like( $expected, "Got expected error" );
     };
 }
 
-sub test_yaml_error {
-    my ($block, $yaml, $error, $label) = @_;
+#--------------------------------------------------------------------------#
+# test_load_error
+#
+# two blocks: yaml, error 
+#
+# Tests that a YAML string results in an error when loaded
+#
+# The error must be a key in the %ERROR hash in this file
+#--------------------------------------------------------------------------#
+
+sub test_load_error {
+    my ($block) = @_;
+
+    my ($yaml, $error, $label) =
+      _testml_has_points($block, qw(yaml error)) or return;
 
     chomp $error;
     my $expected = $ERROR{$error};
@@ -190,6 +250,16 @@ sub test_yaml_error {
         error_like( $expected, "Got expected error" );
     };
 }
+
+#--------------------------------------------------------------------------#
+# test_yaml_json
+#
+# two blocks: yaml, json
+#
+# Tests that a YAML string can be loaded to Perl and dumped to JSON and
+# match an expected JSON output.  The expected JSON is loaded and dumped
+# to ensure similar JSON dump options.
+#--------------------------------------------------------------------------#
 
 sub test_yaml_json {
     my ($block, $json_lib) = @_;
@@ -218,6 +288,20 @@ sub test_yaml_json {
     };
 }
 
+#--------------------------------------------------------------------------#
+# test_code_point
+#
+# two blocks: code, yaml
+#
+# Tests that a Unicode codepoint is correctly dumped to YAML as both
+# key and value.
+#
+# The code test point must be a non-negative integer
+#
+# The yaml code point is the expected output of { $key => $value } where
+# both key and value are the character represented by the codepoint.
+#--------------------------------------------------------------------------#
+
 sub test_code_point {
     my ($block) = @_;
 
@@ -238,6 +322,13 @@ sub test_code_point {
         is_deeply $nyn, $data, "YAML for code point $code NYN roundtrips";
     }
 }
+
+#--------------------------------------------------------------------------#
+# error_like
+#
+# Test YAML::Tiny->errstr against a regular expression and clear the
+# errstr afterwards
+#--------------------------------------------------------------------------#
 
 sub error_like {
     my ($regex, $label) = @_;

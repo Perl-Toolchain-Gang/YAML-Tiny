@@ -1,9 +1,20 @@
 use strict;
 use warnings;
 use lib 't/lib/';
-use TestUtils;
+use Test::More 0.99;
 use TestBridge;
+use IO::Dir;
+use File::Spec::Functions qw/catdir/;
 
-run_all_testml_files(
-    "Implementation test", 't/tml-local', \&test_local
-);
+my $tml_local = "t/tml-local";
+
+for my $dir ( IO::Dir->new($tml_local)->read ) {
+    next if $dir =~ /^\./;
+    my $fn = "test_$dir";
+    $fn =~ s/-/_/g;
+    my $bridge = TestBridge->can($fn);
+    next unless $bridge;
+    run_all_testml_files( "TestML", catdir($tml_local, $dir), $bridge );
+}
+
+done_testing;

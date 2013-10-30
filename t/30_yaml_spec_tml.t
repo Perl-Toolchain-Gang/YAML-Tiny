@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use lib 't/lib/';
+use Test::More 0.99;
 use TestBridge;
 use TestUtils;
 
@@ -20,8 +21,8 @@ for my $test (@spec_tests) {
     my ($file, $bridge, @args) = @$test;
     my $code = sub {
         my ($file, $blocks) = @_;
-        Test::More::subtest "YAML Spec Test; file: $file" => sub {
-            Test::More::plan tests => scalar @$blocks;
+        subtest "YAML Spec Test; file: $file" => sub {
+            plan tests => scalar @$blocks;
             my $func = \&{$bridge};
             $func->($_) for @$blocks;
         };
@@ -29,4 +30,4 @@ for my $test (@spec_tests) {
     run_testml_file($file, $code, @args);
 }
 
-Test::More::done_testing;
+done_testing;

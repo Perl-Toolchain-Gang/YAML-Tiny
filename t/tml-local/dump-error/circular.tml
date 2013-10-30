@@ -1,6 +1,6 @@
 === Circular Reference Protection
 # When we try to serialize, it should NOT infinite loop
---- dump
+--- perl
 $VAR1 = [
           {
             'a' => 'b',
@@ -13,6 +13,6 @@ $VAR1 = [
         ];
 $VAR1->[0]{'c'}[0] = $VAR1->[0];
 $VAR1->[1] = $VAR1->[0]{'c'};
-$VAR1
+[ $VAR1 ]
 
 --- error: E_CIRCULAR
