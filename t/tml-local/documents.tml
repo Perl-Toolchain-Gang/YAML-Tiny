@@ -1,0 +1,8 @@
+=== two documents
+--- yaml
+\---
+- foo
+\---
+- bar
+--- perl
+[ [ 'foo' ], [ 'bar' ] ]

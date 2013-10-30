@@ -16,6 +16,7 @@ our @EXPORT = qw{
     test_yaml_perl
     test_code_point
     test_local
+    error_like
 };
 
 my %ERROR = (
@@ -32,6 +33,13 @@ my %DISPATCH = (
     "dump error" => \&test_dump_error,
     "yaml error" => \&test_yaml_error,
 );
+
+sub error_like {
+    my ($regex, $label) = @_;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    like( YAML::Tiny->errstr, $regex, "Got expected error" );
+    $YAML::Tiny::errstr = ''; # reset it
+}
 
 sub test_local {
     my ($block) = @_;
@@ -67,7 +75,8 @@ sub test_yaml_perl {
         SKIP: {
             skip( "Shortcutting after failure", 2 ) if $@;
             isa_ok( $got, 'YAML::Tiny' );
-            is_deeply( $got, $expected, "YAML::Tiny parses correctly" );
+            is_deeply( $got, $expected, "YAML::Tiny parses correctly" )
+                or diag "ERROR: $YAML::Tiny::errstr";
         }
 
         # Does the structure serialize to the string.
@@ -119,7 +128,7 @@ sub test_dump_error {
         my $result = eval { YAML::Tiny->new( $input )->write_string };
         is( $@, '', "write_string lives" );
         ok( !$result, "returned false" );
-        like( YAML::Tiny->errstr, $expected, "Got expected error" );
+        error_like( $expected, "Got expected error" );
     };
 }
 
@@ -133,7 +142,7 @@ sub test_yaml_error {
         my $result = eval { YAML::Tiny->read_string( $yaml ) };
         is( $@, '', "read_string lives" );
         is( $result, undef, 'read_string returns undef' );
-        like( YAML::Tiny->errstr,  $expected, "Got expected error" );
+        error_like( $expected, "Got expected error" );
     };
 }
 

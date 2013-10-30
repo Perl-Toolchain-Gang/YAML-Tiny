@@ -9,29 +9,12 @@ use File::Spec::Functions ':ALL';
 use YAML::Tiny;
 use File::Temp qw(tempfile);
 
-# tests for read()
+# tests for write()
 {
-    my ($obj, $str, $yaml, $file);
-    $obj = YAML::Tiny->new();
-    isa_ok( $obj, 'YAML::Tiny' );
-    $file = catfile( test_data_directory(), 'one.yml' );
-    eval { $yaml = $obj->read($file); };
-    ok(! YAML::Tiny->errstr, "\$obj->read: No error, as expected");
-    isa_ok( $yaml, 'YAML::Tiny' );
-    eval { $yaml->write(); };
+    my $obj = YAML::Tiny->new();
+    eval { $obj->write(); };
     like( YAML::Tiny->errstr, qr/You did not specify a file name/,
         "No filename provided to write()");
-    $YAML::Tiny::errstr = '';
-}
-
-{
-    my ($obj, $str, $yaml, $file);
-    $obj = YAML::Tiny->new();
-    isa_ok( $obj, 'YAML::Tiny' );
-    $file = catfile( test_data_directory(), 'nonexistent.yml' );
-    eval { $obj->read($file); };
-    like(YAML::Tiny->errstr, qr/File '$file' does not exist/,
-        "Got expected error: nonexistent filename provided to read()");
     $YAML::Tiny::errstr = '';
 }
 
@@ -127,17 +110,6 @@ use File::Temp qw(tempfile);
         qr/YAML::Tiny failed to classify line '$str'/,
         "Correctly failed to load non-YAML string"
     );
-    $YAML::Tiny::errstr = '';
-}
-
-{
-    my ($obj, $str, $yaml, $file);
-    $obj = YAML::Tiny->new();
-    isa_ok( $obj, 'YAML::Tiny' );
-    $file = catfile( test_data_directory(), '51491_space_after_hyphen.yml' );
-    eval { $yaml = $obj->read($file); };
-    ok(! YAML::Tiny->errstr, "\$obj->read: No error; CPAN #51491 is fixed");
-    isa_ok( $yaml, 'YAML::Tiny' );
     $YAML::Tiny::errstr = '';
 }
 
