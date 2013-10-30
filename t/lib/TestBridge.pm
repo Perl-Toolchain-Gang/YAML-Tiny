@@ -20,6 +20,8 @@ our @EXPORT = qw{
 
 my %ERROR = (
     E_CIRCULAR => qr{\QYAML::Tiny does not support circular references},
+    E_FEATURE  => qr{\QYAML::Tiny does not support a feature},
+    E_PLAIN    => qr{\QYAML::Tiny found illegal characters in plain scalar},
 );
 
 # use XXX -with => 'YAML::XS';
@@ -28,6 +30,7 @@ my %DISPATCH = (
     "yaml perl" => \&test_yaml_perl,
     "dump yaml" => \&test_dump_yaml,
     "dump error" => \&test_dump_error,
+    "yaml error" => \&test_yaml_error,
 );
 
 sub test_local {
@@ -116,7 +119,21 @@ sub test_dump_error {
         my $result = eval { YAML::Tiny->new( $input )->write_string };
         is( $@, '', "write_string lives" );
         ok( !$result, "returned false" );
-        like( YAML::Tiny->errstr, $expected, "errstr correct" );
+        like( YAML::Tiny->errstr, $expected, "Got expected error" );
+    };
+}
+
+sub test_yaml_error {
+    my ($block, $yaml, $error, $label) = @_;
+
+    chomp $error;
+    my $expected = $ERROR{$error};
+
+    subtest $label, sub {
+        my $result = eval { YAML::Tiny->read_string( $yaml ) };
+        is( $@, '', "read_string lives" );
+        is( $result, undef, 'read_string returns undef' );
+        like( YAML::Tiny->errstr,  $expected, "Got expected error" );
     };
 }
 

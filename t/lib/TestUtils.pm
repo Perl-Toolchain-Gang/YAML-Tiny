@@ -19,7 +19,7 @@ BEGIN {
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
     run_all_testml_files
-    yaml_error load_ok
+    load_ok
     test_data_directory test_data_file
     json_class slurp
 };
@@ -60,14 +60,6 @@ sub run_all_testml_files {
     testml_run_file($_, $code) for sort @files;
 
     done_testing;
-}
-
-sub yaml_error {
-    my $string = shift;
-    my $like   = shift;
-    my $yaml   = YAML::Tiny->read_string( $string );
-    is( $yaml, undef, '->read_string returns undef' );
-    like( YAML::Tiny->errstr,  qr/$like/, "Got expected error" );
 }
 
 sub load_ok {

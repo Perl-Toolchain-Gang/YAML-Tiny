@@ -1,0 +1,53 @@
+=== multiline quote
+--- yaml
+- 'Multiline
+quote'
+--- error: E_FEATURE
+
+=== version object
+--- yaml
+\---
+version: !!perl/hash:version
+  original: v2.0.2
+  qv: 1
+  version:
+    - 2
+    - 0
+    - 2
+--- error: E_FEATURE
+
+=== dash dash 2
+--- yaml
+- - 2
+--- error: E_PLAIN
+
+=== dash
+--- yaml
+foo: -
+--- error: E_PLAIN
+
+=== leading ampersand
+--- yaml
+foo: @INC
+--- error: E_PLAIN
+
+=== leading percent
+--- yaml
+foo: %INC
+--- error: E_PLAIN
+
+=== trailing colon
+--- yaml
+foo: bar:
+--- error: E_PLAIN
+
+=== key key value
+--- yaml
+foo: bar: baz
+--- error: E_PLAIN
+
+=== backticks
+--- yaml
+foo: `perl -V`
+--- error: E_PLAIN
+
