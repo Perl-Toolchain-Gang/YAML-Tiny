@@ -19,7 +19,6 @@ BEGIN {
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
     run_all_testml_files
-    load_ok
     test_data_directory test_data_file
     json_class slurp
 };
@@ -60,18 +59,6 @@ sub run_all_testml_files {
     testml_run_file($_, $code) for sort @files;
 
     done_testing;
-}
-
-sub load_ok {
-    my $name = shift;
-    my $file = shift;
-    my $size = shift;
-    ok( -f $file, "Found $name" );
-    ok( -r $file, "Can read $name" );
-    my $content = slurp( $file, ":encoding(UTF-8)" );
-    ok( (defined $content and ! ref $content), "Loaded $name" );
-    ok( ($size < length $content), "Content of $name larger than $size bytes" );
-    return $content;
 }
 
 sub slurp {
