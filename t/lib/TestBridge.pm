@@ -218,8 +218,9 @@ sub test_code_point {
 
 sub error_like {
     my ($regex, $label) = @_;
+    $label = "Got expected error" unless defined $label;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    like( YAML::Tiny->errstr, $regex, "Got expected error" );
+    like( YAML::Tiny->errstr, $regex, $label );
     $YAML::Tiny::errstr = ''; # reset it
 }
 
