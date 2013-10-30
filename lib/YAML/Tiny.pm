@@ -187,6 +187,12 @@ sub read_string {
                 $self->_read_hash( $document, [ length($1) ], \@lines );
 
             } else {
+                # Shouldn't get here.  @lines have whitespace-only lines
+                # stripped, and previous match is a line with any
+                # non-whitespace.  So this clause should only be reachable via
+                # a perlbug where \s is not symmetric with \S
+
+                # uncoverable statement
                 die \"YAML::Tiny failed to classify the line '$lines[0]'";
             }
         }
