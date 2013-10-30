@@ -12,7 +12,7 @@ sub main {
     for my $file (@_) {
         (my $name = $file) =~ s/[\/\.\-]/_/g;
         my $runner = $ENV{"testml_bridge_$name"} ||
-            'test_yaml_perl';
+            'test_local';
         my $bridge = eval "\\&$runner"; die $@ if $@;
         testml_run_file(
             $file,
