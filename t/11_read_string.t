@@ -21,8 +21,18 @@ use YAML::Tiny ();
 
 {
     my $str = join("\n" => ('---', '- foo', '---', '- bar', '---'));
-    eval { YAML::Tiny->read_string($str); };
+    my $obj = eval { YAML::Tiny->read_string($str); };
     is( YAML::Tiny->errstr, '', "YAML without newline is OK");
 }
+
+{
+    ok( my $obj = YAML::Tiny->new( { foo => 'bar' } ), "new YAML object" );
+    ok( my $obj2 = $obj->read_string( "---\nfoo: bar\n"  ),
+        "read_string object method"
+    );
+    isnt( $obj, $obj2, "objects are different" );
+    is_deeply( $obj, $obj2, "objects have same content" );
+}
+
 
 done_testing;

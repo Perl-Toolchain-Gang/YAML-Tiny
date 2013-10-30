@@ -52,6 +52,11 @@ for my $key ( sort keys %passes ) {
         if ( $case->{utf8} ) {
             ok( utf8::is_utf8( $got->[0]->{$case->{utf8}} ), "utf8 decoded" );
         }
+
+        # test that read method on object is also a constructor
+        ok( my $got2 = eval { $got->read( $file ) }, "read() object method");
+        isnt( $got, $got2, "objects are different" );
+        is_deeply( $got, $got2, "objects have same content" );
     }
 }
 
