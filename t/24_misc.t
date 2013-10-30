@@ -9,56 +9,6 @@ use File::Spec::Functions ':ALL';
 use YAML::Tiny;
 use File::Temp qw(tempfile);
 
-# tests for read_string()
-{
-    my ($obj, $str, $yaml);
-    $obj = YAML::Tiny->new();
-    isa_ok( $obj, 'YAML::Tiny' );
-    $str = join("\n" => ('---', '- foo', '---', '- bar', '---'));
-    $str .= "\n";
-    eval { $yaml = $obj->read_string($str); };
-    ok(! YAML::Tiny->errstr, "\$obj->read_str: No error, as expected");
-    isa_ok( $yaml, 'YAML::Tiny' );
-    $YAML::Tiny::errstr = '';
-}
-
-{
-    my ($obj, $str, $yaml);
-    $obj = YAML::Tiny->new();
-    isa_ok( $obj, 'YAML::Tiny' );
-    $str = "--\n";
-    eval { $yaml = $obj->read_string($str); };
-    like(
-        YAML::Tiny->errstr,
-        qr/YAML::Tiny found illegal characters in plain scalar/,
-        "Illegal characters in plain scalar"
-    );
-    $YAML::Tiny::errstr = '';
-}
-
-{
-    my ($obj, $str, $yaml);
-    $obj = YAML::Tiny->new();
-    isa_ok( $obj, 'YAML::Tiny' );
-    $str = join("\n" => ('---', '- foo', '---', '- bar', '---'));
-    eval { $yaml = $obj->read_string($str); };
-    like(YAML::Tiny->errstr, qr/Stream does not end with newline character/,
-        "Got expected error: stream did not end with newline");
-    $YAML::Tiny::errstr = '';
-}
-
-{
-    my ($obj, $str, $yaml);
-    $obj = YAML::Tiny->new();
-    isa_ok( $obj, 'YAML::Tiny' );
-    $str = join("\n" => ('# comment', '---', '- foo', '---', '- bar', '---'));
-    $str .= "\n";
-    eval { $yaml = $obj->read_string($str); };
-    ok(! YAML::Tiny->errstr, "\$obj->read_str: No error, as expected");
-    isa_ok( $yaml, 'YAML::Tiny' );
-    $YAML::Tiny::errstr = '';
-}
-
 {
     my $scalar = 'this is a string';
     my $arrayref = [ 1 .. 5 ];

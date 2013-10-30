@@ -51,3 +51,8 @@ foo: bar: baz
 foo: `perl -V`
 --- error: E_PLAIN
 
+=== double-dash
+--- yaml
+--
+--- error: E_PLAIN
+
