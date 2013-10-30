@@ -58,11 +58,7 @@ sub run_all_testml_files {
         };
     };
 
-    my @files;
-    File::Find::find(
-        sub { push @files, $File::Find::name if -f and /\.tml$/ },
-        $dir
-    );
+    my @files = find_tml_files($dir);
 
     run_testml_file($_, $code) for sort @files;
 }

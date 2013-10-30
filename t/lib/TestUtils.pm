@@ -9,11 +9,22 @@ use File::Find ();
 
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
+    find_tml_files
     json_class
     slurp
     test_data_directory
     test_data_file
 };
+
+sub find_tml_files {
+    my $dir = shift;
+    my @files;
+    File::Find::find(
+        sub { push @files, $File::Find::name if -f and /\.tml$/ },
+        $dir
+    );
+    return @files;
+}
 
 # Prefer JSON to JSON::PP; skip if we don't have at least one
 sub json_class {
