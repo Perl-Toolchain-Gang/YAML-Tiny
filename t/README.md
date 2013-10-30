@@ -35,13 +35,9 @@ libraries can assume that if they were loaded, that 't/lib' is already in @INC.
 
 The test libraries are:
 
-* TestUtils
 * TestMLTiny
 * TestBridge
-
-The TestUtils library contains utility functions and some testing functions
-that have not yet been migrated to TestBridge.  Going forward, new testing
-functions should not be added (i.e. nothing that uses Test::More).
+* TestUtils
 
 The TestMLTiny library contains functions for parsing and executing TestML
 tests with callbacks.  TestML is a data-driven testing language; TestMLTiny
@@ -55,6 +51,9 @@ be passed to TestMLTiny functions as callbacks.  Tests functions should not
 include `done_testing`.  They should use `subtest` for any repetitive testing
 that loops over test cases.  Callback should check for the expected test
 points (see below) and skip a TML block if those points are not available.
+
+The TestUtils library contains utility functions.  Testing functions should
+not be added here (i.e. nothing that uses Test::More).
 
 ## YAML data files in t/data
 

@@ -7,20 +7,12 @@ use Exporter   ();
 use File::Spec ();
 use File::Find ();
 
-use Test::More 0.99;
-use TestMLTiny;
-
-BEGIN {
-    $|  = 1;
-    binmode(Test::More->builder->$_, ":utf8")
-        for qw/output failure_output todo_output/;
-}
-
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
-    run_all_testml_files
-    test_data_directory test_data_file
-    json_class slurp
+    json_class
+    slurp
+    test_data_directory
+    test_data_file
 };
 
 # Prefer JSON to JSON::PP; skip if we don't have at least one
@@ -37,28 +29,6 @@ sub test_data_directory {
 
 sub test_data_file {
     return File::Spec->catfile( test_data_directory(), shift );
-}
-
-sub run_all_testml_files {
-    my ($label, $dir, $bridge, @args) = @_;
-
-    my $code = sub {
-        my ($file, $blocks) = @_;
-        subtest "$label: $file" => sub {
-            plan tests => scalar @$blocks;
-            $bridge->($_, @args) for @$blocks;
-        };
-    };
-
-    my @files;
-    File::Find::find(
-        sub { push @files, $File::Find::name if -f and /\.tml$/ },
-        $dir
-    );
-
-    testml_run_file($_, $code) for sort @files;
-
-    done_testing;
 }
 
 sub slurp {

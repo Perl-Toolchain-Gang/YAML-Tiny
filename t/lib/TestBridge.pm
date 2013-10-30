@@ -7,11 +7,18 @@ use Test::More 0.99;
 use TestUtils;
 use TestMLTiny;
 
+BEGIN {
+    $|  = 1;
+    binmode(Test::More->builder->$_, ":utf8")
+        for qw/output failure_output todo_output/;
+}
+
 use YAML::Tiny;
 
 use Exporter   ();
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
+    run_all_testml_files
     test_yaml_json
     test_yaml_perl
     test_code_point
@@ -27,19 +34,34 @@ my %ERROR = (
 
 # use XXX -with => 'YAML::XS';
 
+sub run_all_testml_files {
+    my ($label, $dir, $bridge, @args) = @_;
+
+    my $code = sub {
+        my ($file, $blocks) = @_;
+        subtest "$label: $file" => sub {
+            plan tests => scalar @$blocks;
+            $bridge->($_, @args) for @$blocks;
+        };
+    };
+
+    my @files;
+    File::Find::find(
+        sub { push @files, $File::Find::name if -f and /\.tml$/ },
+        $dir
+    );
+
+    testml_run_file($_, $code) for sort @files;
+
+    done_testing;
+}
+
 my %DISPATCH = (
     "yaml perl" => \&test_yaml_perl,
     "dump yaml" => \&test_dump_yaml,
     "dump error" => \&test_dump_error,
     "yaml error" => \&test_yaml_error,
 );
-
-sub error_like {
-    my ($regex, $label) = @_;
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
-    like( YAML::Tiny->errstr, $regex, "Got expected error" );
-    $YAML::Tiny::errstr = ''; # reset it
-}
 
 sub test_local {
     my ($block) = @_;
@@ -192,6 +214,13 @@ sub test_code_point {
         my $nyn = YAML::Tiny::Load(YAML::Tiny::Dump($data));
         is_deeply $nyn, $data, "YAML for code point $code NYN roundtrips";
     }
+}
+
+sub error_like {
+    my ($regex, $label) = @_;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    like( YAML::Tiny->errstr, $regex, "Got expected error" );
+    $YAML::Tiny::errstr = ''; # reset it
 }
 
 1;
