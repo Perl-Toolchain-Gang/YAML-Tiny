@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use lib 'lib', 't/lib/';
-use TestMLBridge;
+use TestBridge;
 use TestMLTiny;
 use Test::More 0.99;
 use TestUtils;
