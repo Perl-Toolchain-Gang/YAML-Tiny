@@ -58,3 +58,12 @@ bar: value
 
 
 
+# RT 51491
+=== space after hypen
+--- yaml
+\---
+FOO:
+  - 
+    bar: baz 
+--- perl
+[ { 'FOO' => [ { bar => 'baz' } ] } ]

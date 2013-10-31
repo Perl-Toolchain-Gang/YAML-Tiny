@@ -1,9 +1,0 @@
-=== space after hypen
-# RT 51491
---- yaml
-\---
-FOO:
-  - 
-    bar: baz 
---- perl
-[ { 'FOO' => [ { bar => 'baz' } ] } ]
