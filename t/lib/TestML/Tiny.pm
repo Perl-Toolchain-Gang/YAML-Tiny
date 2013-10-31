@@ -1,7 +1,7 @@
-use strict; use warnings;
+use 5.008003; use strict; use warnings;
 package TestML::Tiny;
 
-our $VERSION = 0.000001;
+$TestML::Tiny::VERSION = 0.000001;
 
 use Carp();
 use Test::More 0.99 ();
@@ -38,7 +38,7 @@ sub _get_testml {
     my ($self) = @_;
     my $testml = $self->{testml}
         or Carp::croak "TestML object requires a testml attribute";
-    $testml = $self->slurp($testml)
+    $testml = $self->_slurp($testml)
         if $testml !~ /\n/;
     return $testml;
 }
@@ -50,13 +50,13 @@ sub _get_bridge {
     eval "require $bridge";
     Carp::croak $@ if $@ and $@ !~ /^Can't locate /;
     return (
-        defined &{"${bridge}::new"}
+        defined(&{"${bridge}::new"})
             ? $bridge->new
             : bless {}, $bridge
     );
 }
 
-sub slurp {
+sub _slurp {
     open my $fh, "<:raw:encoding(UTF-8)", $_[1]
         or die "Can't open $_[1] for input";
     local $/;
@@ -64,6 +64,15 @@ sub slurp {
 }
 
 #------------------------------------------------------------------------------
+=comment
+::Runtime -- Run a TestML Function
+
+The TestML Code and Data get compiled into a Function, and the Function is run
+by this Runtime class. Typically data is manipulated by Bridge functions, and
+at some point Assertions are made. The assertions are the things that call
+Test::More::is and Test::More::ok.
+=cut
+
 package TestML::Tiny::Runtime;
 
 # use XXX;
@@ -79,8 +88,8 @@ sub run {
 }
 
 #------------------------------------------------------------------------------
-
 =comment
+::Compiler -- Turn a TestML document into a runnable TestML Function.
 
 A TestML "document" is comprised of 3 main parts: Meta, Code, Data. This
 information often is in a single TestML (.tml) file or string, but it doesn't
@@ -97,9 +106,7 @@ confusion.
 The compile function returns a Function object, which in turn contains an
 array of Statements and an array of Data Blocks. This function is the run by
 the Runtime object.
-
 =cut
-
 package TestML::Tiny::Compiler;
 
 # use XXX;
@@ -156,11 +163,13 @@ sub preprocess {
             $self->check_not_set_and_set($key, $value, 'version');
         }
         elsif ($key eq "CodeSyntax") {
+            die "Untested";
             $self->check_not_set('CodeSyntax', $value, 'code_syntax');
             $self->check_syntax($value);
             $self->{code_syntax} = $value;
         }
         elsif ($key eq "DataSyntax") {
+            die "Untested";
             $self->check_not_set('DataSyntax', $value, 'data_syntax');
             $self->check_syntax($value);
             $self->{data_syntax} = $value;
@@ -277,6 +286,15 @@ sub _parse_testml_points {
 }
 
 #------------------------------------------------------------------------------
+=comment
+A Function is just an array of "executable" statements that are proceseded in
+order. Some of the statements maybe be function declarations and function
+calls. The Compiler produces a top level scope function, with a Data set, and a
+Namespace for variables.
+
+All functions are anonymous, but they can be assigned to variables, and then
+you can call that variable name.
+=cut
 package TestML::Tiny::Function;
 
 sub new {
@@ -302,41 +320,3 @@ sub new {
 }
 
 1;
-
-=head1 Name
-
-TestML::Tiny - Single File Subset of TestML
-
-=head1 Synopsis
-
-    use TestML::Tiny;
-    TestML::Tiny->new(
-        testml_file => '__DATA__',
-        bridge_class => 'main',
-    )->run;
-
-    sub uppercase {
-        my ($self, $string) = @_;
-        return uc($string);
-    }
-
-    __DATA__
-    %TestML 0.1.0
-
-    Plan = 6
-
-    *lower.uppercase == *upper
-    *upper == *lower.uppercase
-    *upper.uppercase == *lower.uppercase
-
-    === Test one
-    --- text: TestML is Tiny!
-    --- upper: TESTML IS TINY!
-
-    === Test two
-    --- test
-    Test, Test, Test…
-    --- upper
-    TEST, TEST, TEST…
-
-=cut
