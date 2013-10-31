@@ -35,19 +35,18 @@ libraries can assume that if they were loaded, that 't/lib' is already in @INC.
 
 The test libraries are:
 
-* TestMLTiny
+* TestML::Tiny
 * TestBridge
 * TestUtils
 
-The TestMLTiny library contains functions for parsing and executing TestML
+The TestML::Tiny library contains functions for parsing and executing TestML
 tests with callbacks.  TestML is a data-driven testing language; TestMLTiny
 implements a small subset of its features. See the section on TestML, below,
-for an example.  The TestMLTiny module must remain standalone.  It should only
-use core Perl modules.  Generally speaking, for anything other than minor
-and obvious bugs, please consult with Ingy before patching it.
+for an example. Generally, bugs should be patched upstream on CPAN and then
+a new Test::Tiny CPAN release can be copied here and pod-stripped.
 
 The TestBridge library contains testing functions for use in .t files or to
-be passed to TestMLTiny functions as callbacks.  Tests functions should not
+be passed to TestML::Tiny functions as callbacks.  Test functions should not
 include `done_testing`.  They should use `subtest` for any repetitive testing
 that loops over test cases.  Callback should check for the expected test
 points (see below) and skip a TML block if those points are not available.

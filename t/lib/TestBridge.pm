@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More 0.99;
 use TestUtils;
-use TestMLTiny;
+use TestML::Tiny;
 
 BEGIN {
     $|  = 1;
@@ -19,6 +19,7 @@ use Exporter   ();
 our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
     run_all_testml_files
+    run_testml_file
     test_yaml_json
     test_yaml_perl
     test_code_point
@@ -51,9 +52,31 @@ sub run_all_testml_files {
         $dir
     );
 
-    testml_run_file($_, $code) for sort @files;
+    run_testml_file($_, $code) for sort @files;
 
     done_testing;
+}
+
+sub run_testml_file {
+    my ($file, $code) = @_;
+
+    my $blocks = TestML::Tiny->new(
+        testml => $file,
+        version => '0.1.0',
+    )->{function}{data};
+
+    $code->($file, $blocks);
+}
+
+sub _testml_has_points {
+    my ($block, @points) = @_;
+    my @values;
+    for my $point (@points) {
+        defined $block->{$point} or return;
+        push @values, $block->{$point};
+    }
+    push @values, $block->{Label};
+    return @values;
 }
 
 my %DISPATCH = (
@@ -67,7 +90,7 @@ sub test_local {
     my ($block) = @_;
 
     while ( my ( $spec, $code ) = each %DISPATCH ) {
-        my @points = testml_has_points($block, split " ", $spec);
+        my @points = _testml_has_points($block, split " ", $spec);
         $code->($block, @points) if @points;
     }
 }
@@ -76,7 +99,7 @@ sub test_yaml_perl {
     my ($block) = @_;
 
     my ($yaml, $perl, $label) =
-      testml_has_points($block, qw(yaml perl)) or return;
+      _testml_has_points($block, qw(yaml perl)) or return;
 
     my %options = ();
     for (qw(serializes)) {
@@ -173,7 +196,7 @@ sub test_yaml_json {
     $json_lib ||= do { require JSON::PP; 'JSON::PP' };
 
     my ($yaml, $json, $label) =
-      testml_has_points($block, qw(yaml json)) or return;
+      _testml_has_points($block, qw(yaml json)) or return;
 
     subtest "$label", sub {
         # test YAML Load
@@ -199,7 +222,7 @@ sub test_code_point {
     my ($block) = @_;
 
     my ($code, $yaml, $label) =
-        testml_has_points($block, qw(code yaml)) or return;
+        _testml_has_points($block, qw(code yaml)) or return;
 
     subtest "$label - Unicode map key/value test" => sub {
         my $data = { chr($code) => chr($code) };

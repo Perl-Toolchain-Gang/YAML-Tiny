@@ -16,6 +16,7 @@ ok( $] ge '5.008001', "Your perl is new enough" );
 # Does the module load
 require_ok( 'YAML::Tiny' );
 require_ok( 'TestUtils' );
-require_ok( 'TestMLTiny' );
+require_ok( 'TestBridge' );
+require_ok( 'TestML::Tiny' );
 
 done_testing;

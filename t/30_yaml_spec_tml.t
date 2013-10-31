@@ -2,7 +2,6 @@
 use strict;
 use warnings;
 use lib 't/lib/';
-use TestMLTiny;
 use TestBridge;
 use TestUtils;
 
@@ -27,7 +26,7 @@ for my $test (@spec_tests) {
             $func->($_) for @$blocks;
         };
     };
-    testml_run_file($file, $code, @args);
+    run_testml_file($file, $code, @args);
 }
 
 Test::More::done_testing;
