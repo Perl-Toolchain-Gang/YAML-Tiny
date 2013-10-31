@@ -478,7 +478,7 @@ sub write {
 # Save an object to a string
 sub write_string {
     my $self = shift;
-    return '' unless @$self;
+    return '' unless ref $self && @$self;
 
     local $Data::Dumper::Terse = 1;
 
