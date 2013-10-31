@@ -97,7 +97,7 @@ foo: bar
 # Simple inline case (comment variant)
 === predocument_1_1
 --- yaml
-%YAML 1.1
+\%YAML 1.1
 ---
 foo: bar
 --- perl
@@ -122,7 +122,7 @@ foo: bar
 # Simple pre-document case (comment variant)
 === predocument_percent
 --- yaml
-%YAML 1.1
+\%YAML 1.1
 ---
 foo: bar
 --- perl

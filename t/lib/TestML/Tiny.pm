@@ -1,0 +1,342 @@
+use strict; use warnings;
+package TestML::Tiny;
+
+our $VERSION = 0.000001;
+
+use Carp();
+use Test::More 0.99 ();
+
+# use XXX;
+
+sub import {
+    strict->import;
+    warnings->import;
+}
+
+sub new {
+    my $self = bless { @_[1..$#_] }, $_[0];
+    my $testml = $self->_get_testml;
+    my $bridge = $self->_get_bridge;
+    $self->{runtime} ||= TestML::Tiny::Runtime->new(
+        bridge => $bridge,
+    );
+    $self->{function} ||= TestML::Tiny::Compiler->new(
+        $self->{version} ? (version => $self->{version}) : (),
+    )->compile($testml);
+    return $self;
+}
+
+sub run {
+    my ($self) = @_;
+    my $runtime = $self->{runtime} || '';
+    Carp::croak "Missing or invalid runtime object for TestML::Tiny::run()"
+        unless defined($runtime) and ref($runtime) eq 'TestML::Tiny::Runtime';
+    $runtime->run;
+}
+
+sub _get_testml {
+    my ($self) = @_;
+    my $testml = $self->{testml}
+        or Carp::croak "TestML object requires a testml attribute";
+    $testml = $self->slurp($testml)
+        if $testml !~ /\n/;
+    return $testml;
+}
+
+sub _get_bridge {
+    my ($self) = @_;
+    my $bridge = $self->{bridge} || 'main';
+    return $bridge if ref $bridge;
+    eval "require $bridge";
+    Carp::croak $@ if $@ and $@ !~ /^Can't locate /;
+    return (
+        defined &{"${bridge}::new"}
+            ? $bridge->new
+            : bless {}, $bridge
+    );
+}
+
+sub slurp {
+    open my $fh, "<:raw:encoding(UTF-8)", $_[1]
+        or die "Can't open $_[1] for input";
+    local $/;
+    <$fh>;
+}
+
+#------------------------------------------------------------------------------
+package TestML::Tiny::Runtime;
+
+# use XXX;
+
+sub new {
+    my $self = $TestML::Tiny::Runtime::Singleton =
+        bless { @_[1..$#_] }, $_[0];
+};
+
+sub run {
+    Test::More::fail 'not done yet!';
+    Test::More::done_testing;
+}
+
+#------------------------------------------------------------------------------
+
+=comment
+
+A TestML "document" is comprised of 3 main parts: Meta, Code, Data. This
+information often is in a single TestML (.tml) file or string, but it doesn't
+need to be. The information can come from anywhere and be in any form that is
+supported; it just must all be present when it is needed.
+
+The Meta information must be known first. It dictates where the Code and Data
+come from, and in what format they are. Also the Code and Data formats depend
+on the TestML API Version that is supplied. Before the Code and Data can be
+compiled, a Version must be supplied (no default) and then the compiler must
+support that Version. This allows TestML to change over time with no
+confusion.
+
+The compile function returns a Function object, which in turn contains an
+array of Statements and an array of Data Blocks. This function is the run by
+the Runtime object.
+
+=cut
+
+package TestML::Tiny::Compiler;
+
+# use XXX;
+
+my $ID = qr/\w+/;
+my $SP = qr/[\ \t]/;
+my $LINE = qr/.*$/m;
+my $DIRECTIVE = qr/^%($ID)$SP+($LINE)/m;
+
+sub new {
+    my $self = bless {
+        code_syntax => 'tiny',
+        data_syntax => 'testml',
+        data_marker => '===',
+        block_marker => '===',
+        point_marker => '---',
+        @_[1..$#_]
+    }, $_[0];
+}
+
+sub runtime {
+    $TestML::Tiny::Runtime::Singleton;
+}
+
+sub compile {
+    my ($self, $testml) = @_;
+    my $function = $self->{function} = TestML::Tiny::Function->new;
+    $self->{testml} = $testml;
+    $self->preprocess;
+    my $version = $self->check_version;
+    my ($code_syntax, $data_syntax) =
+        @{$self}{qw(code_syntax data_syntax)};
+    my $code_method = "compile_code_${code_syntax}_$version";
+    Carp::croak "Don't know how to compile TestML '$code_syntax' code"
+        unless $self->can($code_method);
+    my $data_method = "compile_data_${data_syntax}_$version";
+    Carp::croak "Don't know how to compile TestML '$data_syntax' data"
+        unless $self->can($data_method);
+    $function->{statements} = $self->$code_method;
+    $function->{data} = $self->$data_method;
+    return $function;
+}
+
+sub preprocess {
+    my ($self) = @_;
+
+    my $version = $self->{version} || undef;
+    my $testml = $self->{testml};
+    my $directives = [ $testml =~ /$DIRECTIVE/gm ];
+    $testml =~ s/($DIRECTIVE)/#$1/g;
+    while (@$directives) {
+        my ($key, $value) = splice(@$directives, 0, 2);
+        if ($key eq "TestML") {
+            $self->check_not_set_and_set($key, $value, 'version');
+        }
+        elsif ($key eq "CodeSyntax") {
+            $self->check_not_set('CodeSyntax', $value, 'code_syntax');
+            $self->check_syntax($value);
+            $self->{code_syntax} = $value;
+        }
+        elsif ($key eq "DataSyntax") {
+            $self->check_not_set('DataSyntax', $value, 'data_syntax');
+            $self->check_syntax($value);
+            $self->{data_syntax} = $value;
+        }
+        else {
+            Carp::croak "Unknown TestML directive: '%$key'";
+        }
+    }
+
+    ($self->{code}, $self->{data}) =
+        ($testml =~ /(.*?)(^$self->{data_marker}.*)/msg);
+    $self->{code} ||= '';
+    $self->{data} ||= '';
+}
+
+sub check_not_set_and_set {
+    my ($self, $key, $value, $attr) = @_;
+    if (defined $self->{$attr} and $self->{$attr} ne $value) {
+        Carp::croak "Can't set TestML '$key' directive to '$value'. " .
+            "Already set to '$self->{$attr}'";
+    }
+    $self->{$attr} = $value;
+}
+
+sub check_version {
+    my ($self) = @_;
+    my $version = $self->{version} || undef;
+    Carp::croak "TestML syntax version not defined. Cannot continue"
+        unless defined $version;
+    Carp::croak "Invalid value for TestML version '$version'. Must be 0.1.0"
+        unless $version eq '0.1.0';
+    $version =~ s/\./_/g;
+    return $version;
+}
+
+sub compile_code_tiny_0_1_0 {
+    my ($self) = @_;
+    my $num = 1;
+    [ grep { not /(^#|^\s*$)/ } split /\n/, $self->{code} ];
+}
+
+sub compile_data_testml_0_1_0 {
+    my ($self) = @_;
+
+    my $lines = [ grep { ! /^#/ } split /\n/, $self->{data} ];
+
+    my $blocks = [];
+    my $parse = [];
+    push @$lines, undef; # sentinel
+    while (@$lines) {
+        push @$parse, shift @$lines;
+        if ( !defined($lines->[0]) or $lines->[0] =~ /^===/ ) {
+            my $block = $self->_parse_testml_block($parse);
+            push @$blocks, $block
+                unless exists $block->{SKIP};
+            last if exists $block->{LAST};
+            $parse = []; # clear for next parse
+        }
+        last if !defined($lines->[0]);
+    }
+
+    my $only = [ grep { exists $_->{ONLY} } @$blocks ];
+
+    return @$only ? $only : $blocks;
+}
+
+sub _parse_testml_block {
+    my ($self, $lines) = @_;
+
+    my ($label) = $lines->[0] =~ /^===(?:\s+(.*))?$/;
+    shift @$lines until not(@$lines) or $lines->[0] =~ /^--- +\w+/;
+
+    my $block = $self->_parse_testml_points($lines);
+    $block->{Label} = $label || '';
+
+    return $block;
+}
+
+sub _parse_testml_points {
+    my ($self, $lines) = @_;
+
+    my $block = {};
+
+    while (@$lines) {
+        my $line = shift @$lines;
+        $line =~ /^--- +(\w+)/
+            or die "Invalid TestML line:\n'$line'";
+        my $point_name = $1;
+        die "$block repeats $point_name"
+            if exists $block->{$point_name};
+        $block->{$point_name} = '';
+        if ($line =~ /^--- +(\w+): +(.*?) *$/) {
+            $block->{$1} .= "$2\n";
+            shift @$lines while @$lines and $lines->[0] !~ /^--- +(\w)/;
+        }
+        elsif ($line =~ /^--- +(\w+)$/) {
+            $point_name = $1;
+            while ( @$lines ) {
+                $line = shift @$lines;
+                if ($line =~ /^--- \w+/) {
+                    unshift @$lines, $line;
+                    last;
+                }
+                $block->{$point_name} .= "$line\n";
+            }
+            $block->{$point_name} =~ s/\n\s*\z/\n/;
+            $block->{$point_name} =~ s/^\\//gm;
+        }
+        else {
+            die "Invalid TestML line:\n'$line'";
+        }
+    }
+    return $block;
+}
+
+#------------------------------------------------------------------------------
+package TestML::Tiny::Function;
+
+sub new {
+    my $self = bless {
+        statements => [],
+        data => [],
+        namespace => {},
+    }, $_[0];
+}
+
+#------------------------------------------------------------------------------
+package TestML::Tiny::Bridge;
+
+sub new {
+    my $self = bless { @_[1..$#_] }, $_[0];
+}
+
+#------------------------------------------------------------------------------
+package TestML::Tiny::Library::Standard;
+
+sub new {
+    my $self = bless { @_[1..$#_] }, $_[0];
+}
+
+1;
+
+=head1 Name
+
+TestML::Tiny - Single File Subset of TestML
+
+=head1 Synopsis
+
+    use TestML::Tiny;
+    TestML::Tiny->new(
+        testml_file => '__DATA__',
+        bridge_class => 'main',
+    )->run;
+
+    sub uppercase {
+        my ($self, $string) = @_;
+        return uc($string);
+    }
+
+    __DATA__
+    %TestML 0.1.0
+
+    Plan = 6
+
+    *lower.uppercase == *upper
+    *upper == *lower.uppercase
+    *upper.uppercase == *lower.uppercase
+
+    === Test one
+    --- text: TestML is Tiny!
+    --- upper: TESTML IS TINY!
+
+    === Test two
+    --- test
+    Test, Test, Test…
+    --- upper
+    TEST, TEST, TEST…
+
+=cut
