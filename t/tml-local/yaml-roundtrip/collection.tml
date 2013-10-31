@@ -1,0 +1,60 @@
+#--------------------------------------------------------------------------#
+# This file is for testing combinations of sequences and mappings
+#--------------------------------------------------------------------------#
+
+#####################################################################
+# Null HASH/ARRAY
+
+=== null hash in array
+--- yaml
+---
+- foo
+- {}
+- bar
+--- perl
+[ [ 'foo', {}, 'bar' ] ]
+
+
+=== null array in array
+--- yaml
+---
+- foo
+- []
+- bar
+--- perl
+[ [ 'foo', [], 'bar' ] ]
+
+
+=== null hash in hash
+--- yaml
+---
+foo: {}
+bar: 1
+--- perl
+[  { foo => {}, bar => 1 } ]
+
+
+=== null array in hash
+--- yaml
+---
+foo: []
+bar: 1
+--- perl
+[  { foo => [], bar => 1 } ]
+
+######################################################################
+# Non-Indenting Sub-List
+
+=== Non-indenting sub-list
+--- yaml
+---
+foo:
+- list
+bar: value
+--- perl
+[ { foo => [ 'list' ], bar => 'value' } ]
+--- noyamlpm
+
+
+
+

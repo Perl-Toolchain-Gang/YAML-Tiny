@@ -1,3 +1,87 @@
+#####################################################################
+# Support for YAML version directives
+
+# Simple inline case (comment variant)
+=== simple_doctype_comment
+--- yaml
+--- #YAML:1.0
+foo: bar
+--- perl
+[ { foo => 'bar' } ]
+--- nosyck
+
+
+# Simple inline case (percent variant)
+=== simple_doctype_percent
+--- yaml
+--- %YAML:1.0
+foo: bar
+--- perl
+[ { foo => 'bar' } ]
+--- noyamlpm
+--- noxs
+
+
+# Simple header (comment variant)
+=== predocument_1_0
+--- yaml
+\%YAML:1.0
+---
+foo: bar
+--- perl
+[ { foo => 'bar' } ]
+--- noyamlpm
+--- nosyck
+--- noxs
+
+
+# Simple inline case (comment variant)
+=== predocument_1_1
+--- yaml
+\%YAML 1.1
+---
+foo: bar
+--- perl
+[ { foo => 'bar' } ]
+--- noyamlpm
+--- nosyck
+
+
+# Multiple inline documents (comment variant)
+=== multi_doctype_comment
+--- yaml
+--- #YAML:1.0
+foo: bar
+--- #YAML:1.0
+- 1
+--- #YAML:1.0
+foo: bar
+--- perl
+[ { foo => 'bar' }, [ 1 ], { foo => 'bar' } ]
+
+
+# Simple pre-document case (comment variant)
+=== predocument_percent
+--- yaml
+\%YAML 1.1
+---
+foo: bar
+--- perl
+[ { foo => 'bar' } ]
+--- noyamlpm
+--- nosyck
+
+
+# Simple pre-document case (comment variant)
+=== predocument_comment
+--- yaml
+\#YAML 1.1
+---
+foo: bar
+--- perl
+[ { foo => 'bar' } ]
+
+
 === two documents
 --- yaml
 \---

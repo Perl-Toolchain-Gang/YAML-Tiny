@@ -5,3 +5,72 @@
 --- perl
 [ [ "" ] ]
 
+#####################################################################
+# Quote vs Hash
+
+=== hash-like quote
+--- yaml
+---
+author:
+  - 'mst: Matt S. Trout <mst@shadowcatsystems.co.uk>'
+--- perl
+[ { author => [ 'mst: Matt S. Trout <mst@shadowcatsystems.co.uk>' ] } ]
+
+#####################################################################
+# Quote and Escaping Idiosyncracies
+
+=== single quote subtleties
+--- yaml
+---
+name1: 'O''Reilly'
+name2: 'O''Reilly O''Tool'
+name3: 'Double '''' Quote'
+--- perl
+[ {
+    name1 => "O'Reilly",
+    name2 => "O'Reilly O'Tool",
+    name3 => "Double '' Quote",
+} ]
+
+
+=== single quote subtleties
+--- yaml
+---
+slash1: '\\'
+slash2: '\\foo'
+slash3: '\\foo\\\\'
+--- perl
+[ {
+    slash1 => "\\\\",
+    slash2 => "\\\\foo",
+    slash3 => "\\\\foo\\\\\\\\",
+} ]
+
+#####################################################################
+# Check Multiple-Escaping
+
+# RT #42119: write of two single quotes
+=== Multiple escaping of quote ok
+--- yaml
+--- "A'B'C"
+--- perl
+[ "A'B'C" ]
+
+
+# Escapes without whitespace
+=== Multiple escaping of escape ok
+--- yaml
+\--- A\B\C
+--- perl
+[ "A\\B\\C" ]
+
+
+# Escapes with whitespace
+=== Multiple escaping of escape with whitespace ok
+--- yaml
+--- 'A\B \C'
+--- perl
+[ "A\\B \\C" ]
+
+
+

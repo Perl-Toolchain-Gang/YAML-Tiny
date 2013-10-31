@@ -4,12 +4,120 @@
 --- perl
 [ {} ]
 
-=== x-foo key
+
 # Make sure we support x-foo keys
+=== x-foo key
 --- yaml
 ---
 x-foo: 1
 --- perl
 [ { 'x-foo' => 1 } ]
+
+
+# Hash key legally containing a colon
+=== module_hash_key
+--- yaml
+---
+Foo::Bar: 1
+--- perl
+[ { 'Foo::Bar' => 1 } ]
+
+
+# Hash indented
+=== hash_indented
+--- yaml
+---
+  foo: bar
+--- perl
+[ { foo => "bar" } ]
+
+#####################################################################
+# Empty Values and Premature EOF
+
+=== empty hash keys
+--- yaml
+---
+foo:    0
+requires:
+build_requires:
+--- perl
+[ { foo => 0, requires => undef, build_requires => undef } ]
+--- noyamlpm
+
+#####################################################################
+# Confirm we can read the synopsis
+
+=== synopsis
+--- yaml
+---
+rootproperty: blah
+section:
+  one: two
+  three: four
+  Foo: Bar
+  empty: ~
+--- perl
+[ {
+    rootproperty => 'blah',
+    section      => {
+        one   => 'two',
+        three => 'four',
+        Foo   => 'Bar',
+        empty => undef,
+    },
+} ]
+
+#####################################################################
+# Indentation after empty hash value
+
+=== Indentation after empty hash value
+--- yaml
+---
+Test:
+  optmods:
+    Bad: 0
+    Foo: 1
+    Long: 0
+  version: 5
+Test_IncludeA:
+  optmods:
+Test_IncludeB:
+  optmods:
+_meta:
+  name: 'test profile'
+  note: 'note this test profile'
+--- perl
+[ {
+    Test => {
+        optmods => {
+            Bad => 0,
+            Foo => 1,
+            Long => 0,
+        },
+        version => 5,
+    },
+    Test_IncludeA => {
+        optmods => undef,
+    },
+    Test_IncludeB => {
+        optmods => undef,
+    },
+    _meta => {
+        name => 'test profile',
+        note => 'note this test profile',
+    },
+} ]
+
+
+#####################################################################
+# Spaces in the Key
+
+=== spaces in the key
+--- yaml
+---
+the key: the value
+--- perl
+[ { 'the key' => 'the value' } ]
+
 
 

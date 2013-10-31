@@ -86,3 +86,16 @@ m:      # comment '"!&@%`
     },
 ]
 --- noyamlpm
+
+####################################################################
+# Comment on the Document Line
+
+=== comment header
+--- yaml
+--- # Comment
+foo: bar
+--- perl
+[ { foo => 'bar' } ]
+--- noyamlpm
+
+

@@ -3,3 +3,51 @@
 \--- []
 --- perl
 [ [] ]
+
+#####################################################################
+# Empty Values and Premature EOF
+
+=== empty array keys
+--- yaml
+---
+- foo
+-
+-
+--- perl
+[ [ 'foo', undef, undef ] ]
+--- noyamlpm
+
+#####################################################################
+# Empty Quote Line
+
+=== empty quote line
+--- yaml
+---
+- foo
+\#
+- bar
+--- perl
+[ [ "foo", "bar" ] ]
+
+#####################################################################
+# Trailing Whitespace
+#
+=== trailing whitespace
+--- yaml
+---
+abstract: Generate fractal curves
+foo: ~
+arr:
+  # THESE LINES HAVE INTENTIONAL TRAILING WHITESPACE
+  - foo    
+  - ~     
+  - 'bar'     
+--- perl
+[ {
+    abstract => 'Generate fractal curves',
+    foo      => undef,
+    arr      => [ 'foo', undef, 'bar' ],
+} ]
+
+
+
