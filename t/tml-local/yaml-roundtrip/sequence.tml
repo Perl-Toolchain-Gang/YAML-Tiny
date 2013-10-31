@@ -4,6 +4,57 @@
 --- perl
 [ [] ]
 
+# Simple lists
+=== one_list1
+--- yaml
+---
+- foo
+
+--- perl
+[ [ 'foo' ] ]
+
+# Implicit document start
+=== implicit_array
+--- yaml
+- foo
+
+--- perl
+[ [ 'foo' ] ]
+
+
+
+=== one_list2
+--- yaml
+---
+- foo
+- bar
+
+--- perl
+[ [ 'foo', 'bar' ] ]
+
+
+=== one_listundef
+--- yaml
+---
+- ~
+- bar
+
+--- perl
+[ [ undef, 'bar' ] ]
+
+
+=== one_listundefs
+--- noyamlpm
+--- yaml
+---
+- ~
+-
+- 
+
+--- perl
+[ [ undef, undef, undef ] ]
+
+
 #####################################################################
 # Empty Values and Premature EOF
 

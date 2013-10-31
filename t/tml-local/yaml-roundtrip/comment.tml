@@ -99,3 +99,26 @@ foo: bar
 --- noyamlpm
 
 
+# Empty comments
+=== empty_comment_in_list
+--- yaml
+---
+- foo
+\#
+- bar
+
+--- perl
+[ [ 'foo', 'bar' ] ]
+
+
+=== empty_comment_in_hash
+--- yaml
+---
+foo: bar
+\# foo
+one: two
+
+--- perl
+[ { foo => 'bar', one => 'two' } ]
+
+

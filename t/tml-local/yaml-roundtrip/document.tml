@@ -141,3 +141,74 @@ foo: bar
 --- perl
 [ [ 'foo' ], [ 'foo' ] ]
 --- noyamlpm
+
+#####################################################################
+# Sample Testing
+
+# Test a completely empty document
+=== empty
+--- yaml
+--- perl
+[ ]
+
+
+# Just a newline
+### YAML.pm has a bug where it dies on a single newline
+=== only_newlines
+--- yaml
+\
+\
+--- perl
+[ ]
+
+
+# Just a comment
+=== only_comment
+--- yaml
+\# comment
+--- perl
+[ ]
+
+
+# Empty documents
+=== only_header
+--- yaml
+---
+
+--- perl
+[ undef ]
+
+
+=== two_header
+--- yaml
+---
+---
+
+--- perl
+[ undef, undef ]
+
+
+=== one_undef
+--- yaml
+--- ~
+
+--- perl
+[ undef ]
+
+
+=== one_undef2
+--- yaml
+---  ~
+--- perl
+[ undef ]
+
+
+=== two_undef
+--- yaml
+--- ~
+---
+
+--- perl
+[ undef, undef ]
+
+

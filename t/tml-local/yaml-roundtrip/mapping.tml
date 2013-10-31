@@ -4,6 +4,44 @@
 --- perl
 [ {} ]
 
+# Simple hashs
+=== one_hash1
+--- yaml
+---
+foo: bar
+
+--- perl
+[ { foo => 'bar' } ]
+
+
+=== one_hash2
+--- yaml
+---
+foo: bar
+this: ~
+
+--- perl
+[ { this => undef, foo => 'bar' } ]
+
+
+=== one_hash3
+--- yaml
+---
+-foo: bar
+
+--- perl
+[ { '-foo' => 'bar' } ]
+
+
+# Implicit document start
+=== implicit_hash
+--- yaml
+foo: bar
+
+--- perl
+[ { foo => 'bar' } ]
+
+
 
 # Make sure we support x-foo keys
 === x-foo key
@@ -119,5 +157,22 @@ the key: the value
 --- perl
 [ { 'the key' => 'the value' } ]
 
+
+# Complex keys
+=== key_with_whitespace
+--- yaml
+---
+a b: c d
+
+--- perl
+[ { 'a b' => 'c d' } ]
+
+=== quoted_empty_key
+--- yaml
+---
+'': foo
+
+--- perl
+[ { '' => 'foo' } ]
 
 

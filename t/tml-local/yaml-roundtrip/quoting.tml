@@ -5,6 +5,53 @@
 --- perl
 [ [ "" ] ]
 
+# Simple single quote
+=== single_quote1
+--- yaml
+---
+- 'foo'
+
+--- perl
+[ [ 'foo' ] ]
+
+
+=== single_spaces
+--- yaml
+---
+- '  '
+--- perl
+[ [ '  ' ] ]
+
+
+=== single_null
+--- yaml
+---
+- ''
+
+--- perl
+[ [ '' ] ]
+
+
+# Double quotes
+=== only_spaces
+--- noyamlpm
+--- yaml
+--- "  "
+
+--- perl
+[ '  ' ]
+
+
+=== leading_trailing_spaces
+--- noyamlpm
+--- yaml
+--- "  foo"
+--- "bar  "
+
+--- perl
+[ "  foo", "bar  " ]
+
+
 #####################################################################
 # Quote vs Hash
 

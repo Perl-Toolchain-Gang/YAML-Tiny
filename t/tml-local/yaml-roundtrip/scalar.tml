@@ -1,3 +1,29 @@
+# Just a scalar
+=== one_scalar
+--- yaml
+\--- foo
+
+--- perl
+[ 'foo' ]
+
+
+=== one_scalar2
+--- yaml
+\---  foo
+
+--- perl
+[ 'foo' ]
+
+
+=== two_scalar
+--- yaml
+\--- foo
+\--- bar
+
+--- perl
+[ 'foo', 'bar' ]
+
+
 #####################################################################
 # Support for literal multi-line scalars
 

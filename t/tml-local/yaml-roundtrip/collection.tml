@@ -42,6 +42,53 @@ bar: 1
 --- perl
 [  { foo => [], bar => 1 } ]
 
+# Simple array inside a hash with an undef
+=== array_in_hash
+--- yaml
+---
+foo:
+  - bar
+  - ~
+  - baz
+
+--- perl
+[ { foo => [ 'bar', undef, 'baz' ] } ]
+
+
+# Simple hash inside a hash with an undef
+=== hash_in_hash
+--- yaml
+---
+foo: ~
+bar:
+  foo: bar
+
+--- perl
+[ { foo => undef, bar => { foo => 'bar' } } ]
+
+
+# Mixed hash and scalars inside an array
+=== hash_in_array
+--- yaml
+---
+-
+  foo: ~
+  this: that
+- foo
+- ~
+-
+  foo: bar
+  this: that
+
+--- perl
+[ [
+    { foo => undef, this => 'that' },
+    'foo',
+    undef,
+    { foo => 'bar', this => 'that' },
+] ]
+
+
 ######################################################################
 # Non-Indenting Sub-List
 
@@ -56,6 +103,18 @@ bar: value
 --- noyamlpm
 
 
+
+# Inline nested hash
+=== inline_nested_hash
+--- yaml
+---
+- ~
+- foo: bar
+  this: that
+- baz
+
+--- perl
+[ [ undef, { foo => 'bar', this => 'that' }, 'baz' ] ]
 
 
 # RT 51491
