@@ -96,13 +96,14 @@ This program runs F<prove> against a set of F<.tml> files using their
 corresponding test bridge functions.
 
 Any arguments beginning with C<-> will be passed through to F<prove>.  All
-other arguments will be used as regular expression patterns to select F<.tml>
-files found anywhere under the F<t> directory.  You may need to protect patterns
-against from the shell.
+other arguments will be used as patterns to select F<.tml> files found anywhere
+under the F<t> directory.  You can use shell globbing syntax, and let the shell
+expand the patterns, or you can quote/escape the patterns and let them be
+treated as Perl regular expressions.
 
 For example:
 
-    t/tml unicode       # paths matching qr/uni/
+    t/tml unicode       # paths matching qr/unicode/
     t/tml basic uni     # paths matching qr/basic/ or qr/uni/
     t/tml 'local.*re'   # paths matching qr/local.*re/
     t/tml '\d+'         # paths matching qr/\d+/
