@@ -1,0 +1,9 @@
+# Make sure we support x-foo keys
+=== x-foo key
+--- yaml
+---
+x-foo: 1
+--- perl
+[ { 'x-foo' => 1 } ]
+
+
