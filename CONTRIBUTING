@@ -14,20 +14,16 @@ However, you can run tests directly using the 'prove' tool:
   $ prove -lv t/some_test_file.t
   $ prove -lvr t/
 
-For most distributions, 'prove' is entirely sufficent for you to test any
+In most cases, 'prove' is entirely sufficent for you to test any
 patches you have.
 
-You may need to satisfy some dependencies.  See the included META.json
-file for a list.  If you install App::mymeta_requires from CPAN, it's easy
-to satisfy any that you are missing by piping the output to your favorite
-CPAN client:
+You may need to satisfy some dependencies.  The easiest way to satisfy
+dependencies is to install the last release -- this is available at
+http::/metacpan.org/release/YAML-Tiny.
 
-  $ mymeta-requires | cpanm
-  $ cpan `mymeta-requires`
+If you use cpanminus, you can do it without downloading the tarball first:
 
-or if you use cpanminus, you can simply do:
-
-  $ cpanm --installdeps .
+  $ cpanm --reinstall --installdeps --with-recommends YAML-Tiny
 
 Dist::Zilla is a very powerful authoring tool, but requires a number of
 author-specific plugins.  If you would like to use it for contributing,
@@ -37,17 +33,23 @@ your CPAN client:
   $ cpan `dzil authordeps`
   $ dzil authordeps | cpanm
 
+You can also do this via cpanm directly:
+
+  $ cpanm --reinstall --installdeps --with-develop --with-recommends YAML-Tiny
+
 Once installed, here are some dzil commands you might try:
 
   $ dzil build
   $ dzil test
   $ dzil test --release
   $ dzil xtest
+  $ dzil listdeps --json
+  $ dzil build --not
 
 You can learn more about Dist::Zilla at http://dzil.org/.
 
 The code for this distribution is hosted at GitHub. The main repository is:
-https://github.com/Perl-Toolchain-Gang/YAML-Tiny.git.
+https://github.com/Perl-Toolchain-Gang/YAML-Tiny.
 You can submit code changes by forking the repository, pushing your code
 changes to your clone, and then submitting a pull request. Detailed
 instructions for doing that is available here:
@@ -62,5 +64,5 @@ or via bug-YAML-Tiny@rt.cpan.org.
 This is also a good place to send your questions about the usage of this distribution.
 
 
-This file was generated via Dist::Zilla::Plugin::GenerateFile::ShareDir 0.001 from a
-template file originating in Dist-Zilla-PluginBundle-Author-ETHER-0.030.
+This file was generated via Dist::Zilla::Plugin::GenerateFile::ShareDir 0.002 from a
+template file originating in Dist-Zilla-PluginBundle-Author-ETHER-0.034.
