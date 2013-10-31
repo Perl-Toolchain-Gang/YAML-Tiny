@@ -1,5 +1,11 @@
-# Make sure we support x-foo keys
+=== Empty mapping
+--- yaml
+\--- {}
+--- perl
+[ {} ]
+
 === x-foo key
+# Make sure we support x-foo keys
 --- yaml
 ---
 x-foo: 1

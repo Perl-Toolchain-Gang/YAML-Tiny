@@ -1,0 +1,5 @@
+=== Empty sequence
+--- yaml
+\--- []
+--- perl
+[ [] ]
