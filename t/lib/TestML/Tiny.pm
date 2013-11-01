@@ -1,4 +1,4 @@
-use 5.008003; use strict; use warnings;
+use 5.008001; use strict; use warnings;
 package TestML::Tiny;
 
 $TestML::Tiny::VERSION = 0.000001;
