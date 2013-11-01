@@ -32,7 +32,7 @@ subtest 'read_string as object method' => sub {
         "read_string object method"
     );
     isnt( $obj, $obj2, "objects are different" );
-    is_deeply( $obj, $obj2, "objects have same content" );
+    cmp_deeply( $obj, $obj2, "objects have same content" );
 };
 
 subtest 'invalid UTF-8' => sub {

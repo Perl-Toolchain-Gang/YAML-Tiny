@@ -59,7 +59,7 @@ for my $c ( @cases ) {
         is( $@, '', "no error caught" );
         SKIP : {
             skip "no data read", 1 unless $data;
-            is_deeply( $data, [ $c ],
+            cmp_deeply( $data, [ $c ],
                 "case $c->{label}: Perl -> File -> Perl roundtrip" );
         }
 
@@ -69,7 +69,7 @@ for my $c ( @cases ) {
         is( $@, '', "no error caught" );
         SKIP : {
             skip "no data read", 1 unless $data;
-            is_deeply( $data, [ $c ],
+            cmp_deeply( $data, [ $c ],
                 "case $c->{label}: Perl -> File -> Decoded -> Perl roundtrip" );
         }
 

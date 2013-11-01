@@ -134,8 +134,8 @@ sub test_yaml_roundtrip {
         SKIP: {
             skip( "Shortcutting after failure", 2 ) if $@;
             isa_ok( $got, 'YAML::Tiny' );
-            is_deeply( $got, $expected, "YAML::Tiny parses correctly" )
-                or diag "ERROR: $YAML::Tiny::errstr";
+            cmp_deeply( $got, $expected, "YAML::Tiny parses correctly" )
+                or diag "ERROR: $YAML::Tiny::errstr\n\nYAML:$yaml";
         }
 
         # Does the structure serialize to the string.
@@ -154,7 +154,7 @@ sub test_yaml_roundtrip {
             is( $@, '', "YAML::Tiny round-trips without error" );
             skip( "Shortcutting after failure", 2 ) if $@;
             isa_ok( $roundtrip, 'YAML::Tiny' );
-            is_deeply( $roundtrip, $expected, "YAML::Tiny round-trips correctly" );
+            cmp_deeply( $roundtrip, $expected, "YAML::Tiny round-trips correctly" );
 
             # Testing the serialization
             skip( "Shortcutting perfect serialization tests", 1 ) unless $options{serializes};
@@ -318,7 +318,7 @@ sub test_code_point {
         is $yny, $yaml, "YAML for code point $code YNY roundtrips";
 
         my $nyn = YAML::Tiny::Load(YAML::Tiny::Dump($data));
-        is_deeply $nyn, $data, "YAML for code point $code NYN roundtrips";
+        cmp_deeply( $nyn, $data, "YAML for code point $code NYN roundtrips" );
     }
 }
 

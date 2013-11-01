@@ -46,7 +46,7 @@ for my $key ( sort keys %passes ) {
         SKIP: {
             skip( "Shortcutting after failure", 2 ) if $@;
             isa_ok( $got, 'YAML::Tiny' );
-            is_deeply( $got, $case->{perl}, "YAML::Tiny parses correctly" );
+            cmp_deeply( $got, $case->{perl}, "YAML::Tiny parses correctly" );
         }
 
         if ( $case->{utf8} ) {
@@ -56,7 +56,7 @@ for my $key ( sort keys %passes ) {
         # test that read method on object is also a constructor
         ok( my $got2 = eval { $got->read( $file ) }, "read() object method");
         isnt( $got, $got2, "objects are different" );
-        is_deeply( $got, $got2, "objects have same content" );
+        cmp_deeply( $got, $got2, "objects have same content" );
     }
 }
 

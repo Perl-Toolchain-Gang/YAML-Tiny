@@ -19,7 +19,7 @@ use YAML::Tiny;
 
     my $yamldump = YAML::Tiny::Dump( $scalar, $arrayref, $hashref );
     my @yamldocsloaded = YAML::Tiny::Load($yamldump);
-    is_deeply(
+    cmp_deeply(
         [ @yamldocsloaded ],
         [ $scalar, $arrayref, $hashref ],
         "Functional interface: Dump to Load roundtrip works as expected"
@@ -39,7 +39,7 @@ use YAML::Tiny;
     ok($rv, "DumpFile returned true value");
 
     my @yamldocsloaded = YAML::Tiny::LoadFile($filename);
-    is_deeply(
+    cmp_deeply(
         [ @yamldocsloaded ],
         [ $scalar, $arrayref, $hashref ],
         "Functional interface: DumpFile to LoadFile roundtrip works as expected"
