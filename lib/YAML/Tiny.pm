@@ -154,6 +154,7 @@ sub read_string {
         @lines and $lines[0] =~ /^\%YAML[: ][\d\.]+.*\z/ and shift @lines;
 
         # A nibbling parser
+        my $in_document = 0;
         while ( @lines ) {
             # Do we have a document header?
             if ( $lines[0] =~ /^---\s*(?:(.+)\s*)?\z/ ) {
@@ -163,6 +164,7 @@ sub read_string {
                     push @$self, $self->_read_scalar( "$1", [ undef ], \@lines );
                     next;
                 }
+                $in_document = 1;
             }
 
             if ( ! @lines or $lines[0] =~ /^(?:---|\.\.\.)/ ) {
@@ -171,9 +173,13 @@ sub read_string {
                 while ( @lines and $lines[0] !~ /^---/ ) {
                     shift @lines;
                 }
+                $in_document = 0;
 
             # XXX The final '-+$' is to look for -- which ends up being an
             # error later.
+            } elsif ( ! $in_document && @$self ) {
+                # only the first document can be explicit
+                die \"YAML::Tiny failed to classify the line '$lines[0]'";
             } elsif ( $lines[0] =~ /^\s*\-(?:\s|$|-+$)/ ) {
                 # An array at the root
                 my $document = [ ];

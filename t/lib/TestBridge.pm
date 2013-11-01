@@ -35,6 +35,7 @@ my %ERROR = (
     E_CIRCULAR => qr{\QYAML::Tiny does not support circular references},
     E_FEATURE  => qr{\QYAML::Tiny does not support a feature},
     E_PLAIN    => qr{\QYAML::Tiny found illegal characters in plain scalar},
+    E_CLASSIFY => qr{\QYAML::Tiny failed to classify the line},
 );
 
 # use XXX -with => 'YAML::XS';
