@@ -51,6 +51,17 @@
 --- perl
 [ "  foo", "bar  " ]
 
+=== single quotes in double quotes
+--- yaml
+\--- "'foo'"
+--- perl
+[ "'foo'" ]
+
+=== double quotes in single quotes
+--- yaml
+\--- '"foo"'
+--- perl
+[ '"foo"' ]
 
 #####################################################################
 # Quote vs Hash
