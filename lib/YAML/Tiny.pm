@@ -1275,6 +1275,9 @@ Support for all five scalar styles is required as per the YAML
 specification, although support for quoted scalars spanning more
 than one line is B<not> required.
 
+Support for multi-line scalar documents starting on the header
+is not required.
+
 Support for the chomping indicators on multi-line scalar styles
 is required.
 

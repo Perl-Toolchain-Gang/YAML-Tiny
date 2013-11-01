@@ -44,3 +44,8 @@ foo: `perl -V`
 --
 --- error: E_PLAIN
 
+=== multi-line scalar document starting on header
+--- yaml
+\--- foo
+bar
+--- error: E_CLASSIFY
