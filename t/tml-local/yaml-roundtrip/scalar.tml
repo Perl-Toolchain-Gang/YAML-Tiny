@@ -1,26 +1,28 @@
+%PointMarker +++
+
 # Just a scalar
 === one_scalar
---- yaml
-\--- foo
++++ yaml
+--- foo
 
---- perl
++++ perl
 [ 'foo' ]
 
 
 === one_scalar2
---- yaml
-\---  foo
++++ yaml
+---  foo
 
---- perl
++++ perl
 [ 'foo' ]
 
 
 === two_scalar
---- yaml
-\--- foo
-\--- bar
++++ yaml
+--- foo
+--- bar
 
---- perl
++++ perl
 [ 'foo', 'bar' ]
 
 
@@ -29,36 +31,36 @@
 
 # Declarative multi-line scalar
 === simple_multiline
---- yaml
++++ yaml
 ---
   foo: >
      bar
      baz
---- perl
++++ perl
 [ { foo => "bar baz\n" } ]
 
 
 # Piped multi-line scalar
 === indented
---- yaml
++++ yaml
 ---
 - |
   foo
   bar
 - 1
---- perl
++++ perl
 [ [ "foo\nbar\n", 1 ] ]
 
 
 # ... with a pointless hyphen
 === indented
---- yaml
++++ yaml
 ---
 - |-
   foo
   bar
 - 1
---- perl
++++ perl
 [ [ "foo\nbar", 1 ] ]
 
 
@@ -66,28 +68,28 @@
 # Hitchhiker Scalar
 
 === hitchhiker scalar
---- yaml
-\--- 42
---- perl
++++ yaml
+--- 42
++++ perl
 [ 42 ]
---- serializes
++++ serializes
 
 #####################################################################
 # Newlines and tabs
 
 === special characters
---- yaml
++++ yaml
 foo: "foo\\\n\tbar"
---- perl
++++ perl
 [ { foo => "foo\\\n\tbar" } ]
 
 #####################################################################
 # Unprintable Characters
 
 === unprintable
---- yaml
++++ yaml
 --- "foo\n\x00"
---- perl
++++ perl
 [ "foo\n\0" ]
 
 #####################################################################
@@ -96,38 +98,38 @@ foo: "foo\\\n\tbar"
 # Tests a particular pathological case
 
 === Pathological >< case
---- yaml
++++ yaml
 ---
 - value
 - '><'
---- perl
++++ perl
 [ [ 'value', '><' ] ]
 
 #####################################################################
 # Special Characters
 
 === Special Characters
---- SKIP
++++ SKIP
 # Encoding failure
---- yaml
++++ yaml
 ---
 - "Ingy d\xC3\xB6t Net"
---- perl
++++ perl
 [ [ "Ingy d\xC3\xB6t Net" ] ]
 
 ######################################################################
 # Check illegal characters that are in legal places
 
 === Bang in a quote
---- yaml
++++ yaml
 --- 'Wow!'
---- perl
++++ perl
 [ "Wow!" ]
 
 
 === Ampersand in a quote
---- yaml
++++ yaml
 --- 'This&that'
---- perl
++++ perl
 [ "This&that" ]
 
