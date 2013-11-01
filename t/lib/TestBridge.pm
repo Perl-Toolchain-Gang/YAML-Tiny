@@ -27,6 +27,8 @@ our @EXPORT = qw{
     test_yaml_json
     test_code_point
     error_like
+    cmp_deeply
+    _testml_has_points
 };
 
 # regular expressions for checking error messages; incomplete, but more
@@ -333,6 +335,18 @@ sub error_like {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     like( YAML::Tiny->errstr, $regex, $label );
     $YAML::Tiny::errstr = ''; # reset it
+}
+
+#--------------------------------------------------------------------------#
+# cmp_deeply
+#
+# is_deeply with some better diagnostics
+#--------------------------------------------------------------------------#
+sub cmp_deeply {
+    my ($got, $want, $label) = @_;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    is_deeply( $got, $want, $label )
+        or diag "GOT:\n", explain($got), "\nWANTED:\n", explain($want);
 }
 
 1;
