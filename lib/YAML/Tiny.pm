@@ -966,15 +966,23 @@ Dies on any error.
 
 =head2 Load
 
-  my @documents = Load(string-containing-a-YAML-stream);
+  my @data_structures = Load(string-containing-a-YAML-stream);
 
 Turn YAML into Perl data. This is the opposite of Dump.
 
 Just like L<Storable>'s thaw() function or the eval() function in relation
 to L<Data::Dumper>.
 
-It parses a character string containing a valid YAML stream into a list of Perl data
-structures.  Be sure to decode it correctly if the string came from a file or socket.
+It parses a character string containing a valid YAML stream into a list of
+Perl data structures representing the individual YAML documents.  Be sure to
+decode the character string  correctly if the string came from a file or
+socket.
+
+  my $last_data_structure = Load(string-containing-a-YAML-stream);
+
+For consistency with YAML.pm, when Load is called in scalar context, it
+returns the data structure corresponding to the last of the YAML documents
+found in the input stream.
 
 Dies on any error.
 
