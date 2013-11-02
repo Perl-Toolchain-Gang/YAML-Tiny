@@ -552,7 +552,7 @@ sub _write_scalar {
         $string =~ s/\n/\\n/g;
         $string =~ s/[\x85]/\\N/g;
         $string =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
-        $string =~ s/([\x7f-\x9f])/'\x' . uc(unpack "H*", $1)/ge;
+        $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge;
         return qq|"$string"|;
     }
     if ( $string =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/ or $QUOTE{$string} ) {
