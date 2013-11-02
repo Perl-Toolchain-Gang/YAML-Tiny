@@ -45,7 +45,8 @@ for my $key ( sort keys %passes ) {
         is( $@, '', "YAML::Tiny reads without exception" );
         SKIP: {
             skip( "Shortcutting after failure", 2 ) if $@;
-            isa_ok( $got, 'YAML::Tiny' );
+            isa_ok( $got, 'YAML::Tiny' )
+                or diag "ERROR: " . YAML::Tiny->errstr;
             cmp_deeply( $got, $case->{perl}, "YAML::Tiny parses correctly" );
         }
 

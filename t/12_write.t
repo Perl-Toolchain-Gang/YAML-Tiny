@@ -51,11 +51,13 @@ for my $c ( @cases ) {
 
         # YAML::Tiny->write
         ok( YAML::Tiny->new($c)->write($tempfile),
-            "case $c->{label}: write $short_tempfile" );
+            "case $c->{label}: write $short_tempfile" )
+            or diag "ERROR: " . YAML::Tiny->errstr;
 
         # YAML::Tiny->read
         ok( $data = eval { YAML::Tiny->read( $tempfile ) },
-            "case $c->{label}: read $short_tempfile" );
+            "case $c->{label}: read $short_tempfile" )
+            or diag "ERROR: " . YAML::Tiny->errstr;
         is( $@, '', "no error caught" );
         SKIP : {
             skip "no data read", 1 unless $data;

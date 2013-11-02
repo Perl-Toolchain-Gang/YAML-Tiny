@@ -246,7 +246,8 @@ sub test_load_error {
         my $result = eval { YAML::Tiny->read_string( $yaml ) };
         is( $@, '', "read_string lives" );
         is( $result, undef, 'read_string returns undef' );
-        error_like( $expected, "Got expected error" );
+        error_like( $expected, "Got expected error" )
+            or diag "YAML:\n$yaml";
     };
 }
 
