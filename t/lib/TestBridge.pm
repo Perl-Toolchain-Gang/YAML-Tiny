@@ -334,8 +334,9 @@ sub error_like {
     my ($regex, $label) = @_;
     $label = "Got expected error" unless defined $label;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    like( YAML::Tiny->errstr, $regex, $label );
+    my $ok = like( YAML::Tiny->errstr, $regex, $label );
     $YAML::Tiny::errstr = ''; # reset it
+    return $ok;
 }
 
 #--------------------------------------------------------------------------#
