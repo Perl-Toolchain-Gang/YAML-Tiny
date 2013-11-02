@@ -62,7 +62,8 @@ my %RE = (
     # qr/\"((?:\\.|[^\"])*)\"/
     capture_double_quoted   => qr/\"([^\\"]*(?:\\.[^\\"]*)*)\"/,
     capture_single_quoted   => qr/\'([^\']*(?:\'\'[^\']*)*)\'/,
-    capture_unquoted_key    => qr/(.*?)(?=\s*\:(?:\s+|$))/,
+    # unquoted re gets trailing space that needs to be stripped
+    capture_unquoted_key    => qr/([^:]+(?::+\S[^:]*)*)(?=\s*\:(?:\s+|$))/,
     trailing_comment        => qr/(?:\s+\#.*)?/,
     key_value_separator     => qr/\s*:(?:\s+(?:\#.*)?|$)/,
 );
@@ -399,6 +400,7 @@ sub _read_hash {
         }
         elsif ( $lines->[0] =~ s/^\s*$RE{capture_unquoted_key}$RE{key_value_separator}// ) {
             $key = $1;
+            $key =~ s/\s+$//;
         }
         elsif ( $lines->[0] =~ /^\s*\?/ ) {
             die \"YAML::Tiny does not support a feature in line '$lines->[0]'";
