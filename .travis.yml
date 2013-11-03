@@ -14,3 +14,5 @@ notifications:
   irc:
     channels:
       - "irc.perl.org#yaml"
+    on_success: change
+    on_failure: always
