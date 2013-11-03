@@ -207,7 +207,7 @@ sub read_string {
     if ( ref $@ eq 'SCALAR' ) {
         return $self->_error(${$@});
     } elsif ( $@ ) {
-        $self->_error($@);
+        return $self->_error($@);
     }
 
     return $self;
@@ -530,7 +530,7 @@ sub write_string {
     if ( ref $@ eq 'SCALAR' ) {
         return $self->_error(${$@});
     } elsif ( $@ ) {
-        $self->_error($@);
+        return $self->_error($@);
     }
 
     join '', map { "$_\n" } @lines;
