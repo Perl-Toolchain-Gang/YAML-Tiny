@@ -238,7 +238,7 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
         return $self unless length $string;
 
         # Split the file into lines
-        my @lines = grep { ! /^\s*(?:\#.*)?\z/ }
+        my @lines = grep { ! /^\s*\#.*\z/ }
                 split /(?:\015{1,2}\012|\015|\012)/, $string;
 
         # Strip the initial YAML header
@@ -373,12 +373,24 @@ sub _load_scalar {
     while ( @$lines ) {
         $lines->[0] =~ /^(\s*)/;
         last unless length($1) >= $indent->[-1];
+
+        # Quit if we've hit a non-blank line with a shorter indent
+        last if (($lines->[0] ne '') && (length($1) < $indent->[-1]));
+
         push @multiline, substr(shift(@$lines), length($1));
     }
 
-    my $j = (substr($string, 0, 1) eq '>') ? ' ' : "\n";
-    my $t = (substr($string, 1, 1) eq '-') ? ''  : "\n";
-    return join( $j, @multiline ) . $t;
+    # fold vs. literal
+    my $j   = (substr($string, 0, 1) eq '>') ? ' ' : "\n";
+    my $str = join( $j, @multiline );
+
+    # chomp indicator
+    my $ind = substr($string, 1, 1);
+    if    ($ind eq '-') { $str =~ s/\n*\z//; }   # strip
+    elsif ($ind eq '+') { $str .= "\n" }         # keep
+    else                { $str =~ s/\n*\z/\n/; } # clip
+
+    return $str;
 }
 
 # Load an array
@@ -386,6 +398,12 @@ sub _load_array {
     my ($self, $array, $indent, $lines) = @_;
 
     while ( @$lines ) {
+        # Gobble blank lines
+        if ( $lines->[0] =~ /^\s*\z/ ) {
+            shift @$lines;
+            next;
+        }
+
         # Check for a new document
         if ( $lines->[0] =~ /^(?:---|\.\.\.)/ ) {
             while ( @$lines and $lines->[0] !~ /^---/ ) {
@@ -468,6 +486,12 @@ sub _load_hash {
     my ($self, $hash, $indent, $lines) = @_;
 
     while ( @$lines ) {
+        # Gobble blank lines
+        if ( $lines->[0] =~ /^\s*\z/ ) {
+            shift @$lines;
+            next;
+        }
+
         # Check for a new document
         if ( $lines->[0] =~ /^(?:---|\.\.\.)/ ) {
             while ( @$lines and $lines->[0] !~ /^---/ ) {
@@ -544,6 +568,11 @@ sub _load_hash {
                         $hash->{$key}, [ @$indent, length($1) ], $lines
                     );
                 }
+            }
+            else {
+                # Blank line, treat it like the end of an indented block;
+                # the top of the loop will gobble the line
+                $hash->{$key} = undef;
             }
         }
     }
