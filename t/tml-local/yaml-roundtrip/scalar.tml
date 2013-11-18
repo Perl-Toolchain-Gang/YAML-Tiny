@@ -64,6 +64,64 @@
 [ [ "foo\nbar", 1 ] ]
 
 
+# ... with embedded blank line
+=== block scalar with embedded blank line
++++ yaml
+---
+- |-
+  foo
+  
+  bar
+- 1
++++ perl
+[ [ "foo\n\nbar", 1 ] ]
+
+
+# ... with embedded and trailing blank lines (keep)
+=== block scalar keeps trailing blank lines
++++ yaml
+---
+- |+
+  foo
+  
+  bar
+  
+  
+- 1
++++ perl
+[ [ "foo\n\nbar\n\n\n", 1 ] ]
+
+
+# ... with embedded and trailing blank lines (clip)
+=== block scalar clips trailing blank lines
++++ yaml
+---
+- |
+  foo
+  
+  bar
+  
+  
+- 1
++++ perl
+[ [ "foo\n\nbar\n", 1 ] ]
+
+
+# ... with embedded and trailing blank lines (strip)
+=== block scalar strips trailing blank lines
++++ yaml
+---
+- |-
+  foo
+  
+  bar
+
+
+- 1
++++ perl
+[ [ "foo\n\nbar", 1 ] ]
+
+
 #####################################################################
 # Hitchhiker Scalar
 
