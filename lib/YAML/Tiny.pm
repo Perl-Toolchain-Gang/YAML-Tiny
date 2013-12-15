@@ -77,9 +77,6 @@ sub new {
     bless [ @_ ], $class;
 }
 
-# Return all documents
-sub documents { return @{$_[0]} }
-
 # Create an object from a file
 sub read {
     my $class = ref $_[0] ? ref shift : shift;
@@ -796,8 +793,8 @@ Read and write F<file.yml> like this:
     # Open the config
     my $yaml = YAML::Tiny->read( 'file.yml' );
 
-    # Get a reference to the document
-    my ($config) = $yaml->documents;
+    # Get a reference to the first document
+    my $config = $yaml->[0];
 
     # Or read properties directly
     my $root = $yaml->[0]->{rootproperty};
@@ -884,14 +881,6 @@ structure to file and back again just fine.
 The constructor C<new> creates a C<YAML::Tiny> object as a blessed array
 reference.  Any arguments provided are taken as separate documents
 to be serialized.
-
-=head2 documents
-
-    my @docs = $yaml->documents;
-    my $count = $yaml->documents;
-
-In list context, returns all documents contained in the object (i.e. a list of
-Perl scalars or references).  In scalar context, returns the count of documents.
 
 =head2 read $filename
 
