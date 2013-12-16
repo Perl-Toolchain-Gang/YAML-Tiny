@@ -76,7 +76,6 @@ for my $key ( sort keys %errors ) {
         ok( -f $file, "Found $key" );
 
         my $result = eval { YAML::Tiny->read( $file ) };
-        is( $@, '', "YAML::Tiny reads without exception" );
         ok( !$result, "returned false" );
         error_like( $errors{$key}, "Got expected error" );
     };

@@ -17,7 +17,6 @@ use File::Temp qw/tempfile/;
 subtest 'no filename for write()' => sub {
     my $obj = YAML::Tiny->new();
     eval { $obj->write(); };
-    is( $@, '', "YAML::Tiny writes without exception" );
     error_like( qr/You did not specify a file name/,
         "No filename provided to write()"
     );

@@ -639,13 +639,18 @@ sub _write_hash {
 
 # Set error
 sub _error {
+    require Carp;
     $errstr = $_[1];
     $errstr =~ s/ at \S+ line \d+.*//;
-    undef;
+    Carp::croak( $errstr );
 }
 
 # Retrieve error
+my $errstr_warned;
 sub errstr {
+    require Carp;
+    Carp::carp( "YAML::Tiny->errstr and \$YAML::Tiny::errstr is deprecated" )
+        unless $errstr_warned++;
     $errstr;
 }
 
@@ -658,19 +663,11 @@ sub errstr {
 
 sub Dump {
     my $string = YAML::Tiny->new(@_)->write_string;
-    unless ( defined $string ) {
-        require Carp;
-        Carp::croak("Failed to dump data to YAML string: $errstr");
-    }
     return $string;
 }
 
 sub Load {
     my $self = YAML::Tiny->read_string(@_);
-    unless ( $self ) {
-        require Carp;
-        Carp::croak("Failed to load YAML document from string: $errstr");
-    }
     if ( wantarray ) {
         return @$self;
     } else {
@@ -686,20 +683,12 @@ BEGIN {
 
 sub DumpFile {
     my $file = shift;
-    unless ( YAML::Tiny->new(@_)->write($file) ) {
-        require Carp;
-        Carp::croak("Failed to dump data to file '$file': $errstr");
-    }
-    return 1;
+    return YAML::Tiny->new(@_)->write($file);
 }
 
 sub LoadFile {
     my $file = shift;
     my $self = YAML::Tiny->read($file);
-    unless ( $self ) {
-        require Carp;
-        Carp::croak("Failed to load YAML document from file '$file': $errstr");
-    }
     if ( wantarray ) {
         return @$self;
     } else {
@@ -887,13 +876,7 @@ to be serialized.
 The C<read> constructor reads a YAML file from a file name,
 and returns a new C<YAML::Tiny> object containing the parsed content.
 
-Returns the object on success, or C<undef> on error.
-
-When C<read> fails, C<YAML::Tiny> sets an error message internally
-you can recover via C<< YAML::Tiny->errstr >>. Although in B<some>
-cases a failed C<read> will also set the operating system error
-variable C<$!>, not all errors do and you should not rely on using
-the C<$!> variable.
+Returns the object on success or throws an error on failure.
 
 =head2 read_string $string;
 
@@ -902,16 +885,14 @@ returns a new C<YAML::Tiny> object containing the parsed content.  If you have
 read the string from a file yourself, be sure that you have correctly decoded
 it into characters first.
 
-Returns the object on success, or C<undef> on error.
-Use C<< YAML::Tiny->errstr> >> for error details.
+Returns the object on success or throws an error on failure.
 
 =head2 write $filename
 
 The C<write> method generates the file content for the properties, and
 writes it to disk using UTF-8 encoding to the filename specified.
 
-Returns true on success or C<undef> on error.
-Use C<< YAML::Tiny->errstr> >> for error details.
+Returns true on success or throws an error on failure.
 
 =head2 write_string
 
@@ -919,15 +900,21 @@ Generates the file content for the object and returns it as a character
 string.  This may contain non-ASCII characters and should be encoded
 before writing it to a file.
 
-Returns true on success or C<undef> on error.
-Use C<< YAML::Tiny->errstr> >> for error details.
+Returns true on success or throws an error on failure.
 
 =for stopwords errstr
 
-=head2 errstr
+=head2 errstr (DEPRECATED)
 
-When an error occurs, you can retrieve the error message either from the
-C<$YAML::Tiny::errstr> variable, or using the C<errstr()> method.
+Prior to version 1.57, some errors were fatal and others were available only
+via the C<$YAML::Tiny::errstr> variable, which could be accessed via the
+C<errstr()> method.
+
+Starting with version 1.57, all errors are fatal and throw exceptions.
+
+The C<$errstr> variable is still set when exceptions are thrown, but C<$errstr>
+and the C<errstr()> method are deprecated and may be removed in a future
+release.  The first use of C<errstr()> will issue a deprecation warning.
 
 =head1 FUNCTIONS
 

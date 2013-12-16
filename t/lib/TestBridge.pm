@@ -217,7 +217,6 @@ sub test_dump_error {
 
     subtest $label, sub {
         my $result = eval { YAML::Tiny->new( @$input )->write_string };
-        is( $@, '', "write_string lives" );
         ok( !$result, "returned false" );
         error_like( $expected, "Got expected error" );
     };
@@ -244,7 +243,6 @@ sub test_load_error {
 
     subtest $label, sub {
         my $result = eval { YAML::Tiny->read_string( $yaml ) };
-        is( $@, '', "read_string lives" );
         is( $result, undef, 'read_string returns undef' );
         error_like( $expected, "Got expected error" )
             or diag "YAML:\n$yaml";
@@ -334,8 +332,7 @@ sub error_like {
     my ($regex, $label) = @_;
     $label = "Got expected error" unless defined $label;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    my $ok = like( YAML::Tiny->errstr, $regex, $label );
-    $YAML::Tiny::errstr = ''; # reset it
+    my $ok = like( $@, $regex, $label );
     return $ok;
 }
 
