@@ -906,10 +906,15 @@ Returns true on success or throws an error on failure.
 
 =head2 errstr (DEPRECATED)
 
-Prior to version 1.57, errors were not fatal but were available either from the
-C<$YAML::Tiny::errstr> variable, or using the C<errstr()> method.  The variable
-is still set when errors are thrown, but C<$errstr> and the C<errstr()> method
-are deprecated and may be removed in a future release.
+Prior to version 1.57, some errors were fatal and others were available only
+via the C<$YAML::Tiny::errstr> variable, which could be accessed via the
+C<errstr()> method.
+
+Starting with version 1.57, all errors are fatal and throw exceptions.
+
+The C<$errstr> variable is still set when exceptions are thrown, but C<$errstr>
+and the C<errstr()> method are deprecated and may be removed in a future
+release.  The first use of C<errstr()> will issue a deprecation warning.
 
 =head1 FUNCTIONS
 
