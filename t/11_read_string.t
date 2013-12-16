@@ -23,7 +23,7 @@ subtest 'read_string without arg' => sub {
 subtest 'YAML without newline' => sub {
     my $str = join("\n" => ('---', '- foo', '---', '- bar', '---'));
     my $obj = eval { YAML::Tiny->read_string($str); };
-    is( YAML::Tiny->errstr, '', "YAML without newline is OK");
+    is( $@, '', "YAML without newline is OK");
 };
 
 subtest 'read_string as object method' => sub {
