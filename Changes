@@ -4,8 +4,10 @@ Revision history for {{$dist->name}}
 
         [INCOMPATIBLE CHANGE]
 
-          - All errors now throw exceptions.  Use of $errstr and the
-            errstr method are deprecated. (David Golden)
+          - Previously, some errors would throw exceptions and some would
+            return the error condition in $YAML::Tiny::errstr.  Now all
+            errors throw exceptions.  Use of $errstr and the errstr method
+            are deprecated. (David Golden)
 
         [ADDED]
 
