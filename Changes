@@ -1,9 +1,26 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
-          - fix write method to encode YAML file with UTF-8 (David Golden)
-          - add write_utf8_string method (David Golden)
-          - improved SYNOPSIS and documentation of new (David Golden)
+
+        [INCOMPATIBLE CHANGE]
+
+          - All errors now throw exceptions.  Use of $errstr and the
+            errstr method are deprecated. (David Golden)
+
+        [ADDED]
+
+          - Added write_utf8_string method (David Golden)
+
+        [FIXED]
+
+          - Fixed write method to encode YAML file with UTF-8 (David Golden)
+          - Improved SYNOPSIS and documentation of new (David Golden)
+
+        [TESTING]
+
+          - Tests have been cleaned up and reorganized.  Test coverage
+            has been significnatly improved. (Ingy döt Net, David Golden,
+            Jim Keenan, Karen Etheridge)
 
 1.56      2013-09-25 02:38:19Z (Karen Etheridge)
           - read_string documentation error fixed (RT#74409, thanks Tim Heaney!)
