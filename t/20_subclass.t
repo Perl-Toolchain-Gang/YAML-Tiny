@@ -14,6 +14,7 @@ use File::Spec::Functions ':ALL';
 
 SCOPE: {
     package Foo;
+    use XXX;
 
     use YAML::Tiny;
 
@@ -22,7 +23,11 @@ SCOPE: {
         @ISA = 'YAML::Tiny';
     }
 
-    sub _write_scalar {
+    # XXX-INGY subclasses should not use private methods… or if they
+    # do they should expect method name changes.
+    # sub _write_scalar {
+
+    sub _dump_scalar {
         my $self   = shift;
         my $string = shift;
         my $indent = shift;

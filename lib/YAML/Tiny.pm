@@ -23,12 +23,12 @@ our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
 # Functional/Export API:
 
 sub Dump {
-    my $string = YAML::Tiny->new(@_)->_write_string;
+    my $string = YAML::Tiny->new(@_)->_dump_string;
     return $string;
 }
 
 sub Load {
-    my $self = YAML::Tiny->_read_string(@_);
+    my $self = YAML::Tiny->_load_string(@_);
     if ( wantarray ) {
         return @$self;
     } else {
@@ -45,12 +45,12 @@ BEGIN {
 
 sub DumpFile {
     my $file = shift;
-    return YAML::Tiny->new(@_)->_write_file($file);
+    return YAML::Tiny->new(@_)->_dump_file($file);
 }
 
 sub LoadFile {
     my $file = shift;
-    my $self = YAML::Tiny->_read_file($file);
+    my $self = YAML::Tiny->_load_file($file);
     if ( wantarray ) {
         return @$self;
     } else {
@@ -58,7 +58,6 @@ sub LoadFile {
         return $self->[-1];
     }
 }
-
 
 
 ###
@@ -83,22 +82,22 @@ sub new {
 
 sub read_string {
     my $self = shift;
-    $self->_read_string(@_);
+    $self->_load_string(@_);
 }
 
 sub write_string {
     my $self = shift;
-    $self->_write_string(@_);
+    $self->_dump_string(@_);
 }
 
 sub read {
     my $self = shift;
-    $self->_read_file(@_);
+    $self->_load_file(@_);
 }
 
 sub write {
     my $self = shift;
-    $self->_write_file(@_);
+    $self->_dump_file(@_);
 }
 
 
@@ -155,8 +154,12 @@ my $re_key_value_separator   = qr/\s*:(?:\s+(?:\#.*)?|$)/;
 # These are the private methods that do all the work. They may change
 # at any time.
 
+
+###
+# Loader functions:
+
 # Create an object from a file
-sub _read_file {
+sub _load_file {
     my $class = ref $_[0] ? ref shift : shift;
 
     # Check the file
@@ -192,11 +195,11 @@ sub _read_file {
         $class->_error("Failed to close file '$file': $!");
     }
 
-    $class->_read_string( $contents );
+    $class->_load_string( $contents );
 }
 
 # Create an object from a string
-sub _read_string {
+sub _load_string {
     my $class  = ref $_[0] ? ref shift : shift;
     my $self   = bless [], $class;
     my $string = $_[0];
@@ -237,7 +240,7 @@ sub _read_string {
                 # Handle scalar documents
                 shift @lines;
                 if ( defined $1 and $1 !~ /^(?:\#.+|\%YAML[: ][\d\.]+)\z/ ) {
-                    push @$self, $self->_read_scalar( "$1", [ undef ], \@lines );
+                    push @$self, $self->_load_scalar( "$1", [ undef ], \@lines );
                     next;
                 }
                 $in_document = 1;
@@ -260,13 +263,13 @@ sub _read_string {
                 # An array at the root
                 my $document = [ ];
                 push @$self, $document;
-                $self->_read_array( $document, [ 0 ], \@lines );
+                $self->_load_array( $document, [ 0 ], \@lines );
 
             } elsif ( $lines[0] =~ /^(\s*)\S/ ) {
                 # A hash at the root
                 my $document = { };
                 push @$self, $document;
-                $self->_read_hash( $document, [ length($1) ], \@lines );
+                $self->_load_hash( $document, [ length($1) ], \@lines );
 
             } else {
                 # Shouldn't get here.  @lines have whitespace-only lines
@@ -304,7 +307,7 @@ sub _unquote_double {
 }
 
 # Deparse a scalar string to the actual scalar
-sub _read_scalar {
+sub _load_scalar {
     my ($self, $string, $indent, $lines) = @_;
 
     # Trim trailing whitespace
@@ -367,7 +370,7 @@ sub _read_scalar {
 }
 
 # Parse an array
-sub _read_array {
+sub _load_array {
     my ($self, $array, $indent, $lines) = @_;
 
     while ( @$lines ) {
@@ -392,7 +395,7 @@ sub _read_array {
             my $indent2 = length("$1");
             $lines->[0] =~ s/-/ /;
             push @$array, { };
-            $self->_read_hash( $array->[-1], [ @$indent, $indent2 ], $lines );
+            $self->_load_hash( $array->[-1], [ @$indent, $indent2 ], $lines );
 
         } elsif ( $lines->[0] =~ /^\s*\-\s*\z/ ) {
             shift @$lines;
@@ -408,12 +411,12 @@ sub _read_array {
                 } else {
                     # Naked indenter
                     push @$array, [ ];
-                    $self->_read_array( $array->[-1], [ @$indent, $indent2 ], $lines );
+                    $self->_load_array( $array->[-1], [ @$indent, $indent2 ], $lines );
                 }
 
             } elsif ( $lines->[0] =~ /^(\s*)\S/ ) {
                 push @$array, { };
-                $self->_read_hash( $array->[-1], [ @$indent, length("$1") ], $lines );
+                $self->_load_hash( $array->[-1], [ @$indent, length("$1") ], $lines );
 
             } else {
                 die \"YAML::Tiny failed to classify line '$lines->[0]'";
@@ -422,7 +425,7 @@ sub _read_array {
         } elsif ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*\z/ ) {
             # Array entry with a value
             shift @$lines;
-            push @$array, $self->_read_scalar( "$2", [ @$indent, undef ], $lines );
+            push @$array, $self->_load_scalar( "$2", [ @$indent, undef ], $lines );
 
         } elsif ( defined $indent->[-2] and $indent->[-1] == $indent->[-2] ) {
             # This is probably a structure like the following...
@@ -443,7 +446,7 @@ sub _read_array {
 }
 
 # Parse a hash
-sub _read_hash {
+sub _load_hash {
     my ($self, $hash, $indent, $lines) = @_;
 
     while ( @$lines ) {
@@ -487,7 +490,7 @@ sub _read_hash {
         # Do we have a value?
         if ( length $lines->[0] ) {
             # Yes
-            $hash->{$key} = $self->_read_scalar( shift(@$lines), [ @$indent, undef ], $lines );
+            $hash->{$key} = $self->_load_scalar( shift(@$lines), [ @$indent, undef ], $lines );
         } else {
             # An indent
             shift @$lines;
@@ -497,7 +500,7 @@ sub _read_hash {
             }
             if ( $lines->[0] =~ /^(\s*)-/ ) {
                 $hash->{$key} = [];
-                $self->_read_array( $hash->{$key}, [ @$indent, length($1) ], $lines );
+                $self->_load_array( $hash->{$key}, [ @$indent, length($1) ], $lines );
             } elsif ( $lines->[0] =~ /^(\s*)./ ) {
                 my $indent2 = length("$1");
                 if ( $indent->[-1] >= $indent2 ) {
@@ -505,7 +508,7 @@ sub _read_hash {
                     $hash->{$key} = undef;
                 } else {
                     $hash->{$key} = {};
-                    $self->_read_hash( $hash->{$key}, [ @$indent, length($1) ], $lines );
+                    $self->_load_hash( $hash->{$key}, [ @$indent, length($1) ], $lines );
                 }
             }
         }
@@ -514,8 +517,12 @@ sub _read_hash {
     return 1;
 }
 
+
+###
+# Dumper functions:
+
 # Save an object to a file
-sub _write_file {
+sub _dump_file {
     my $self = shift;
 
     require Fcntl;
@@ -548,7 +555,7 @@ sub _write_file {
     }
 
     # serialize and spew to the handle
-    print {$fh} $self->_write_string;
+    print {$fh} $self->_dump_string;
 
     # close the file (release the lock)
     unless ( close $fh ) {
@@ -559,7 +566,7 @@ sub _write_file {
 }
 
 # Save an object to a string
-sub _write_string {
+sub _dump_string {
     my $self = shift;
     return '' unless ref $self && @$self;
 
@@ -579,7 +586,7 @@ sub _write_string {
 
             # A scalar document
             } elsif ( ! ref $cursor ) {
-                $lines[-1] .= ' ' . $self->_write_scalar( $cursor, $indent );
+                $lines[-1] .= ' ' . $self->_dump_scalar( $cursor, $indent );
 
             # A list at the root
             } elsif ( ref $cursor eq 'ARRAY' ) {
@@ -587,7 +594,7 @@ sub _write_string {
                     $lines[-1] .= ' []';
                     next;
                 }
-                push @lines, $self->_write_array( $cursor, $indent, {} );
+                push @lines, $self->_dump_array( $cursor, $indent, {} );
 
             # A hash at the root
             } elsif ( ref $cursor eq 'HASH' ) {
@@ -595,7 +602,7 @@ sub _write_string {
                     $lines[-1] .= ' {}';
                     next;
                 }
-                push @lines, $self->_write_hash( $cursor, $indent, {} );
+                push @lines, $self->_dump_hash( $cursor, $indent, {} );
 
             } else {
                 die \("Cannot serialize " . ref($cursor));
@@ -611,7 +618,7 @@ sub _write_string {
     join '', map { "$_\n" } @lines;
 }
 
-sub _write_scalar {
+sub _dump_scalar {
     my $string = $_[1];
     return '~'  unless defined $string;
     return "''" unless length  $string;
@@ -635,7 +642,7 @@ sub _write_scalar {
     return $string;
 }
 
-sub _write_array {
+sub _dump_array {
     my ($self, $array, $indent, $seen) = @_;
     if ( $seen->{refaddr($array)}++ ) {
         die \"YAML::Tiny does not support circular references";
@@ -645,13 +652,13 @@ sub _write_array {
         my $line = ('  ' x $indent) . '-';
         my $type = ref $el;
         if ( ! $type ) {
-            $line .= ' ' . $self->_write_scalar( $el, $indent + 1 );
+            $line .= ' ' . $self->_dump_scalar( $el, $indent + 1 );
             push @lines, $line;
 
         } elsif ( $type eq 'ARRAY' ) {
             if ( @$el ) {
                 push @lines, $line;
-                push @lines, $self->_write_array( $el, $indent + 1, $seen );
+                push @lines, $self->_dump_array( $el, $indent + 1, $seen );
             } else {
                 $line .= ' []';
                 push @lines, $line;
@@ -660,7 +667,7 @@ sub _write_array {
         } elsif ( $type eq 'HASH' ) {
             if ( keys %$el ) {
                 push @lines, $line;
-                push @lines, $self->_write_hash( $el, $indent + 1, $seen );
+                push @lines, $self->_dump_hash( $el, $indent + 1, $seen );
             } else {
                 $line .= ' {}';
                 push @lines, $line;
@@ -674,7 +681,7 @@ sub _write_array {
     @lines;
 }
 
-sub _write_hash {
+sub _dump_hash {
     my ($self, $hash, $indent, $seen) = @_;
     if ( $seen->{refaddr($hash)}++ ) {
         die \"YAML::Tiny does not support circular references";
@@ -682,16 +689,16 @@ sub _write_hash {
     my @lines  = ();
     foreach my $name ( sort keys %$hash ) {
         my $el   = $hash->{$name};
-        my $line = ('  ' x $indent) . $self->_write_scalar($name) . ":";
+        my $line = ('  ' x $indent) . $self->_dump_scalar($name) . ":";
         my $type = ref $el;
         if ( ! $type ) {
-            $line .= ' ' . $self->_write_scalar( $el, $indent + 1 );
+            $line .= ' ' . $self->_dump_scalar( $el, $indent + 1 );
             push @lines, $line;
 
         } elsif ( $type eq 'ARRAY' ) {
             if ( @$el ) {
                 push @lines, $line;
-                push @lines, $self->_write_array( $el, $indent + 1, $seen );
+                push @lines, $self->_dump_array( $el, $indent + 1, $seen );
             } else {
                 $line .= ' []';
                 push @lines, $line;
@@ -700,7 +707,7 @@ sub _write_hash {
         } elsif ( $type eq 'HASH' ) {
             if ( keys %$el ) {
                 push @lines, $line;
-                push @lines, $self->_write_hash( $el, $indent + 1, $seen );
+                push @lines, $self->_dump_hash( $el, $indent + 1, $seen );
             } else {
                 $line .= ' {}';
                 push @lines, $line;
@@ -716,6 +723,8 @@ sub _write_hash {
 
 
 
+#####################################################################
+# DEPRECATED API methods:
 
 # Error storage (DEPRECATED as of 1.57)
 our $errstr    = '';
@@ -739,6 +748,9 @@ sub errstr {
 
 
 
+
+#####################################################################
+# Helper functions. Possibly not needed.
 
 
 # XXX Use to detect nv or iv for now. Find something better (Ingy).
@@ -791,6 +803,9 @@ END_PERL
         *refaddr = *Scalar::Util::refaddr;
     }
 }
+
+
+
 
 1;
 
