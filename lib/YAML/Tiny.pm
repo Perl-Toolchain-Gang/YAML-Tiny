@@ -1,16 +1,25 @@
 package YAML::Tiny;
+# XXX-INGY is this too old/broken for utf8?
 use 5.008001; # sane UTF-8 support
 use strict;
 use warnings;
 
+
+# Devel/Debug:
+# use XXX -with => 'YAML::XS';
+
+
+
 use Exporter;
 our @ISA       = qw{ Exporter  };
 our @EXPORT    = qw{ Load Dump };
+#XXX-INGY Do we really need freeze and thaw?
 our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
 
 # XXX Use to detect nv or iv for now. Find something better (Ingy).
 use Data::Dumper;
 
+# XXX-INGY Is flock YAML::Tiny's responsibility?
 # Some platforms can't flock :-(
 my $HAS_FLOCK;
 sub _can_flock {
@@ -43,7 +52,12 @@ my %UNESCAPES = (
     r => "\x0d", e => "\x1b", '\\' => '\\',
 );
 
-# Special magic boolean words
+# XXX-INGY
+# I(ngy) need to decide if these values should be quoted in
+# YAML::Tiny or not. Probably yes.
+#
+# These 3 values have special meaning when unquoted and using the
+# default YAML schema. They need quotes if they are strings.
 my %QUOTE = map { $_ => 1 } qw{
     null true false
 };
@@ -63,10 +77,19 @@ my $re_key_value_separator   = qr/\s*:(?:\s+(?:\#.*)?|$)/;
 # Implementation
 
 # Create an empty YAML::Tiny object
+# XXX-INGY Why do we use ARRAY object?
 sub new {
     my $class = shift;
     bless [ @_ ], $class;
 }
+
+# XXX-INGY It probably doesn't matter, and it's probably too late to
+# change, but 'read/write' are the wrong names. Read and Write
+# are actions that take data from storage to memory
+# characters/strings. These take the data from storage to native
+# Perl objects, which the terms dump and load are meant. As long as
+# this is a legacy quirk to YAML::Tiny it's ok, but I'd prefer not
+# to add new {read,write}_* methods to this API.
 
 # Create an object from a file
 sub read {
@@ -524,7 +547,6 @@ sub write_string {
     join '', map { "$_\n" } @lines;
 }
 
-# use XXX -with => 'YAML::XS';
 sub _write_scalar {
     my $string = $_[1];
     return '~'  unless defined $string;
@@ -628,6 +650,9 @@ sub _write_hash {
     @lines;
 }
 
+
+
+
 # Error storage (DEPRECATED as of 1.57)
 our $errstr    = '';
 
@@ -695,6 +720,7 @@ sub LoadFile {
 
 
 
+# XXX-INGY Is this core in 5.8.1? Can we remove this?
 #####################################################################
 # Use Scalar::Util if possible, otherwise emulate it
 
