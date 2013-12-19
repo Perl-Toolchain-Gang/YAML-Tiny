@@ -26,10 +26,6 @@ sub _can_flock {
     }
 }
 
-# The character class of all characters we need to escape
-# NOTE: Inlined, since it's only used once
-# my $RE_ESCAPE = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f\"\n]';
-
 # Printed form of the unprintable characters in the lowest range
 # of ASCII characters, listed by ASCII ordinal position.
 my @UNPRINTABLE = qw(
