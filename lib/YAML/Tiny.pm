@@ -11,9 +11,6 @@ our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
 # XXX Use to detect nv or iv for now. Find something better (Ingy).
 use Data::Dumper;
 
-# Error storage
-our $errstr    = '';
-
 # Some platforms can't flock :-(
 my $HAS_FLOCK;
 sub _can_flock {
@@ -636,6 +633,9 @@ sub _write_hash {
 
     @lines;
 }
+
+# Error storage (DEPRECATED as of 1.57)
+our $errstr    = '';
 
 # Set error
 sub _error {
