@@ -73,15 +73,15 @@ sub read {
     my $class = ref $_[0] ? ref shift : shift;
 
     # Check the file
-    my $file = shift or return $class->_error( 'You did not specify a file name' );
-    return $class->_error( "File '$file' does not exist" )              unless -e $file;
-    return $class->_error( "'$file' is a directory, not a file" )       unless -f _;
-    return $class->_error( "Insufficient permissions to read '$file'" ) unless -r _;
+    my $file = shift or $class->_error( 'You did not specify a file name' );
+    $class->_error( "File '$file' does not exist" )              unless -e $file;
+    $class->_error( "'$file' is a directory, not a file" )       unless -f _;
+    $class->_error( "Insufficient permissions to read '$file'" ) unless -r _;
 
     # Open unbuffered with strict UTF-8 decoding and no translation layers
     open( my $fh, "<:unix:encoding(UTF-8)", $file );
     unless ( $fh ) {
-        return $class->_error("Failed to open file '$file': $!");
+        $class->_error("Failed to open file '$file': $!");
     }
 
     # flock if available (or warn if not possible for OS-specific reasons)
@@ -97,12 +97,12 @@ sub read {
         <$fh>
     };
     if ( my $err = $@ ) {
-        return $class->_error("Error reading from file '$file': $err");
+        $class->_error("Error reading from file '$file': $err");
     }
 
     # close the file (release the lock)
     unless ( close $fh ) {
-        return $class->_error("Failed to close file '$file': $!");
+        $class->_error("Failed to close file '$file': $!");
     }
 
     $class->read_string( $contents );
@@ -193,9 +193,9 @@ sub read_string {
         }
     };
     if ( ref $@ eq 'SCALAR' ) {
-        return $self->_error(${$@});
+        $self->_error(${$@});
     } elsif ( $@ ) {
-        return $self->_error($@);
+        $self->_error($@);
     }
 
     return $self;
@@ -434,7 +434,7 @@ sub write {
     require Fcntl;
 
     # Check the file
-    my $file = shift or return $self->_error( 'You did not specify a file name' );
+    my $file = shift or $self->_error( 'You did not specify a file name' );
 
     my $fh;
     # flock if available (or warn if not possible for OS-specific reasons)
@@ -443,7 +443,7 @@ sub write {
         my $flags = Fcntl::O_WRONLY()|Fcntl::O_CREAT();
         sysopen( $fh, $file, $flags );
         unless ( $fh ) {
-            return $self->_error("Failed to open file '$file' for writing: $!");
+            $self->_error("Failed to open file '$file' for writing: $!");
         }
 
         # Use no translation and strict UTF-8
@@ -465,7 +465,7 @@ sub write {
 
     # close the file (release the lock)
     unless ( close $fh ) {
-        return $self->_error("Failed to close file '$file': $!");
+        $self->_error("Failed to close file '$file': $!");
     }
 
     return 1;
@@ -516,9 +516,9 @@ sub write_string {
         }
     };
     if ( ref $@ eq 'SCALAR' ) {
-        return $self->_error(${$@});
+        $self->_error(${$@});
     } elsif ( $@ ) {
-        return $self->_error($@);
+        $self->_error($@);
     }
 
     join '', map { "$_\n" } @lines;
