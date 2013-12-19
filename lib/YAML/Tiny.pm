@@ -16,25 +16,6 @@ our @EXPORT    = qw{ Load Dump };
 #XXX-INGY Do we really need freeze and thaw?
 our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
 
-# XXX Use to detect nv or iv for now. Find something better (Ingy).
-use Data::Dumper;
-
-# XXX-INGY Is flock YAML::Tiny's responsibility?
-# Some platforms can't flock :-(
-my $HAS_FLOCK;
-sub _can_flock {
-    if ( defined $HAS_FLOCK ) {
-        return $HAS_FLOCK;
-    }
-    else {
-        require Config;
-        my $c = \%Config::Config;
-        $HAS_FLOCK = grep { $c->{$_} } qw/d_flock d_fcntl_can_lock d_lockf/;
-        require Fcntl if $HAS_FLOCK;
-        return $HAS_FLOCK;
-    }
-}
-
 # Printed form of the unprintable characters in the lowest range
 # of ASCII characters, listed by ASCII ordinal position.
 my @UNPRINTABLE = qw(
@@ -108,7 +89,7 @@ sub read {
     }
 
     # flock if available (or warn if not possible for OS-specific reasons)
-    if ( _can_flock ) {
+    if ( _can_flock() ) {
         flock( $fh, Fcntl::LOCK_SH() )
             or warn "Couldn't lock '$file' for reading: $!";
     }
@@ -461,7 +442,7 @@ sub write {
 
     my $fh;
     # flock if available (or warn if not possible for OS-specific reasons)
-    if ( _can_flock ) {
+    if ( _can_flock() ) {
         # Open without truncation (truncate comes after lock)
         my $flags = Fcntl::O_WRONLY()|Fcntl::O_CREAT();
         sysopen( $fh, $file, $flags );
@@ -718,6 +699,25 @@ sub LoadFile {
 
 
 
+
+# XXX Use to detect nv or iv for now. Find something better (Ingy).
+use Data::Dumper;
+
+# XXX-INGY Is flock YAML::Tiny's responsibility?
+# Some platforms can't flock :-(
+my $HAS_FLOCK;
+sub _can_flock {
+    if ( defined $HAS_FLOCK ) {
+        return $HAS_FLOCK;
+    }
+    else {
+        require Config;
+        my $c = \%Config::Config;
+        $HAS_FLOCK = grep { $c->{$_} } qw/d_flock d_fcntl_can_lock d_lockf/;
+        require Fcntl if $HAS_FLOCK;
+        return $HAS_FLOCK;
+    }
+}
 
 
 # XXX-INGY Is this core in 5.8.1? Can we remove this?
