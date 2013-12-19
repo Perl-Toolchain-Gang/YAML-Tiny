@@ -1,20 +1,111 @@
 package YAML::Tiny;
-# XXX-INGY is this too old/broken for utf8?
+# XXX-INGY is 5.8.1 too old/broken for utf8?
 use 5.008001; # sane UTF-8 support
 use strict;
 use warnings;
 
 
-# Devel/Debug:
-# use XXX -with => 'YAML::XS';
 
 
+
+#####################################################################
+# The YAML::Tiny API.
+#
+# These are the currently documented API functions/methods and
+# exports:
 
 use Exporter;
 our @ISA       = qw{ Exporter  };
 our @EXPORT    = qw{ Load Dump };
-#XXX-INGY Do we really need freeze and thaw?
 our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
+
+###
+# Functional/Export API:
+
+sub Dump {
+    my $string = YAML::Tiny->new(@_)->_write_string;
+    return $string;
+}
+
+sub Load {
+    my $self = YAML::Tiny->_read_string(@_);
+    if ( wantarray ) {
+        return @$self;
+    } else {
+        # To match YAML.pm, return the last document
+        return $self->[-1];
+    }
+}
+
+# XXX-INGY Do we really need freeze and thaw?
+BEGIN {
+    *freeze = \&Dump;
+    *thaw   = \&Load;
+}
+
+sub DumpFile {
+    my $file = shift;
+    return YAML::Tiny->new(@_)->_write_file($file);
+}
+
+sub LoadFile {
+    my $file = shift;
+    my $self = YAML::Tiny->_read_file($file);
+    if ( wantarray ) {
+        return @$self;
+    } else {
+        # Return only the last document to match YAML.pm,
+        return $self->[-1];
+    }
+}
+
+
+
+###
+# Object Oriented API:
+
+# Create an empty YAML::Tiny object
+# XXX-INGY Why do we use ARRAY object?
+# NOTE: I get it now, but I think it's confusing and not needed.
+# Will change it on a branch later, for review.
+sub new {
+    my $class = shift;
+    bless [ @_ ], $class;
+}
+
+# XXX-INGY It probably doesn't matter, and it's probably too late to
+# change, but 'read/write' are the wrong names. Read and Write
+# are actions that take data from storage to memory
+# characters/strings. These take the data to/from storage to native
+# Perl objects, which the terms dump and load are meant. As long as
+# this is a legacy quirk to YAML::Tiny it's ok, but I'd prefer not
+# to add new {read,write}_* methods to this API.
+
+sub read_string {
+    my $self = shift;
+    $self->_read_string(@_);
+}
+
+sub write_string {
+    my $self = shift;
+    $self->_write_string(@_);
+}
+
+sub read {
+    my $self = shift;
+    $self->_read_file(@_);
+}
+
+sub write {
+    my $self = shift;
+    $self->_write_file(@_);
+}
+
+
+
+
+#####################################################################
+# Constants
 
 # Printed form of the unprintable characters in the lowest range
 # of ASCII characters, listed by ASCII ordinal position.
@@ -36,7 +127,7 @@ my %UNESCAPES = (
 # XXX-INGY
 # I(ngy) need to decide if these values should be quoted in
 # YAML::Tiny or not. Probably yes.
-#
+
 # These 3 values have special meaning when unquoted and using the
 # default YAML schema. They need quotes if they are strings.
 my %QUOTE = map { $_ => 1 } qw{
@@ -54,26 +145,18 @@ my $re_capture_unquoted_key  = qr/([^:]+(?::+\S[^:]*)*)(?=\s*\:(?:\s+|$))/;
 my $re_trailing_comment      = qr/(?:\s+\#.*)?/;
 my $re_key_value_separator   = qr/\s*:(?:\s+(?:\#.*)?|$)/;
 
+
+
+
+
 #####################################################################
-# Implementation
-
-# Create an empty YAML::Tiny object
-# XXX-INGY Why do we use ARRAY object?
-sub new {
-    my $class = shift;
-    bless [ @_ ], $class;
-}
-
-# XXX-INGY It probably doesn't matter, and it's probably too late to
-# change, but 'read/write' are the wrong names. Read and Write
-# are actions that take data from storage to memory
-# characters/strings. These take the data from storage to native
-# Perl objects, which the terms dump and load are meant. As long as
-# this is a legacy quirk to YAML::Tiny it's ok, but I'd prefer not
-# to add new {read,write}_* methods to this API.
+# YAML::Tiny Implementation.
+#
+# These are the private methods that do all the work. They may change
+# at any time.
 
 # Create an object from a file
-sub read {
+sub _read_file {
     my $class = ref $_[0] ? ref shift : shift;
 
     # Check the file
@@ -109,11 +192,11 @@ sub read {
         $class->_error("Failed to close file '$file': $!");
     }
 
-    $class->read_string( $contents );
+    $class->_read_string( $contents );
 }
 
 # Create an object from a string
-sub read_string {
+sub _read_string {
     my $class  = ref $_[0] ? ref shift : shift;
     my $self   = bless [], $class;
     my $string = $_[0];
@@ -432,7 +515,7 @@ sub _read_hash {
 }
 
 # Save an object to a file
-sub write {
+sub _write_file {
     my $self = shift;
 
     require Fcntl;
@@ -465,7 +548,7 @@ sub write {
     }
 
     # serialize and spew to the handle
-    print {$fh} $self->write_string;
+    print {$fh} $self->_write_string;
 
     # close the file (release the lock)
     unless ( close $fh ) {
@@ -476,7 +559,7 @@ sub write {
 }
 
 # Save an object to a string
-sub write_string {
+sub _write_string {
     my $self = shift;
     return '' unless ref $self && @$self;
 
@@ -654,48 +737,6 @@ sub errstr {
     $errstr;
 }
 
-
-
-
-
-#####################################################################
-# YAML Compatibility
-
-sub Dump {
-    my $string = YAML::Tiny->new(@_)->write_string;
-    return $string;
-}
-
-sub Load {
-    my $self = YAML::Tiny->read_string(@_);
-    if ( wantarray ) {
-        return @$self;
-    } else {
-        # To match YAML.pm, return the last document
-        return $self->[-1];
-    }
-}
-
-BEGIN {
-    *freeze = *Dump;
-    *thaw   = *Load;
-}
-
-sub DumpFile {
-    my $file = shift;
-    return YAML::Tiny->new(@_)->write($file);
-}
-
-sub LoadFile {
-    my $file = shift;
-    my $self = YAML::Tiny->read($file);
-    if ( wantarray ) {
-        return @$self;
-    } else {
-        # Return only the last document to match YAML.pm,
-        return $self->[-1];
-    }
-}
 
 
 
