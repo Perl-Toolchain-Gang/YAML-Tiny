@@ -48,18 +48,16 @@ my %QUOTE = map { $_ => 1 } qw{
     null true false
 };
 
-my %RE = (
-    # The commented out form is simpler, but overloaded the Perl regex
-    # engine due to recursion and backtracking problems on strings
-    # larger than 32,000ish characters. Keep it for reference purposes.
-    # qr/\"((?:\\.|[^\"])*)\"/
-    capture_double_quoted   => qr/\"([^\\"]*(?:\\.[^\\"]*)*)\"/,
-    capture_single_quoted   => qr/\'([^\']*(?:\'\'[^\']*)*)\'/,
-    # unquoted re gets trailing space that needs to be stripped
-    capture_unquoted_key    => qr/([^:]+(?::+\S[^:]*)*)(?=\s*\:(?:\s+|$))/,
-    trailing_comment        => qr/(?:\s+\#.*)?/,
-    key_value_separator     => qr/\s*:(?:\s+(?:\#.*)?|$)/,
-);
+# The commented out form is simpler, but overloaded the Perl regex
+# engine due to recursion and backtracking problems on strings
+# larger than 32,000ish characters. Keep it for reference purposes.
+# qr/\"((?:\\.|[^\"])*)\"/
+my $re_capture_double_quoted = qr/\"([^\\"]*(?:\\.[^\\"]*)*)\"/;
+my $re_capture_single_quoted = qr/\'([^\']*(?:\'\'[^\']*)*)\'/;
+# unquoted re gets trailing space that needs to be stripped
+my $re_capture_unquoted_key  = qr/([^:]+(?::+\S[^:]*)*)(?=\s*\:(?:\s+|$))/;
+my $re_trailing_comment      = qr/(?:\s+\#.*)?/;
+my $re_key_value_separator   = qr/\s*:(?:\s+(?:\#.*)?|$)/;
 
 #####################################################################
 # Implementation
@@ -229,12 +227,12 @@ sub _read_scalar {
     return undef if $string eq '~';
 
     # Single quote
-    if ( $string =~ /^$RE{capture_single_quoted}$RE{trailing_comment}\z/ ) {
+    if ( $string =~ /^$re_capture_single_quoted$re_trailing_comment\z/ ) {
         return $self->_unquote_single($1);
     }
 
     # Double quote.
-    if ( $string =~ /^$RE{capture_double_quoted}$RE{trailing_comment}\z/ ) {
+    if ( $string =~ /^$re_capture_double_quoted$re_trailing_comment\z/ ) {
         return $self->_unquote_double($1);
     }
 
@@ -382,13 +380,13 @@ sub _read_hash {
         my $key;
 
         # Quoted keys
-        if ( $lines->[0] =~ s/^\s*$RE{capture_single_quoted}$RE{key_value_separator}// ) {
+        if ( $lines->[0] =~ s/^\s*$re_capture_single_quoted$re_key_value_separator// ) {
             $key = $self->_unquote_single($1);
         }
-        elsif ( $lines->[0] =~ s/^\s*$RE{capture_double_quoted}$RE{key_value_separator}// ) {
+        elsif ( $lines->[0] =~ s/^\s*$re_capture_double_quoted$re_key_value_separator// ) {
             $key = $self->_unquote_double($1);
         }
-        elsif ( $lines->[0] =~ s/^\s*$RE{capture_unquoted_key}$RE{key_value_separator}// ) {
+        elsif ( $lines->[0] =~ s/^\s*$re_capture_unquoted_key$re_key_value_separator// ) {
             $key = $1;
             $key =~ s/\s+$//;
         }
