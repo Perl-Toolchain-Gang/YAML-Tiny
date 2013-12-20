@@ -26,6 +26,7 @@ sub Dump {
     return YAML::Tiny->new(@_)->_dump_string;
 }
 
+# XXX-INGY Returning last document seems a bad behavior.
 sub Load {
     my $self = YAML::Tiny->_load_string(@_);
     if ( wantarray ) {
@@ -305,7 +306,7 @@ sub _unquote_double {
     return $string;
 }
 
-# Deparse a scalar string to the actual scalar
+# Load a YAML scalar string to the actual Perl scalar
 sub _load_scalar {
     my ($self, $string, $indent, $lines) = @_;
 
@@ -368,7 +369,7 @@ sub _load_scalar {
     return join( $j, @multiline ) . $t;
 }
 
-# Parse an array
+# Load an array
 sub _load_array {
     my ($self, $array, $indent, $lines) = @_;
 
@@ -444,7 +445,7 @@ sub _load_array {
     return 1;
 }
 
-# Parse a hash
+# Load a hash
 sub _load_hash {
     my ($self, $hash, $indent, $lines) = @_;
 
