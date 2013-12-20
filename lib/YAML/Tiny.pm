@@ -23,8 +23,7 @@ our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
 # Functional/Export API:
 
 sub Dump {
-    my $string = YAML::Tiny->new(@_)->_dump_string;
-    return $string;
+    return YAML::Tiny->new(@_)->_dump_string;
 }
 
 sub Load {
