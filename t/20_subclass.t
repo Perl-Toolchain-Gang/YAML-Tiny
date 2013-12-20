@@ -14,7 +14,6 @@ use File::Spec::Functions ':ALL';
 
 SCOPE: {
     package Foo;
-    use XXX;
 
     use YAML::Tiny;
 
