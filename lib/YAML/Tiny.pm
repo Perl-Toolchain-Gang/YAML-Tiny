@@ -809,6 +809,17 @@ END_PERL
 
 1;
 
+# XXX-INGY Doc notes I'm putting up here. Changing the doc when it's wrong
+# but leaving grey area stuff up here.
+#
+# I would like to change Read/Write to Load/Dump below without
+# changing the actual API names.
+#
+# It might be better to put Load/Dump API in the SYNOPSIS instead of the
+# dubious OO API.
+#
+# null and bool explanations may be outdated.
+
 __END__
 
 =pod
@@ -988,16 +999,15 @@ C<errstr()> method.
 
 Starting with version 1.57, all errors are fatal and throw exceptions.
 
-The C<$errstr> variable is still set when exceptions are thrown, but C<$errstr>
-and the C<errstr()> method are deprecated and may be removed in a future
-release.  The first use of C<errstr()> will issue a deprecation warning.
+The C<$errstr> variable is still set when exceptions are thrown, but
+C<$errstr> and the C<errstr()> method are deprecated and may be removed in a
+future release.  The first use of C<errstr()> will issue a deprecation
+warning.
 
 =head1 FUNCTIONS
 
 YAML::Tiny implements a number of functions to add compatibility with
-the L<YAML> API. These should be a drop-in replacement, except that
-YAML::Tiny will B<not> export functions by default, and so you will need
-to explicitly import the functions.
+the L<YAML> API. These should be a drop-in replacement.
 
 =head2 Dump
 
@@ -1046,7 +1056,8 @@ freeze/thaw API for internal serialization.
 
 =head2 DumpFile(filepath, list)
 
-Writes the YAML stream to a file with UTF-8 encoding instead of just returning a string.
+Writes the YAML stream to a file with UTF-8 encoding instead of just
+returning a string.
 
 Dies on any error.
 
@@ -1174,8 +1185,8 @@ consistent.
 
 B<Character Set>
 
-YAML Tiny streams are processed in memory as Unicode characters and read/written
-with UTF-8 encoding.
+YAML Tiny streams are processed in memory as Unicode characters and
+read/written with UTF-8 encoding.
 
 The escaping and unescaping of the 8-bit YAML escapes is required.
 
