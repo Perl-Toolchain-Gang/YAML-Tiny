@@ -164,9 +164,12 @@ sub _load_file {
 
     # Check the file
     my $file = shift or $class->_error( 'You did not specify a file name' );
-    $class->_error( "File '$file' does not exist" )              unless -e $file;
-    $class->_error( "'$file' is a directory, not a file" )       unless -f _;
-    $class->_error( "Insufficient permissions to read '$file'" ) unless -r _;
+    $class->_error( "File '$file' does not exist" )
+        unless -e $file;
+    $class->_error( "'$file' is a directory, not a file" )
+        unless -f _;
+    $class->_error( "Insufficient permissions to read '$file'" )
+        unless -r _;
 
     # Open unbuffered with strict UTF-8 decoding and no translation layers
     open( my $fh, "<:unix:encoding(UTF-8)", $file );
@@ -211,9 +214,10 @@ sub _load_string {
         # Check if Perl has it marked as characters, but it's internally
         # inconsistent.  E.g. maybe latin1 got read on a :utf8 layer
         if ( utf8::is_utf8($string) && ! utf8::valid($string) ) {
-            die \(
-                'Read an invalid UTF-8 string (maybe mixed UTF-8 and 8-bit character set).'
-                . 'Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?' );
+            die \<<'...';
+Read an invalid UTF-8 string (maybe mixed UTF-8 and 8-bit character set).
+Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
+...
         }
 
         # Ensure Unicode character semantics, even for 0x80-0xff
@@ -240,7 +244,8 @@ sub _load_string {
                 # Handle scalar documents
                 shift @lines;
                 if ( defined $1 and $1 !~ /^(?:\#.+|\%YAML[: ][\d\.]+)\z/ ) {
-                    push @$self, $self->_load_scalar( "$1", [ undef ], \@lines );
+                    push @$self,
+                        $self->_load_scalar( "$1", [ undef ], \@lines );
                     next;
                 }
                 $in_document = 1;
@@ -302,7 +307,9 @@ sub _unquote_double {
     my ($self, $string) = @_;
     return '' unless length $string;
     $string =~ s/\\"/"/g;
-    $string =~ s/\\([Nnever\\fartz0b]|x([0-9a-fA-F]{2}))/(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}/gex;
+    $string =~
+        s{\\([Nnever\\fartz0b]|x([0-9a-fA-F]{2}))}
+         {(length($1)>1)?pack("H2",$2):$UNESCAPES{$1}}gex;
     return $string;
 }
 
@@ -335,13 +342,9 @@ sub _load_scalar {
 
     # Regular unquoted string
     if ( $string !~ /^[>|]/ ) {
-        if (
-            $string =~ /^(?:-(?:\s|$)|[\@\%\`])/
-            or
-            $string =~ /:(?:\s|$)/
-        ) {
-            die \"YAML::Tiny found illegal characters in plain scalar: '$string'";
-        }
+        die \"YAML::Tiny found illegal characters in plain scalar: '$string'"
+            if $string =~ /^(?:-(?:\s|$)|[\@\%\`])/ or
+                $string =~ /:(?:\s|$)/;
         $string =~ s/\s+#.*\z//;
         return $string;
     }
@@ -411,12 +414,16 @@ sub _load_array {
                 } else {
                     # Naked indenter
                     push @$array, [ ];
-                    $self->_load_array( $array->[-1], [ @$indent, $indent2 ], $lines );
+                    $self->_load_array(
+                        $array->[-1], [ @$indent, $indent2 ], $lines
+                    );
                 }
 
             } elsif ( $lines->[0] =~ /^(\s*)\S/ ) {
                 push @$array, { };
-                $self->_load_hash( $array->[-1], [ @$indent, length("$1") ], $lines );
+                $self->_load_hash(
+                    $array->[-1], [ @$indent, length("$1") ], $lines
+                );
 
             } else {
                 die \"YAML::Tiny failed to classify line '$lines->[0]'";
@@ -425,7 +432,9 @@ sub _load_array {
         } elsif ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*\z/ ) {
             # Array entry with a value
             shift @$lines;
-            push @$array, $self->_load_scalar( "$2", [ @$indent, undef ], $lines );
+            push @$array, $self->_load_scalar(
+                "$2", [ @$indent, undef ], $lines
+            );
 
         } elsif ( defined $indent->[-2] and $indent->[-1] == $indent->[-2] ) {
             # This is probably a structure like the following...
@@ -470,13 +479,19 @@ sub _load_hash {
         my $key;
 
         # Quoted keys
-        if ( $lines->[0] =~ s/^\s*$re_capture_single_quoted$re_key_value_separator// ) {
+        if ( $lines->[0] =~
+            s/^\s*$re_capture_single_quoted$re_key_value_separator//
+        ) {
             $key = $self->_unquote_single($1);
         }
-        elsif ( $lines->[0] =~ s/^\s*$re_capture_double_quoted$re_key_value_separator// ) {
+        elsif ( $lines->[0] =~
+            s/^\s*$re_capture_double_quoted$re_key_value_separator//
+        ) {
             $key = $self->_unquote_double($1);
         }
-        elsif ( $lines->[0] =~ s/^\s*$re_capture_unquoted_key$re_key_value_separator// ) {
+        elsif ( $lines->[0] =~
+            s/^\s*$re_capture_unquoted_key$re_key_value_separator//
+        ) {
             $key = $1;
             $key =~ s/\s+$//;
         }
@@ -490,7 +505,9 @@ sub _load_hash {
         # Do we have a value?
         if ( length $lines->[0] ) {
             # Yes
-            $hash->{$key} = $self->_load_scalar( shift(@$lines), [ @$indent, undef ], $lines );
+            $hash->{$key} = $self->_load_scalar(
+                shift(@$lines), [ @$indent, undef ], $lines
+            );
         } else {
             # An indent
             shift @$lines;
@@ -500,7 +517,9 @@ sub _load_hash {
             }
             if ( $lines->[0] =~ /^(\s*)-/ ) {
                 $hash->{$key} = [];
-                $self->_load_array( $hash->{$key}, [ @$indent, length($1) ], $lines );
+                $self->_load_array(
+                    $hash->{$key}, [ @$indent, length($1) ], $lines
+                );
             } elsif ( $lines->[0] =~ /^(\s*)./ ) {
                 my $indent2 = length("$1");
                 if ( $indent->[-1] >= $indent2 ) {
@@ -508,7 +527,9 @@ sub _load_hash {
                     $hash->{$key} = undef;
                 } else {
                     $hash->{$key} = {};
-                    $self->_load_hash( $hash->{$key}, [ @$indent, length($1) ], $lines );
+                    $self->_load_hash(
+                        $hash->{$key}, [ @$indent, length($1) ], $lines
+                    );
                 }
             }
         }
@@ -636,7 +657,9 @@ sub _dump_scalar {
         $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge;
         return qq|"$string"|;
     }
-    if ( $string =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/ or $QUOTE{$string} ) {
+    if ($string =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/ or
+        $QUOTE{$string}
+    ) {
         return "'$string'";
     }
     return $string;
