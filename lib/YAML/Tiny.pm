@@ -1,5 +1,7 @@
 package YAML::Tiny;
 # XXX-INGY is 5.8.1 too old/broken for utf8?
+# XXX-XDG Lancaster consensus was that it was sufficient until
+# proven otherwise
 use 5.008001; # sane UTF-8 support
 use strict;
 use warnings;
@@ -27,6 +29,8 @@ sub Dump {
 }
 
 # XXX-INGY Returning last document seems a bad behavior.
+# XXX-XDG I think first would seem more natural, but I don't know
+# that it's worth changing now
 sub Load {
     my $self = YAML::Tiny->_load_string(@_);
     if ( wantarray ) {
@@ -38,6 +42,7 @@ sub Load {
 }
 
 # XXX-INGY Do we really need freeze and thaw?
+# XXX-XDG I don't think so.  I'd support deprecating them.
 BEGIN {
     *freeze = \&Dump;
     *thaw   = \&Load;
@@ -67,6 +72,11 @@ sub LoadFile {
 # XXX-INGY Why do we use ARRAY object?
 # NOTE: I get it now, but I think it's confusing and not needed.
 # Will change it on a branch later, for review.
+#
+# XXX-XDG I don't support changing it yet.  It's a very well-documented
+# "API" of YAML::Tiny.  I'd support deprecating it, but Adam suggested
+# we not change it until YAML.pm's own OO API is established so that
+# users only have one API change to digest, not two
 sub new {
     my $class = shift;
     bless [ @_ ], $class;
@@ -777,10 +787,14 @@ sub errstr {
 
 
 # XXX Use to detect nv or iv for now. Find something better (Ingy).
+# XXX Possibly B? (XDG)
 use Data::Dumper;
 
 # XXX-INGY Is flock YAML::Tiny's responsibility?
 # Some platforms can't flock :-(
+# XXX-XDG I think it is.  When reading and writing files, we ought
+# to be locking whenever possible.  People (foolishly) use YAML
+# files for things like session storage, which has race issues.
 my $HAS_FLOCK;
 sub _can_flock {
     if ( defined $HAS_FLOCK ) {
@@ -797,6 +811,7 @@ sub _can_flock {
 
 
 # XXX-INGY Is this core in 5.8.1? Can we remove this?
+# XXX-XDG Scalar::Util 1.18 didn't land until 5.8.8, so we need this
 #####################################################################
 # Use Scalar::Util if possible, otherwise emulate it
 
