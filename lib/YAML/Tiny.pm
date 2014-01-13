@@ -817,11 +817,13 @@ sub _can_flock {
 
 BEGIN {
     local $@;
-    eval {
-        require Scalar::Util;
-    };
-    my $v = eval("$Scalar::Util::VERSION") || 0;
-    if ( $@ or $v < 1.18 ) {
+    if ( eval { require Scalar::Util }
+      && $Scalar::Util::VERSION
+      && eval($Scalar::Util::VERSION) >= 1.18
+    ) {
+        *refaddr = *Scalar::Util::refaddr;
+    }
+    else {
         eval <<'END_PERL';
 # Scalar::Util failed to load or too old
 sub refaddr {
@@ -832,13 +834,11 @@ sub refaddr {
         $pkg = undef;
     }
     "$_[0]" =~ /0x(\w+)/;
-    my $i = do { local $^W; hex $1 };
+    my $i = do { no warnings 'portable'; hex $1 };
     bless $_[0], $pkg if defined $pkg;
     $i;
 }
 END_PERL
-    } else {
-        *refaddr = *Scalar::Util::refaddr;
     }
 }
 
