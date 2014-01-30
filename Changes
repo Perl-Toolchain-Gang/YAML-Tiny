@@ -9,10 +9,6 @@ Revision history for {{$dist->name}}
             errors throw exceptions.  Use of $errstr and the errstr method
             are deprecated. (David Golden)
 
-        [ADDED]
-
-          - Added write_utf8_string method (David Golden)
-
         [FIXED]
 
           - Fixed write method to encode YAML file with UTF-8 (David Golden)
