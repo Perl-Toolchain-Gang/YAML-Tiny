@@ -1,13 +1,10 @@
+use 5.008001; # sane UTF-8 support
+use strict;
+use warnings;
 package YAML::Tiny;
 # XXX-INGY is 5.8.1 too old/broken for utf8?
 # XXX-XDG Lancaster consensus was that it was sufficient until
 # proven otherwise
-use 5.008001; # sane UTF-8 support
-use strict;
-use warnings;
-
-
-
 
 
 #####################################################################
