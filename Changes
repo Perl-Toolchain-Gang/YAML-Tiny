@@ -20,14 +20,14 @@ Revision history for {{$dist->name}}
             has been significnatly improved. (Ingy döt Net, David Golden,
             Jim Keenan, Karen Etheridge)
 
-1.56      2013-09-25 02:38:19Z (Karen Etheridge)
+1.56      2013-09-25 02:38:19Z
           - read_string documentation error fixed (RT#74409, thanks Tim Heaney!)
           - re-release with fixed compile test
 
-1.55      2013-09-19 04:07:32Z (Karen Etheridge)
+1.55      2013-09-19 04:07:32Z
           - again packaging with ExtUtils::MakeMaker
 
-1.54      2013-08-22 03:55:41Z (Karen Etheridge)
+1.54      2013-08-22 03:55:41Z
           - convert to Dist::Zilla
           - Updated format to conform to CPAN::Changes::Spec
 
