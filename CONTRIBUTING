@@ -19,7 +19,7 @@ patches you have.
 
 You may need to satisfy some dependencies.  The easiest way to satisfy
 dependencies is to install the last release -- this is available at
-http::/metacpan.org/release/YAML-Tiny.
+https://metacpan.org/release/YAML-Tiny.
 
 If you use cpanminus, you can do it without downloading the tarball first:
 
@@ -50,12 +50,12 @@ Once installed, here are some dzil commands you might try:
   $ dzil test --release
   $ dzil xtest
   $ dzil listdeps --json
-  $ dzil build --not
+  $ dzil build --notgz
 
 You can learn more about Dist::Zilla at http://dzil.org/.
 
-The code for this distribution is hosted at GitHub. The main repository is:
-https://github.com/Perl-Toolchain-Gang/YAML-Tiny.
+The code for this distribution is hosted at GitHub. The repository is:
+https://github.com/Perl-Toolchain-Gang/YAML-Tiny
 You can submit code changes by forking the repository, pushing your code
 changes to your clone, and then submitting a pull request. Detailed
 instructions for doing that is available here:
@@ -67,8 +67,8 @@ If you have found a bug, but do not have an accompanying patch to fix it, you
 can submit an issue report here:
 https://rt.cpan.org/Public/Dist/Display.html?Name=YAML-Tiny
 or via bug-YAML-Tiny@rt.cpan.org.
-This is also a good place to send your questions about the usage of this distribution.
+This is a good place to send your questions about the usage of this distribution.
 
 
-This file was generated via Dist::Zilla::Plugin::GenerateFile::ShareDir 0.002 from a
-template file originating in Dist-Zilla-PluginBundle-Author-ETHER-0.037.
+This file was generated via Dist::Zilla::Plugin::GenerateFile::ShareDir 0.005 from a
+template file originating in Dist-Zilla-PluginBundle-Author-ETHER-0.049.

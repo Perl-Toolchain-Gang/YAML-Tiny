@@ -2,6 +2,10 @@
 
 YAML::Tiny - Read/Write YAML files with as little code as possible
 
+# VERSION
+
+version 1.57
+
 # PREAMBLE
 
 The YAML specification is huge. Really, __really__ huge. It contains all the
@@ -9,14 +13,14 @@ functionality of XML, except with flexibility and choice, which makes it
 easier to read, but with a formal specification that is more complex than
 XML.
 
-The original pure-Perl implementation [YAML](http://search.cpan.org/perldoc?YAML) costs just over 4 megabytes
+The original pure-Perl implementation [YAML](https://metacpan.org/pod/YAML) costs just over 4 megabytes
 of memory to load. Just like with Windows `.ini` files (3 meg to load) and
 CSS (3.5 meg to load) the situation is just asking for a __YAML::Tiny__
 module, an incomplete but correct and usable subset of the functionality,
 in as little code as possible.
 
 Like the other `::Tiny` modules, YAML::Tiny has no non-core dependencies,
-does not require a compiler to install, is back-compatible to Perl 5.004,
+does not require a compiler to install, is back-compatible to Perl v5.8.1,
 and can be inlined into other modules if needed.
 
 In exchange for this adding this extreme flexibility, it provides support
@@ -35,8 +39,6 @@ Assuming `file.yml` like this:
       Foo: Bar
       empty: ~
 
-
-
 Read and write `file.yml` like this:
 
     use YAML::Tiny;
@@ -44,8 +46,8 @@ Read and write `file.yml` like this:
     # Open the config
     my $yaml = YAML::Tiny->read( 'file.yml' );
 
-    # Get a reference to the document
-    my ($config) = $yaml->documents;
+    # Get a reference to the first document
+    my $config = $yaml->[0];
 
     # Or read properties directly
     my $root = $yaml->[0]->{rootproperty};
@@ -97,7 +99,7 @@ I said __human-readable__ and not __geek-readable__. The sort of files that
 your average manager or secretary should be able to look at and make
 sense of.
 
-[YAML::Tiny](http://search.cpan.org/perldoc?YAML::Tiny) does not generate comments, it won't necessarily preserve the
+[YAML::Tiny](https://metacpan.org/pod/YAML::Tiny) does not generate comments, it won't necessarily preserve the
 order of your hashes, and it will normalise if reading in and writing out
 again.
 
@@ -111,11 +113,11 @@ in a few lines of code. Please don't be offended if your request is
 refused. Someone has to draw the line, and for YAML::Tiny that someone
 is me.
 
-If you need something with more power move up to [YAML](http://search.cpan.org/perldoc?YAML) (4 megabytes of
-memory overhead) or [YAML::Syck](http://search.cpan.org/perldoc?YAML::Syck) (275k, but requires `libsyck` and a C
-compiler).
+If you need something with more power move up to [YAML](https://metacpan.org/pod/YAML) (7 megabytes of
+memory overhead) or [YAML::XS](https://metacpan.org/pod/YAML::XS) (6 megabytes memory overhead and requires
+a C compiler).
 
-To restate, [YAML::Tiny](http://search.cpan.org/perldoc?YAML::Tiny) does __not__ preserve your comments, whitespace,
+To restate, [YAML::Tiny](https://metacpan.org/pod/YAML::Tiny) does __not__ preserve your comments, whitespace,
 or the order of your YAML data. But it should round-trip from Perl
 structure to file and back again just fine.
 
@@ -127,56 +129,54 @@ The constructor `new` creates a `YAML::Tiny` object as a blessed array
 reference.  Any arguments provided are taken as separate documents
 to be serialized.
 
-## documents
-
-    my @docs = $yaml->documents;
-    my $count = $yaml->documents;
-
-In list context, returns all documents contained in the object (i.e. a list of
-Perl scalars or references).  In scalar context, returns the count of documents.
-
 ## read $filename
 
 The `read` constructor reads a YAML file from a file name,
 and returns a new `YAML::Tiny` object containing the parsed content.
 
-Returns the object on success, or `undef` on error.
-
-When `read` fails, `YAML::Tiny` sets an error message internally
-you can recover via `YAML::Tiny->errstr`. Although in __some__
-cases a failed `read` will also set the operating system error
-variable `$!`, not all errors do and you should not rely on using
-the `$!` variable.
+Returns the object on success or throws an error on failure.
 
 ## read\_string $string;
 
-The `read_string` constructor reads YAML data from a string,
-and returns a new `YAML::Tiny` object containing the parsed content.
+The `read_string` constructor reads YAML data from a character string, and
+returns a new `YAML::Tiny` object containing the parsed content.  If you have
+read the string from a file yourself, be sure that you have correctly decoded
+it into characters first.
 
-Returns the object on success, or `undef` on error.
+Returns the object on success or throws an error on failure.
 
 ## write $filename
 
 The `write` method generates the file content for the properties, and
-writes it to disk to the filename specified.
+writes it to disk using UTF-8 encoding to the filename specified.
 
-Returns true on success or `undef` on error.
+Returns true on success or throws an error on failure.
 
 ## write\_string
 
-Generates the file content for the object and returns it as a string.
+Generates the file content for the object and returns it as a character
+string.  This may contain non-ASCII characters and should be encoded
+before writing it to a file.
 
-## errstr
+Returns true on success or throws an error on failure.
 
-When an error occurs, you can retrieve the error message either from the
-`$YAML::Tiny::errstr` variable, or using the `errstr()` method.
+## errstr (DEPRECATED)
+
+Prior to version 1.57, some errors were fatal and others were available only
+via the `$YAML::Tiny::errstr` variable, which could be accessed via the
+`errstr()` method.
+
+Starting with version 1.57, all errors are fatal and throw exceptions.
+
+The `$errstr` variable is still set when exceptions are thrown, but
+`$errstr` and the `errstr()` method are deprecated and may be removed in a
+future release.  The first use of `errstr()` will issue a deprecation
+warning.
 
 # FUNCTIONS
 
 YAML::Tiny implements a number of functions to add compatibility with
-the [YAML](http://search.cpan.org/perldoc?YAML) API. These should be a drop-in replacement, except that
-YAML::Tiny will __not__ export functions by default, and so you will need
-to explicitly import the functions.
+the [YAML](https://metacpan.org/pod/YAML) API. These should be a drop-in replacement.
 
 ## Dump
 
@@ -188,35 +188,53 @@ Data::Dumper::Dumper().
 It takes a list of Perl data structures and dumps them into a serialized
 form.
 
-It returns a string containing the YAML stream.
+It returns a character string containing the YAML stream.  Be sure to encode
+it as UTF-8 before serializing to a file or socket.
 
 The structures can be references or plain scalars.
 
+Dies on any error.
+
 ## Load
 
-    my @documents = Load(string-containing-a-YAML-stream);
+    my @data_structures = Load(string-containing-a-YAML-stream);
 
 Turn YAML into Perl data. This is the opposite of Dump.
 
-Just like [Storable](http://search.cpan.org/perldoc?Storable)'s thaw() function or the eval() function in relation
-to [Data::Dumper](http://search.cpan.org/perldoc?Data::Dumper).
+Just like [Storable](https://metacpan.org/pod/Storable)'s thaw() function or the eval() function in relation
+to [Data::Dumper](https://metacpan.org/pod/Data::Dumper).
 
-It parses a string containing a valid YAML stream into a list of Perl data
-structures.
+It parses a character string containing a valid YAML stream into a list of
+Perl data structures representing the individual YAML documents.  Be sure to
+decode the character string  correctly if the string came from a file or
+socket.
+
+    my $last_data_structure = Load(string-containing-a-YAML-stream);
+
+For consistency with YAML.pm, when Load is called in scalar context, it
+returns the data structure corresponding to the last of the YAML documents
+found in the input stream.
+
+Dies on any error.
 
 ## freeze() and thaw()
 
-Aliases to Dump() and Load() for [Storable](http://search.cpan.org/perldoc?Storable) fans. This will also allow
+Aliases to Dump() and Load() for [Storable](https://metacpan.org/pod/Storable) fans. This will also allow
 YAML::Tiny to be plugged directly into modules like POE.pm, that use the
 freeze/thaw API for internal serialization.
 
 ## DumpFile(filepath, list)
 
-Writes the YAML stream to a file instead of just returning a string.
+Writes the YAML stream to a file with UTF-8 encoding instead of just
+returning a string.
+
+Dies on any error.
 
 ## LoadFile(filepath)
 
-Reads the YAML stream from a file instead of a string.
+Reads the YAML stream from a UTF-8 encoded file instead of a string.
+
+Dies on any error.
 
 # YAML TINY SPECIFICATION
 
@@ -228,7 +246,7 @@ It is based on and described comparatively to the YAML 1.1 Working Draft
 
 Terminology and chapter numbers are based on that specification.
 
-## 1\. Introduction and Goals
+## 1. Introduction and Goals
 
 The purpose of the YAML Tiny specification is to describe a useful subset
 of the YAML specification that can be used for typical document-oriented
@@ -250,7 +268,7 @@ As a result of these simplifications the YAML Tiny specification should
 be implementable in a (relatively) small amount of code in any language
 that supports Perl Compatible Regular Expressions (PCRE).
 
-## 2\. Introduction
+## 2. Introduction
 
 YAML Tiny supports three data structures. These are scalars (in a variety
 of forms), block-form sequences and block-form mappings. Flow-style
@@ -284,7 +302,7 @@ The use of anchors and aliases is not supported.
 
 The use of directives is supported only for the %YAML directive.
 
-## 3\. Processing YAML Tiny Information
+## 3. Processing YAML Tiny Information
 
 __Processes__
 
@@ -306,27 +324,22 @@ detecting a circular reference should error with an appropriate message.
 
 __Presentation Stream__
 
-YAML Tiny is notionally unicode, but support for unicode is required if the
-underlying language or system being used to implement a parser does not
-support Unicode. If unicode is encountered in this case an error should be
-returned.
+YAML Tiny reads and write UTF-8 encoded files.  Operations on strings expect
+or produce Unicode characters not UTF-8 encoded bytes.
 
 __Loading Failure Points__
 
-YAML Tiny parsers and emitters are not expected to recover from adapt to
-errors. The specific error modality of any implementation is not dictated
-(return codes, exceptions, etc) but is expected to be consistent.
+YAML Tiny parsers and emitters are not expected to recover from, or
+adapt to, errors. The specific error modality of any implementation is
+not dictated (return codes, exceptions, etc.) but is expected to be
+consistent.
 
-## 4\. Syntax
+## 4. Syntax
 
 __Character Set__
 
-YAML Tiny streams are implemented primarily using the ASCII character set,
-although the use of Unicode inside strings is allowed if support by the
-implementation.
-
-Specific YAML Tiny encoded document types aiming for maximum compatibility
-should restrict themselves to ASCII.
+YAML Tiny streams are processed in memory as Unicode characters and
+read/written with UTF-8 encoding.
 
 The escaping and unescaping of the 8-bit YAML escapes is required.
 
@@ -360,7 +373,7 @@ one exception (detailed below).
 Support for the "}" flow mapping indicator is __not__ required, with
 one exception (detailed below).
 
-Support for the "\#" comment indicator is required.
+Support for the "#" comment indicator is required.
 
 Support for the "&" anchor indicator is __not__ required.
 
@@ -468,7 +481,7 @@ That is, the following must be equivalent.
 
 __Nodes__
 
-Support for nodes optional anchor and tag properties are __not__ required.
+Support for nodes optional anchor and tag properties is __not__ required.
 
 Support for node anchors is __not__ required.
 
@@ -482,9 +495,12 @@ Support for block nodes is required.
 
 __Scalar Styles__
 
-Support for all five scalar styles are required as per the YAML
+Support for all five scalar styles is required as per the YAML
 specification, although support for quoted scalars spanning more
 than one line is __not__ required.
+
+Support for multi-line scalar documents starting on the header
+is not required.
 
 Support for the chomping indicators on multi-line scalar styles
 is required.
@@ -528,8 +544,10 @@ Bugs should be reported via the CPAN bug tracker at
 
 [http://rt.cpan.org/NoAuth/ReportBug.html?Queue=YAML-Tiny](http://rt.cpan.org/NoAuth/ReportBug.html?Queue=YAML-Tiny)
 
-For other issues, or commercial enhancement or support, please contact
-<a href="http://ali.as/">Adam Kennedy</a> directly.
+<div>
+    For other issues, or commercial enhancement or support, please contact
+    <a href="http://ali.as/">Adam Kennedy</a> directly.
+</div>
 
 # AUTHOR
 
@@ -537,11 +555,11 @@ Adam Kennedy <adamk@cpan.org>
 
 # SEE ALSO
 
-- [YAML](http://search.cpan.org/perldoc?YAML)
-- [YAML::Syck](http://search.cpan.org/perldoc?YAML::Syck)
-- [Config::Tiny](http://search.cpan.org/perldoc?Config::Tiny)
-- [CSS::Tiny](http://search.cpan.org/perldoc?CSS::Tiny)
-- [http://use.perl.org/use.perl.org/\_Alias/journal/29427.html](http://use.perl.org/use.perl.org/\_Alias/journal/29427.html)
+- [YAML](https://metacpan.org/pod/YAML)
+- [YAML::Syck](https://metacpan.org/pod/YAML::Syck)
+- [Config::Tiny](https://metacpan.org/pod/Config::Tiny)
+- [CSS::Tiny](https://metacpan.org/pod/CSS::Tiny)
+- [http://use.perl.org/use.perl.org/\_Alias/journal/29427.html](http://use.perl.org/use.perl.org/_Alias/journal/29427.html)
 - [http://ali.as/](http://ali.as/)
 
 # COPYRIGHT
