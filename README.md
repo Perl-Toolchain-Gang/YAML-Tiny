@@ -4,7 +4,7 @@ YAML::Tiny - Read/Write YAML files with as little code as possible
 
 # VERSION
 
-version 1.57
+version 1.58
 
 # PREAMBLE
 
