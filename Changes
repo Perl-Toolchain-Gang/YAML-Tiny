@@ -2,6 +2,17 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+        [INCOMPATIBLE CHANGE]
+
+        - 1.57 omitted a change entry for the following change:
+
+        - Previously, YAML::Tiny was sloppy about file encodings.  It is
+          now strict.  The 'read' method and 'LoadFile' function expect
+          UTF-8 encoded files.  The 'write' method and 'DumpFile' function
+          produce UTF-8 encoded files.  The 'read_string' and
+          'write_string' methods and the 'Load' and 'Dump' functions
+          expect or generate (decoded) character data.
+
 1.57      2014-01-30 22:12:38Z
 
         [INCOMPATIBLE CHANGE]
