@@ -29,9 +29,9 @@ SCOPE: {
     sub _dump_scalar {
         my $self   = shift;
         my $string = shift;
-        my $indent = shift;
-        if ( defined $indent ) {
-            return "'$indent'";
+        my $is_key = shift;
+        if ( defined $is_key ) {
+            return scalar reverse $string;
         } else {
             return $string;
         }
@@ -50,6 +50,6 @@ SCOPE: {
 my $object = Foo->new(
     { foo => 'bar' }
 );
-is( $object->write_string, "---\nfoo: '1'\n", 'Subclassing works' );
+is( $object->write_string, "---\noof: bar\n", 'Subclassing works' );
 
 done_testing;

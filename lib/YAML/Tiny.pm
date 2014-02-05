@@ -614,7 +614,7 @@ sub _dump_string {
 
             # A scalar document
             } elsif ( ! ref $cursor ) {
-                $lines[-1] .= ' ' . $self->_dump_scalar( $cursor, $indent );
+                $lines[-1] .= ' ' . $self->_dump_scalar( $cursor );
 
             # A list at the root
             } elsif ( ref $cursor eq 'ARRAY' ) {
@@ -648,12 +648,18 @@ sub _dump_string {
 
 sub _dump_scalar {
     my $string = $_[1];
+    my $is_key = $_[2];
     return '~'  unless defined $string;
     return "''" unless length  $string;
     if (Scalar::Util::looks_like_number($string)) {
-        $string = Data::Dumper::Dumper($string);
-        chomp $string;
-        return $string;
+        if ( $is_key) {
+            return qq['$string'];
+        }
+        else {
+            $string = Data::Dumper::Dumper($string);
+            chomp $string;
+            return $string;
+        }
     }
     if ( $string =~ /[\x00-\x09\x0b-\x0d\x0e-\x1f\x7f-\x9f\'\n]/ ) {
         $string =~ s/\\/\\\\/g;
@@ -664,7 +670,7 @@ sub _dump_scalar {
         $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge;
         return qq|"$string"|;
     }
-    if ($string =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/ or
+    if ( $string =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/ or
         $QUOTE{$string}
     ) {
         return "'$string'";
@@ -682,7 +688,7 @@ sub _dump_array {
         my $line = ('  ' x $indent) . '-';
         my $type = ref $el;
         if ( ! $type ) {
-            $line .= ' ' . $self->_dump_scalar( $el, $indent + 1 );
+            $line .= ' ' . $self->_dump_scalar( $el );
             push @lines, $line;
 
         } elsif ( $type eq 'ARRAY' ) {
@@ -719,10 +725,10 @@ sub _dump_hash {
     my @lines  = ();
     foreach my $name ( sort keys %$hash ) {
         my $el   = $hash->{$name};
-        my $line = ('  ' x $indent) . $self->_dump_scalar($name) . ":";
+        my $line = ('  ' x $indent) . $self->_dump_scalar($name, 1) . ":";
         my $type = ref $el;
         if ( ! $type ) {
-            $line .= ' ' . $self->_dump_scalar( $el, $indent + 1 );
+            $line .= ' ' . $self->_dump_scalar( $el );
             push @lines, $line;
 
         } elsif ( $type eq 'ARRAY' ) {
