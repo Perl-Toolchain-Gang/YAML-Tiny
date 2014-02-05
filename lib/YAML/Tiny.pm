@@ -598,8 +598,6 @@ sub _dump_string {
     my $self = shift;
     return '' unless ref $self && @$self;
 
-    local $Data::Dumper::Terse = 1;
-
     # Iterate over the documents
     my $indent = 0;
     my @lines  = ();
@@ -646,18 +644,25 @@ sub _dump_string {
     join '', map { "$_\n" } @lines;
 }
 
+sub _has_internal_string_value {
+    my $value = shift;
+    my $b_obj = B::svref_2object(\$value);  # for round trip problem
+    return $b_obj->FLAGS & B::SVf_POK();
+}
+
 sub _dump_scalar {
     my $string = $_[1];
     my $is_key = $_[2];
+    # Check this before checking length or it winds up looking like a string!
+    my $has_string_flag = _has_internal_string_value($string);
     return '~'  unless defined $string;
     return "''" unless length  $string;
     if (Scalar::Util::looks_like_number($string)) {
-        if ( $is_key) {
+        # keys and values that have been used as strings get quoted
+        if ( $is_key || $has_string_flag ) {
             return qq['$string'];
         }
         else {
-            $string = Data::Dumper::Dumper($string);
-            chomp $string;
             return $string;
         }
     }
@@ -789,9 +794,8 @@ sub errstr {
 # Helper functions. Possibly not needed.
 
 
-# XXX Use to detect nv or iv for now. Find something better (Ingy).
-# XXX Possibly B? (XDG)
-use Data::Dumper;
+# Use to detect nv or iv
+use B;
 
 # XXX-INGY Is flock YAML::Tiny's responsibility?
 # Some platforms can't flock :-(
