@@ -2,6 +2,14 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+        [CHANGED]
+
+        - numeric values are now quoted whenever they've been used as a string
+          (fixes inconsistent behaviour seen with numeric values, due to
+          differences between the XS and pure-perl variants of Data::Dumper).
+          (github issue #24)
+        - numeric hash keys are now always quoted.
+
 1.58      2014-02-04 18:01:58Z
 
         [INCOMPATIBLE CHANGE]
