@@ -2,6 +2,8 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+1.59      2014-02-06 03:10:35Z (TRIAL RELEASE)
+
         [CHANGED]
 
         - numeric values are now quoted whenever they've been used as a string
