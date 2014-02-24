@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.61      2014-02-24 16:59:49Z
         [FIXED]
 
         - fixed a test for VMS (RT#93297, Craig Berry)
