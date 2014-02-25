@@ -824,10 +824,7 @@ sub _can_flock {
 
 BEGIN {
     local $@;
-    if ( eval { require Scalar::Util }
-      && $Scalar::Util::VERSION
-      && eval($Scalar::Util::VERSION) >= 1.18
-    ) {
+    if ( eval { require Scalar::Util; Scalar::Util->VERSION(1.18); } ) {
         *refaddr = *Scalar::Util::refaddr;
     }
     else {
