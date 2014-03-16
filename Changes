@@ -2,6 +2,11 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+        [FIXED]
+
+        - fix handling of trailing colon in key name (RT#92916, H.Merijn
+          Brand)
+
 1.61      2014-02-24 16:59:49Z
         [FIXED]
 
