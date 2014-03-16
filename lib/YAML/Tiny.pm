@@ -147,7 +147,7 @@ my %QUOTE = map { $_ => 1 } qw{
 my $re_capture_double_quoted = qr/\"([^\\"]*(?:\\.[^\\"]*)*)\"/;
 my $re_capture_single_quoted = qr/\'([^\']*(?:\'\'[^\']*)*)\'/;
 # unquoted re gets trailing space that needs to be stripped
-my $re_capture_unquoted_key  = qr/([^:]+(?::+\S[^:]*)*)(?=\s*\:(?:\s+|$))/;
+my $re_capture_unquoted_key  = qr/([^:]+(?::+\S(?:[^:]*|.*?(?=:)))*)(?=\s*\:(?:\s+|$))/;
 my $re_trailing_comment      = qr/(?:\s+\#.*)?/;
 my $re_key_value_separator   = qr/\s*:(?:\s+(?:\#.*)?|$)/;
 
