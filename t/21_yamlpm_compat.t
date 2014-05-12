@@ -31,7 +31,7 @@ use YAML::Tiny;
     my $arrayref = [ 1 .. 5 ];
     my $hashref = { alpha => 'beta', gamma => 'delta' };
 
-    my ($fh, $filename) = tempfile;
+    my ($fh, $filename) = tempfile("YAML-Tiny-test-XXXXXXXX", TMPDIR => 1, UNLINK=>1);
     close $fh; # or LOCK_SH will hang
 
     my $rv = YAML::Tiny::DumpFile(
