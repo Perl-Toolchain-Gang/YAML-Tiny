@@ -44,7 +44,7 @@ for my $c ( @cases ) {
         @warnings = ();
 
         # get a tempfile name to write to
-        my ($fh, $tempfile) = tempfile("YAML-Tiny-test-XXXXXXXX", TMPDIR => 1 );
+        my ($fh, $tempfile) = tempfile("YAML-Tiny-test-XXXXXXXX", TMPDIR => 1, UNLINK=>1);
         my $short_tempfile = basename($tempfile);
         close $fh; # avoid locks on windows
 
