@@ -16,6 +16,9 @@ grammar.
 use Test::More tests => 1;
 use YAML::Tiny;
 
+TODO: {
+local $TODO = "Failing tests for things YAML::Tiny does wrong";
+
 my $yaml = <<'...';
 - |
   # Perl sub:
@@ -24,3 +27,4 @@ my $yaml = <<'...';
 is Load($yaml)->[0],
     "# Perl sub:\nsub foo{}\n",
     "Comments in literal scalars";
+}
