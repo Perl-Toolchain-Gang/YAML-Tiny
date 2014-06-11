@@ -510,6 +510,10 @@ sub _load_hash {
             die \"YAML::Tiny failed to classify line '$lines->[0]'";
         }
 
+        if ( exists $hash->{$key} ) {
+            die \"YAML::Tiny found a duplicate key '$key' in line '$lines->[0]'";
+        }
+
         # Do we have a value?
         if ( length $lines->[0] ) {
             # Yes
