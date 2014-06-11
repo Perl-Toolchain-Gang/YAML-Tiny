@@ -294,10 +294,11 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
             }
         }
     };
-    if ( ref $@ eq 'SCALAR' ) {
-        $self->_error(${$@});
-    } elsif ( $@ ) {
-        $self->_error($@);
+    my $err = $@;
+    if ( ref $err eq 'SCALAR' ) {
+        $self->_error(${$err});
+    } elsif ( $err ) {
+        $self->_error($err);
     }
 
     return $self;
