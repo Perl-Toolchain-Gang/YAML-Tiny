@@ -4,18 +4,18 @@ YAML::Tiny - Read/Write YAML files with as little code as possible
 
 # VERSION
 
-version 1.62
+version 1.63
 
 # PREAMBLE
 
-The YAML specification is huge. Really, __really__ huge. It contains all the
+The YAML specification is huge. Really, **really** huge. It contains all the
 functionality of XML, except with flexibility and choice, which makes it
 easier to read, but with a formal specification that is more complex than
 XML.
 
 The original pure-Perl implementation [YAML](https://metacpan.org/pod/YAML) costs just over 4 megabytes
 of memory to load. Just like with Windows `.ini` files (3 meg to load) and
-CSS (3.5 meg to load) the situation is just asking for a __YAML::Tiny__
+CSS (3.5 meg to load) the situation is just asking for a **YAML::Tiny**
 module, an incomplete but correct and usable subset of the functionality,
 in as little code as possible.
 
@@ -84,18 +84,18 @@ Then `data.yml` will contain:
 
 # DESCRIPTION
 
-__YAML::Tiny__ is a perl class for reading and writing YAML-style files,
+**YAML::Tiny** is a perl class for reading and writing YAML-style files,
 written with as little code as possible, reducing load time and memory
 overhead.
 
 Most of the time it is accepted that Perl applications use a lot
-of memory and modules. The __::Tiny__ family of modules is specifically
+of memory and modules. The **::Tiny** family of modules is specifically
 intended to provide an ultralight and zero-dependency alternative to
 many more-thorough standard modules.
 
 This module is primarily for reading human-written files (like simple
 config files) and generating very simple human-readable files. Note that
-I said __human-readable__ and not __geek-readable__. The sort of files that
+I said **human-readable** and not **geek-readable**. The sort of files that
 your average manager or secretary should be able to look at and make
 sense of.
 
@@ -117,7 +117,7 @@ If you need something with more power move up to [YAML](https://metacpan.org/pod
 memory overhead) or [YAML::XS](https://metacpan.org/pod/YAML::XS) (6 megabytes memory overhead and requires
 a C compiler).
 
-To restate, [YAML::Tiny](https://metacpan.org/pod/YAML::Tiny) does __not__ preserve your comments, whitespace,
+To restate, [YAML::Tiny](https://metacpan.org/pod/YAML::Tiny) does **not** preserve your comments, whitespace,
 or the order of your YAML data. But it should round-trip from Perl
 structure to file and back again just fine.
 
@@ -304,7 +304,7 @@ The use of directives is supported only for the %YAML directive.
 
 ## 3. Processing YAML Tiny Information
 
-__Processes__
+**Processes**
 
 The YAML specification dictates three-phase serialization and three-phase
 deserialization.
@@ -317,17 +317,17 @@ time. The ability to support streaming documents is optional and most
 likely non-typical.
 
 Because anchors and aliases are not supported, the resulting representation
-graph is thus directed but (unlike the main YAML specification) __acyclic__.
+graph is thus directed but (unlike the main YAML specification) **acyclic**.
 
 Circular references/pointers are not possible, and any YAML Tiny serializer
 detecting a circular reference should error with an appropriate message.
 
-__Presentation Stream__
+**Presentation Stream**
 
 YAML Tiny reads and write UTF-8 encoded files.  Operations on strings expect
 or produce Unicode characters not UTF-8 encoded bytes.
 
-__Loading Failure Points__
+**Loading Failure Points**
 
 YAML Tiny parsers and emitters are not expected to recover from, or
 adapt to, errors. The specific error modality of any implementation is
@@ -336,7 +336,7 @@ consistent.
 
 ## 4. Syntax
 
-__Character Set__
+**Character Set**
 
 YAML Tiny streams are processed in memory as Unicode characters and
 read/written with UTF-8 encoding.
@@ -346,7 +346,7 @@ The escaping and unescaping of the 8-bit YAML escapes is required.
 The escaping and unescaping of 16-bit and 32-bit YAML escapes is not
 required.
 
-__Indicator Characters__
+**Indicator Characters**
 
 Support for the "~" null/undefined indicator is required.
 
@@ -355,31 +355,31 @@ language.
 
 Support for the "-" block sequence indicator is required.
 
-Support for the "?" mapping key indicator is __not__ required.
+Support for the "?" mapping key indicator is **not** required.
 
 Support for the ":" mapping value indicator is required.
 
-Support for the "," flow collection indicator is __not__ required.
+Support for the "," flow collection indicator is **not** required.
 
-Support for the "\[" flow sequence indicator is __not__ required, with
+Support for the "\[" flow sequence indicator is **not** required, with
 one exception (detailed below).
 
-Support for the "\]" flow sequence indicator is __not__ required, with
+Support for the "\]" flow sequence indicator is **not** required, with
 one exception (detailed below).
 
-Support for the "{" flow mapping indicator is __not__ required, with
+Support for the "{" flow mapping indicator is **not** required, with
 one exception (detailed below).
 
-Support for the "}" flow mapping indicator is __not__ required, with
+Support for the "}" flow mapping indicator is **not** required, with
 one exception (detailed below).
 
 Support for the "#" comment indicator is required.
 
-Support for the "&" anchor indicator is __not__ required.
+Support for the "&" anchor indicator is **not** required.
 
-Support for the "\*" alias indicator is __not__ required.
+Support for the "\*" alias indicator is **not** required.
 
-Support for the "!" tag indicator is __not__ required.
+Support for the "!" tag indicator is **not** required.
 
 Support for the "|" literal block indicator is required.
 
@@ -417,7 +417,7 @@ For example,
     - {}
     - bar
 
-__Syntax Primitives__
+**Syntax Primitives**
 
 Other than the empty sequence and mapping cases described above, YAML Tiny
 supports only the indentation-based block-style group of contexts.
@@ -427,11 +427,11 @@ All five scalar contexts are supported.
 Indentation spaces work as per the YAML specification in all cases.
 
 Comments work as per the YAML specification in all simple cases.
-Support for indented multi-line comments is __not__ required.
+Support for indented multi-line comments is **not** required.
 
 Separation spaces work as per the YAML specification in all cases.
 
-__YAML Tiny Character Stream__
+**YAML Tiny Character Stream**
 
 The only directive supported by the YAML Tiny specification is the
 %YAML language/version identifier. Although detected, this directive
@@ -454,13 +454,13 @@ That is, all of the following should be supported.
     ---
     - foo
 
-Support for the %TAG directive is __not__ required.
+Support for the %TAG directive is **not** required.
 
-Support for additional directives is __not__ required.
+Support for additional directives is **not** required.
 
 Support for the document boundary marker "---" is required.
 
-Support for the document boundary market "..." is __not__ required.
+Support for the document boundary market "..." is **not** required.
 
 If necessary, a document boundary should simply by indicated with a
 "---" marker, with not preceding "..." marker.
@@ -479,25 +479,25 @@ That is, the following must be equivalent.
     # Implicit form
     foo: bar
 
-__Nodes__
+**Nodes**
 
-Support for nodes optional anchor and tag properties is __not__ required.
+Support for nodes optional anchor and tag properties is **not** required.
 
-Support for node anchors is __not__ required.
+Support for node anchors is **not** required.
 
-Support for node tags is __not__ required.
+Support for node tags is **not** required.
 
-Support for alias nodes is __not__ required.
+Support for alias nodes is **not** required.
 
-Support for flow nodes is __not__ required.
+Support for flow nodes is **not** required.
 
 Support for block nodes is required.
 
-__Scalar Styles__
+**Scalar Styles**
 
 Support for all five scalar styles is required as per the YAML
 specification, although support for quoted scalars spanning more
-than one line is __not__ required.
+than one line is **not** required.
 
 Support for multi-line scalar documents starting on the header
 is not required.
@@ -505,24 +505,24 @@ is not required.
 Support for the chomping indicators on multi-line scalar styles
 is required.
 
-__Collection Styles__
+**Collection Styles**
 
 Support for block-style sequences is required.
 
-Support for flow-style sequences is __not__ required.
+Support for flow-style sequences is **not** required.
 
 Support for block-style mappings is required.
 
-Support for flow-style mappings is __not__ required.
+Support for flow-style mappings is **not** required.
 
 Both sequences and mappings should be able to be arbitrarily
 nested.
 
 Support for plain-style mapping keys is required.
 
-Support for quoted keys in mappings is __not__ required.
+Support for quoted keys in mappings is **not** required.
 
-Support for "?"-indicated explicit keys is __not__ required.
+Support for "?"-indicated explicit keys is **not** required.
 
 Here endeth the specification.
 
