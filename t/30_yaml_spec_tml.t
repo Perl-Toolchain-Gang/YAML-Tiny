@@ -7,14 +7,16 @@ use TestBridge;
 use TestUtils;
 
 my $JSON = json_class()
-    or Test::More::plan skip_all => "no JSON or JSON::PP";
+    or Test::More::plan skip_all => 'no JSON backends available!?';
+
+diag 'using JSON backend: ' . $JSON;
 
 # Each spec test will need a different bridge and arguments:
 my @spec_tests = (
     ['t/tml-spec/basic-data.tml', 'test_yaml_json', $JSON],
     # This test is currently failing massively. We use LAST to only run what is
     # covered so far.
-    ['t/tml-spec/unicode.tml', 'test_code_point'],
+    ['t/tml-spec/unicode.tml', 'test_code_point'],  # uses JSON::PP
 );
 
 for my $test (@spec_tests) {

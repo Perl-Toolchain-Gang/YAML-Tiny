@@ -6,6 +6,7 @@ Revision history for {{$dist->name}}
 
         - remove silencing of any errors encountered while loading
           Scalar::Util (GH#33, Graham Knop)
+        - now using JSON::MaybeXS in tests instead of JSON.pm
 
 1.63      2014-06-11 21:58:18Z
 
