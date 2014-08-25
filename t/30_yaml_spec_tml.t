@@ -1,7 +1,7 @@
 # Run the appropriate tests from https://github.com/ingydotnet/yaml-spec-tml
 use strict;
 use warnings;
-use lib 't/lib/';
+use lib 't/lib';
 use Test::More 0.99;
 use TestBridge;
 use TestUtils;
