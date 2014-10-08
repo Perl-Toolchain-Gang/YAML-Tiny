@@ -852,8 +852,7 @@ END_PERL
     }
 }
 
-
-
+delete $YAML::Tiny::{refaddr};
 
 1;
 
