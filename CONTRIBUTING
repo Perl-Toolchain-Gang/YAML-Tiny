@@ -4,6 +4,12 @@ CONTRIBUTING
 Thank you for considering contributing to this distribution.  This file
 contains instructions that will help you work with the source code.
 
+PLEASE NOTE that if you have any questions or difficulties, you can reach me
+through the bug queue described later in this document (preferred), or by
+emailing me directly. You are not required to follow any of the steps in this
+document to submit a patch or bug report; these are just recommendations,
+intended to help you (and help me help you faster).
+
 The distribution is managed with Dist::Zilla (https://metacpan.org/release/Dist-Zilla).
 This means than many of the usual files you might expect are not in the
 repository, but are generated at release time (e.g. Makefile.PL).
@@ -77,8 +83,16 @@ If you have found a bug, but do not have an accompanying patch to fix it, you
 can submit an issue report here:
 https://rt.cpan.org/Public/Dist/Display.html?Name=YAML-Tiny
 or via bug-YAML-Tiny@rt.cpan.org.
-This is a good place to send your questions about the usage of this distribution.
+
+There is also an irc channel available for users of this distribution, at
+irc://irc.perl.org/#yaml.
+
+If you send me a patch or pull request, your name and email address will be
+included in the documentation as a contributor (using the attribution on the
+commit or patch), unless you specifically request for it not to be.  If you
+wish to be listed under a different name, you should submit a pull request to
+the .mailmap file to contain the correct mapping.
 
 
 This file was generated via Dist::Zilla::Plugin::GenerateFile::ShareDir 0.005 from a
-template file originating in Dist-Zilla-PluginBundle-Author-ETHER-0.065.
+template file originating in Dist-Zilla-PluginBundle-Author-ETHER-0.073.
