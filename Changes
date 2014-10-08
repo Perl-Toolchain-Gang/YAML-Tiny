@@ -2,6 +2,11 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+        [CHANGED]
+
+        - remove silencing of any errors encountered while loading
+          Scalar::Util (GH#33, Graham Knop)
+
 1.63      2014-06-11 21:58:18Z
 
         [FIXED]
