@@ -828,8 +828,9 @@ sub _can_flock {
 # Use Scalar::Util if possible, otherwise emulate it
 
 BEGIN {
+    require Scalar::Util;
     local $@;
-    if ( eval { require Scalar::Util; Scalar::Util->VERSION(1.18); } ) {
+    if ( eval { Scalar::Util->VERSION(1.18); } ) {
         *refaddr = *Scalar::Util::refaddr;
     }
     else {
