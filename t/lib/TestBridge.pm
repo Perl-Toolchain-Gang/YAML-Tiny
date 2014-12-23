@@ -195,7 +195,7 @@ sub test_perl_to_yaml {
 #--------------------------------------------------------------------------#
 # test_dump_error
 #
-# two blocks: perl, error 
+# two blocks: perl, error
 #
 # Tests that perl references result in an error when dumped
 #
@@ -226,7 +226,7 @@ sub test_dump_error {
 #--------------------------------------------------------------------------#
 # test_load_error
 #
-# two blocks: yaml, error 
+# two blocks: yaml, error
 #
 # Tests that a YAML string results in an error when loaded
 #

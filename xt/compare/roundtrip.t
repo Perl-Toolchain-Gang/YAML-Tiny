@@ -78,7 +78,7 @@ sub compare_roundtrip {
     my $expected = eval $perl; die $@ if $@;
 
     subtest $label, sub {
-        
+
         my %perl_from;
 
         subtest "YAML to Perl" => sub {
