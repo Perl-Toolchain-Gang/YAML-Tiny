@@ -4,6 +4,7 @@ install:
 - cpanm -n -q
   Test::More
   JSON::PP
+  Test::TempDir::Tiny
 perl:
 - 5.20
 - 5.18
