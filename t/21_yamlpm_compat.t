@@ -3,7 +3,11 @@ use warnings;
 use lib 't/lib/';
 use Test::More 0.99;
 use TestBridge;
-use File::Temp qw(tempfile);
+use File::Spec::Functions 'catfile';
+
+use lib 'inc';
+use Test::TempDir::Tiny;
+
 
 #--------------------------------------------------------------------------#
 # This file test that the YAML.pm compatible Dump/Load/DumpFile/LoadFile
@@ -31,8 +35,8 @@ use YAML::Tiny;
     my $arrayref = [ 1 .. 5 ];
     my $hashref = { alpha => 'beta', gamma => 'delta' };
 
-    my ($fh, $filename) = tempfile("YAML-Tiny-test-XXXXXXXX", TMPDIR => 1, UNLINK=>1);
-    close $fh; # or LOCK_SH will hang
+    my $tempdir = tempdir();
+    my $filename = catfile($tempdir, 'compat');
 
     my $rv = YAML::Tiny::DumpFile(
         $filename, $scalar, $arrayref, $hashref);

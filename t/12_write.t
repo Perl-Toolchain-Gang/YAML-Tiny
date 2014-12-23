@@ -8,7 +8,11 @@ use TestUtils;
 
 use YAML::Tiny;
 use File::Basename qw/basename/;
-use File::Temp qw/tempfile/;
+use File::Spec::Functions 'catfile';
+
+use lib 'inc';
+use Test::TempDir::Tiny;
+
 
 #--------------------------------------------------------------------------#
 # Error conditions
@@ -44,9 +48,9 @@ for my $c ( @cases ) {
         @warnings = ();
 
         # get a tempfile name to write to
-        my ($fh, $tempfile) = tempfile("YAML-Tiny-test-XXXXXXXX", TMPDIR => 1, UNLINK=>1);
-        my $short_tempfile = basename($tempfile);
-        close $fh; # avoid locks on windows
+        my $tempdir = tempdir();
+        my $short_tempfile = 'output';
+        my $tempfile = catfile($tempdir, $short_tempfile);
 
         # YAML::Tiny->write
         ok( YAML::Tiny->new($c)->write($tempfile),
