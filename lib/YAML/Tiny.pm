@@ -5,7 +5,7 @@ package YAML::Tiny;
 # XXX-INGY is 5.8.1 too old/broken for utf8?
 # XXX-XDG Lancaster consensus was that it was sufficient until
 # proven otherwise
-
+our $VERSION = '1.66';
 
 #####################################################################
 # The YAML::Tiny API.
