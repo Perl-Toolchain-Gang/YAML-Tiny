@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+        [CHANGED]
+
+        - artifacts left behind from testing are now cleaned up (GH#34)
+
 1.64      2014-10-08 02:56:30Z
 
         [CHANGED]
