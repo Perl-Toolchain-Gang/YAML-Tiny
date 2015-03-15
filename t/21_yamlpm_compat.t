@@ -5,8 +5,10 @@ use Test::More 0.99;
 use TestBridge;
 use File::Spec::Functions 'catfile';
 
-use lib 'inc';
-use Test::TempDir::Tiny;
+use inc::latest 'Test::TempDir::Tiny';
+#my $have_inc_latest = eval { require inc::latest; inc::latest->import('Test::TempDir::Tiny'); 1 };
+#use if !$have_inc_latest, lib => 'inc';
+#use if !$have_inc_latest, 'Test::TempDir::Tiny';
 
 
 #--------------------------------------------------------------------------#
