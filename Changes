@@ -2,6 +2,11 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+        [CHANGED]
+
+        - removed bundled Test::TempDir::Tiny to rely on File::Temp
+          for temporary directories during testing
+
 1.65      2015-03-13 23:02:34Z
 
         [CHANGED]

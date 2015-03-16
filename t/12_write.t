@@ -9,10 +9,7 @@ use TestUtils;
 use YAML::Tiny;
 use File::Basename qw/basename/;
 use File::Spec::Functions 'catfile';
-
-use lib 'inc';
-use Test::TempDir::Tiny;
-
+use File::Temp 0.18;
 
 #--------------------------------------------------------------------------#
 # Error conditions
@@ -48,7 +45,7 @@ for my $c ( @cases ) {
         @warnings = ();
 
         # get a tempfile name to write to
-        my $tempdir = tempdir();
+        my $tempdir = File::Temp->newdir("YTXXXXXX", TMPDIR => 1 );
         my $short_tempfile = 'output';
         my $tempfile = catfile($tempdir, $short_tempfile);
 
