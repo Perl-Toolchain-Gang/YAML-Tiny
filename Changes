@@ -2,6 +2,8 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+1.66      2015-03-16 22:26:30Z
+
         [CHANGED]
 
         - removed bundled Test::TempDir::Tiny to rely on File::Temp
