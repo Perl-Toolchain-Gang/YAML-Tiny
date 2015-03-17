@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+        [CHANGED]
+
+        - Updated File::Temp test prereq to 0.19 for 'newdir'
+
 1.66      2015-03-16 22:26:30Z
 
         [CHANGED]

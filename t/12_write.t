@@ -9,7 +9,7 @@ use TestUtils;
 use YAML::Tiny;
 use File::Basename qw/basename/;
 use File::Spec::Functions 'catfile';
-use File::Temp 0.18;
+use File::Temp 0.19; # newdir
 
 #--------------------------------------------------------------------------#
 # Error conditions
