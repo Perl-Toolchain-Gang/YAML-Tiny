@@ -18,3 +18,6 @@ notifications:
     - irc.perl.org#yaml
     on_success: change
     on_failure: always
+branches:
+  except:
+  - /^PR/
