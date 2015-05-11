@@ -2,6 +2,12 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+        [FIXED]
+
+        - instead of erroring on duplicate keys found in a hash (introduced in
+          version 1.63), now we only warn. This fixes an issue in Strawberry Perl
+          (via CPAN::Meta::YAML) when parsing a configuration file.
+
         [CHANGED]
 
         - Updated File::Temp test prereq to 0.19 for 'newdir'

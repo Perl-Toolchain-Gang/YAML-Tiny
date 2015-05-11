@@ -512,7 +512,7 @@ sub _load_hash {
         }
 
         if ( exists $hash->{$key} ) {
-            die \"YAML::Tiny found a duplicate key '$key' in line '$lines->[0]'";
+            warn "YAML::Tiny found a duplicate key '$key' in line '$lines->[0]'";
         }
 
         # Do we have a value?
