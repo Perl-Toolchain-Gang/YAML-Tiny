@@ -1,6 +1,6 @@
-Revision history for {{$dist->name}}
+Revision history for YAML-Tiny
 
-{{$NEXT}}
+1.67      2015-05-12 00:10:24Z
 
         [FIXED]
 
