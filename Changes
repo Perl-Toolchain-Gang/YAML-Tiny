@@ -2,7 +2,7 @@ Revision history for YAML-Tiny
 
 {{$NEXT}}
 
-1.67      2015-05-12 00:10:24Z
+1.67    2015-05-12 00:10:24Z
 
         [FIXED]
 
@@ -14,20 +14,20 @@ Revision history for YAML-Tiny
 
         - Updated File::Temp test prereq to 0.19 for 'newdir'
 
-1.66      2015-03-16 22:26:30Z
+1.66    2015-03-16 22:26:30Z
 
         [CHANGED]
 
         - removed bundled Test::TempDir::Tiny to rely on File::Temp
           for temporary directories during testing
 
-1.65      2015-03-13 23:02:34Z
+1.65    2015-03-13 23:02:34Z
 
         [CHANGED]
 
         - artifacts left behind from testing are now cleaned up (GH#34)
 
-1.64      2014-10-08 02:56:30Z
+1.64    2014-10-08 02:56:30Z
 
         [CHANGED]
 
@@ -35,7 +35,7 @@ Revision history for YAML-Tiny
           Scalar::Util (GH#33, Graham Knop)
         - now using JSON::MaybeXS in tests instead of JSON.pm
 
-1.63      2014-06-11 21:58:18Z
+1.63    2014-06-11 21:58:18Z
 
         [FIXED]
 
@@ -47,24 +47,24 @@ Revision history for YAML-Tiny
         - now checking for, and erroring on, duplicate keys found in a hash
           (GH#32, Hilko Bengen)
 
-1.62      2014-03-16 12:28:44Z
+1.62    2014-03-16 12:28:44Z
 
         [FIXED]
 
         - fix handling of trailing colon in key name (RT#92916, H.Merijn
           Brand)
 
-1.61      2014-02-24 16:59:49Z
+1.61    2014-02-24 16:59:49Z
 
         [FIXED]
 
         - fixed a test for VMS (RT#93297, Craig Berry)
 
-1.60      2014-02-13 20:31:56Z
+1.60    2014-02-13 20:31:56Z
 
         - shipping 1.59 as stable, with no changes.
 
-1.59      2014-02-06 03:10:35Z (TRIAL RELEASE)
+1.59    2014-02-06 03:10:35Z (TRIAL RELEASE)
 
         [CHANGED]
 
@@ -74,7 +74,7 @@ Revision history for YAML-Tiny
           (github issue #24)
         - numeric hash keys are now always quoted.
 
-1.58      2014-02-04 18:01:58Z
+1.58    2014-02-04 18:01:58Z
 
         [INCOMPATIBLE CHANGE]
 
@@ -87,25 +87,25 @@ Revision history for YAML-Tiny
           'write_string' methods and the 'Load' and 'Dump' functions
           expect or generate (decoded) character data.
 
-1.57      2014-01-30 22:12:38Z
+1.57    2014-01-30 22:12:38Z
 
         [INCOMPATIBLE CHANGE]
 
-          - Previously, some errors would throw exceptions and some would
-            return the error condition in $YAML::Tiny::errstr.  Now all
-            errors throw exceptions.  Use of $errstr and the errstr method
-            are deprecated. (David Golden)
+        - Previously, some errors would throw exceptions and some would
+          return the error condition in $YAML::Tiny::errstr.  Now all
+          errors throw exceptions.  Use of $errstr and the errstr method
+          are deprecated. (David Golden)
 
         [FIXED]
 
-          - Fixed write method to encode YAML file with UTF-8 (David Golden)
-          - Improved SYNOPSIS and documentation of new (David Golden)
+        - Fixed write method to encode YAML file with UTF-8 (David Golden)
+        - Improved SYNOPSIS and documentation of new (David Golden)
 
         [TESTING]
 
-          - Tests have been cleaned up and reorganized.  Test coverage
-            has been significnatly improved. (Ingy döt Net, David Golden,
-            Jim Keenan, Karen Etheridge)
+        - Tests have been cleaned up and reorganized.  Test coverage
+          has been significnatly improved. (Ingy döt Net, David Golden,
+          Jim Keenan, Karen Etheridge)
 
 1.56      2013-09-25 02:38:19Z
           - read_string documentation error fixed (RT#74409, thanks Tim Heaney!)
