@@ -15,7 +15,9 @@ for my $dir ( IO::Dir->new($tml_local)->read ) {
     $fn =~ s/\.DIR\z//i if $^O eq 'VMS';
     my $bridge = TestBridge->can($fn);
     next unless $bridge;
+    print qq{run_all_testml_files( "TestML", catdir($tml_local, $dir), $bridge );\n};
     run_all_testml_files( "TestML", catdir($tml_local, $dir), $bridge );
+    last;
 }
 
 done_testing;

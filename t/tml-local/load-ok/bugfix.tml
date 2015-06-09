@@ -1,0 +1,11 @@
+%PointMarker +++
+
+# Tilde followed by comment
+=== rt/104866
++++ yaml
+- ~ # comment
+
++++ perl
+[undef]
+
+

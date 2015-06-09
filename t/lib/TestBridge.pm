@@ -20,6 +20,7 @@ our @ISA    = qw{ Exporter };
 our @EXPORT = qw{
     run_all_testml_files
     run_testml_file
+    test_load_ok
     test_yaml_roundtrip
     test_perl_to_yaml
     test_dump_error
@@ -94,6 +95,37 @@ sub _testml_has_points {
     }
     push @values, $block->{Label};
     return @values;
+}
+
+# Canonical dump of Perl data:
+sub dumper {
+    require Data::Dumper;
+    $Data::Dumper::Indent = 0;
+    $Data::Dumper::Terse = 1;
+    $Data::Dumper::Sortkeys = 1;
+    Data::Dumper::Dumper($_[0]);
+}
+
+#--------------------------------------------------------------------------#
+# test_load_ok
+#
+# two blocks: yaml, perl
+#
+# Tests that a YAML string loads correctly to Perl
+#--------------------------------------------------------------------------#
+
+sub test_load_ok {
+    my ($block) = @_;
+
+    my ($yaml, $perl, $label) =
+      _testml_has_points($block, qw(yaml perl)) or return;
+
+    chomp $perl;
+
+    subtest $label, sub {
+        my $result = dumper eval { YAML::Tiny::Load( $yaml ) };
+        is( $result, $perl, 'YAML loads properly' );
+    };
 }
 
 #--------------------------------------------------------------------------#
