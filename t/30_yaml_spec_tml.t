@@ -2,7 +2,8 @@
 use strict;
 use warnings;
 use lib 't/lib';
-use Test::More 0.99;
+use Test::More 0.88;
+use SubtestCompat;
 use TestBridge;
 use TestUtils;
 
@@ -24,7 +25,6 @@ for my $test (@spec_tests) {
     my $code = sub {
         my ($file, $blocks) = @_;
         subtest "YAML Spec Test; file: $file" => sub {
-            plan tests => scalar @$blocks;
             my $func = \&{$bridge};
             $func->($_) for @$blocks;
         };
