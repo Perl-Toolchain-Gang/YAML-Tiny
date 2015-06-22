@@ -4,7 +4,7 @@ package TestML::Tiny;
 $TestML::Tiny::VERSION = 0.000001;
 
 use Carp();
-use Test::More 0.99 ();
+use Test::More 0.88 ();
 
 # use XXX;
 
