@@ -10,7 +10,7 @@ use TestUtils;
 my $JSON = json_class()
     or Test::More::plan skip_all => 'no JSON backends available!?';
 
-diag 'using JSON backend: ' . $JSON;
+diag 'using JSON backend: ' . $JSON . ' ' . $JSON->VERSION;
 
 # Each spec test will need a different bridge and arguments:
 my @spec_tests = (
