@@ -2,6 +2,12 @@ Revision history for YAML-Tiny
 
 {{$NEXT}}
 
+        [FIXED]
+
+        - tests no longer print to stderr unnecessarily; this makes core perl
+          builds (where this distribution is included as CPAN-Meta-YAML) a
+          little quieter.
+
         [CHANGED]
 
         - the Test::More dependency has been reduced to 0.88 by emulating
