@@ -672,15 +672,18 @@ sub _dump_scalar {
             return $string;
         }
     }
-    if ( $string =~ /[\x00-\x09\x0b-\x0d\x0e-\x1f\x7f-\x9f\'\n]/ ) {
+    if ( ! utf8::valid($string) && $string =~ /[\x00-\x09\x0b-\x0d\x0e-\x1f\x7f-\x9f]/ ) {
         $string =~ s/\\/\\\\/g;
-        $string =~ s/"/\\"/g;
-        $string =~ s/\n/\\n/g;
         $string =~ s/[\x85]/\\N/g;
         $string =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
         $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge;
         return qq|"$string"|;
     }
+    if ( $string =~ /[\"\'\n]/ ) {
+        $string =~ s/"/\\"/g;
+        $string =~ s/'/\\'/g;
+        $string =~ s/\n/\\n/g;
+   }
     if ( $string =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/ or
         $QUOTE{$string}
     ) {
