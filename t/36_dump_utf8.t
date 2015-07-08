@@ -7,6 +7,8 @@ use TestUtils;
 use TestBridge;
 
 use YAML::Tiny;
+# fixes bug #36
+# writch@writch.com
 
 
 my $scalar = "美国的私有退休金体制\n";
