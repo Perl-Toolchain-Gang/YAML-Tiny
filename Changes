@@ -2,6 +2,11 @@ Revision history for YAML-Tiny
 
 {{$NEXT}}
 
+        [CHANGED]
+
+        - the Test::More dependency has been reduced to 0.88 by emulating
+          'subtest' for those tests that need it
+
 1.67    2015-05-12 00:10:24Z
 
         [FIXED]
