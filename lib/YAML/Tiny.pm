@@ -6,7 +6,7 @@ package YAML::Tiny;
 # XXX-XDG Lancaster consensus was that it was sufficient until
 # proven otherwise
 
-our $VERSION = '1.68';
+our $VERSION = '1.69'; # TRIAL
 
 #####################################################################
 # The YAML::Tiny API.
