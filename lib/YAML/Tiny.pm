@@ -683,7 +683,7 @@ sub _dump_scalar {
         $string =~ s/\n/\\n/g;
         $string =~ s/[\x85]/\\N/g;
         $string =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
-        $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge;# unless (utf8::valid($string));
+        $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge;
         utf8::encode($string) if $reencode;
         return qq|"$string"|;
     }
