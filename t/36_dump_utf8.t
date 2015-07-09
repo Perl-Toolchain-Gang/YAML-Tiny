@@ -22,7 +22,6 @@ $hash{'scalar_utf'} = $scalar;
 my $yaml = YAML::Tiny::Dump(\%hash);
 my($t1) = $yaml =~ /scalar: (.*)/;
 my($t2) = $yaml =~ /scalar_utf: (.*)/;
-utf8::encode($t1);
 
 ok($t1 eq $t2, "Didn't trash the utf8 encoded stuff");
 done_testing();
