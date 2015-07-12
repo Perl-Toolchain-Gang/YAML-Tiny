@@ -659,6 +659,7 @@ sub _has_internal_string_value {
 sub _dump_scalar {
     my $string = $_[1];
     my $is_key = $_[2];
+
     # Check this before checking length or it winds up looking like a string!
     my $has_string_flag = _has_internal_string_value($string);
     return '~'  unless defined $string;
@@ -672,19 +673,15 @@ sub _dump_scalar {
             return $string;
         }
     }
-    my($reencode);
-    if ( utf8::valid($string) ) {
-      $reencode = 1;
-      utf8::decode($string);
-    }
+    my $encoded = eval{length(Encode::decode_utf8($string));} && length(Encode::decode_utf8($string)) != length($string);
+   
     if ( $string =~ /[\x00-\x09\x0b-\x0d\x0e-\x1f\x7f-\x9f\'\n]/ ) {
         $string =~ s/\\/\\\\/g;
         $string =~ s/"/\\"/g;
         $string =~ s/\n/\\n/g;
         $string =~ s/[\x85]/\\N/g;
         $string =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
-        $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge;
-        utf8::encode($string) if $reencode;
+        $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge unless $encoded;
         return qq|"$string"|;
     }
     if ( $string =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/ or
