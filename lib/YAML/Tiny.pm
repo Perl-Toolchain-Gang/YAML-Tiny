@@ -373,7 +373,7 @@ sub _load_scalar {
     while ( @$lines ) {
         $lines->[0] =~ /^(\s*)/;
         last unless length($1) >= $indent->[-1];
-        push @multiline, substr(shift(@$lines), length($1));
+        push @multiline, substr(shift(@$lines), $indent->[-1]);
     }
 
     my $j = (substr($string, 0, 1) eq '>') ? ' ' : "\n";
