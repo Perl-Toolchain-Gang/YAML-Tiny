@@ -19,6 +19,8 @@ our @ISA       = qw{ Exporter  };
 our @EXPORT    = qw{ Load Dump };
 our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
 
+our $PRESERVE_ORDER = 0;
+
 ###
 # Functional/Export API:
 
@@ -211,6 +213,7 @@ sub _load_file {
 
 # Create an object from a string
 sub _load_string {
+    require Tie::IxHash if $PRESERVE_ORDER;
     my $class  = ref $_[0] ? ref shift : shift;
     my $self   = bless [], $class;
     my $string = $_[0];
@@ -280,7 +283,7 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
 
             } elsif ( $lines[0] =~ /^(\s*)\S/ ) {
                 # A hash at the root
-                my $document = { };
+                my $document = $PRESERVE_ORDER ? do { tie my %h, 'Tie::IxHash'; \%h} : { };
                 push @$self, $document;
                 $self->_load_hash( $document, [ length($1) ], \@lines );
 
@@ -406,7 +409,7 @@ sub _load_array {
             # Inline nested hash
             my $indent2 = length("$1");
             $lines->[0] =~ s/-/ /;
-            push @$array, { };
+            push @$array, $PRESERVE_ORDER ? do { tie my %h, 'Tie::IxHash'; \%h} : { };
             $self->_load_hash( $array->[-1], [ @$indent, $indent2 ], $lines );
 
         } elsif ( $lines->[0] =~ /^\s*\-\s*\z/ ) {
@@ -429,7 +432,7 @@ sub _load_array {
                 }
 
             } elsif ( $lines->[0] =~ /^(\s*)\S/ ) {
-                push @$array, { };
+                push @$array, $PRESERVE_ORDER ? do { tie my %h, 'Tie::IxHash'; \%h} : { };
                 $self->_load_hash(
                     $array->[-1], [ @$indent, length("$1") ], $lines
                 );
@@ -539,7 +542,7 @@ sub _load_hash {
                     # Null hash entry
                     $hash->{$key} = undef;
                 } else {
-                    $hash->{$key} = {};
+                    $hash->{$key} = $PRESERVE_ORDER ? do { tie my %h, 'Tie::IxHash'; \%h} : { };
                     $self->_load_hash(
                         $hash->{$key}, [ @$indent, length($1) ], $lines
                     );
