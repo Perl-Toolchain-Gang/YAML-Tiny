@@ -656,6 +656,17 @@ sub _has_internal_string_value {
     return $b_obj->FLAGS & B::SVf_POK();
 }
 
+sub _escape_string {
+    my $string = shift;
+    $string =~ s/\\/\\\\/g;
+    $string =~ s/"/\\"/g;
+    $string =~ s/\n/\\n/g;
+    $string =~ s/[\x85]/\\N/g;
+    $string =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
+    $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge;
+    return qq|"$string"|;
+}
+
 sub _dump_scalar {
     my $string = $_[1];
     my $is_key = $_[2];
@@ -666,6 +677,9 @@ sub _dump_scalar {
     if (Scalar::Util::looks_like_number($string)) {
         # keys and values that have been used as strings get quoted
         if ( $is_key || $has_string_flag ) {
+            if ( $string =~ /[\x00-\x09\x0b-\x0d\x0e-\x1f\x7f-\x9f\'\n]/ ) {
+                return _escape_string($string);
+            }
             return qq['$string'];
         }
         else {
@@ -673,13 +687,7 @@ sub _dump_scalar {
         }
     }
     if ( $string =~ /[\x00-\x09\x0b-\x0d\x0e-\x1f\x7f-\x9f\'\n]/ ) {
-        $string =~ s/\\/\\\\/g;
-        $string =~ s/"/\\"/g;
-        $string =~ s/\n/\\n/g;
-        $string =~ s/[\x85]/\\N/g;
-        $string =~ s/([\x00-\x1f])/\\$UNPRINTABLE[ord($1)]/g;
-        $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge;
-        return qq|"$string"|;
+        return _escape_string($string);
     }
     if ( $string =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/ or
         $QUOTE{$string}
