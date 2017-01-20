@@ -2,6 +2,10 @@ Revision history for YAML-Tiny
 
 {{$NEXT}}
 
+        [FIXED]
+
+        - Some errors writing to a file were incorrectly reported.
+
 1.69    2015-07-26 00:51:03Z
         - No changes since 1.68-TRIAL.
 

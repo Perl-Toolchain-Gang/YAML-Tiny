@@ -569,10 +569,8 @@ sub _dump_file {
     if ( _can_flock() ) {
         # Open without truncation (truncate comes after lock)
         my $flags = Fcntl::O_WRONLY()|Fcntl::O_CREAT();
-        sysopen( $fh, $file, $flags );
-        unless ( $fh ) {
-            $self->_error("Failed to open file '$file' for writing: $!");
-        }
+        sysopen( $fh, $file, $flags )
+            or $self->_error("Failed to open file '$file' for writing: $!");
 
         # Use no translation and strict UTF-8
         binmode( $fh, ":raw:encoding(UTF-8)");
