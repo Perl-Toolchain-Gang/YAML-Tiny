@@ -13,40 +13,28 @@ our @EXPORT = qw{
 };
 
 # Do we have the authorative YAML to test against
-eval {
+my $HAVE_YAMLPM = !! eval {
     require YAML;
 
     # This doesn't currently work, but is documented to.
     # So if it ever turns up, use it.
     $YAML::UseVersion = 1;
+    YAML->VERSION('0.66');
 };
-my $HAVE_YAMLPM = !! (
-    $YAML::VERSION
-    and
-    $YAML::VERSION >= 0.66
-);
 sub have_yamlpm { $HAVE_YAMLPM }
 
 # Do we have YAML::Syck to test against?
-eval {
+my $HAVE_SYCK = !! eval {
     require YAML::Syck;
+    YAML::Syck->VERSION('1.05')
 };
-my $HAVE_SYCK = !! (
-    $YAML::Syck::VERSION
-    and
-    $YAML::Syck::VERSION >= 1.05
-);
 sub have_yamlsyck { $HAVE_SYCK }
 
 # Do we have YAML::XS to test against?
-eval {
+my $HAVE_XS = !! eval {
     require YAML::XS;
+    YAML::XS->VERSION('0.29')
 };
-my $HAVE_XS = !! (
-    $YAML::XS::VERSION
-    and
-    $YAML::XS::VERSION >= 0.29
-);
 sub have_yamlxs{ $HAVE_XS }
 
 1;
