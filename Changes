@@ -2,6 +2,11 @@ Revision history for YAML-Tiny
 
 {{$NEXT}}
 
+        [FIXED]
+
+        - Perform correct stripping of leading white space in literal/folded
+          text blocks (Flavio Poletti, GitHub #44, fixes RT#56045).
+
 1.70    2017-01-22 08:59:54Z
 
         [FIXED]
