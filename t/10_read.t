@@ -34,6 +34,12 @@ my %passes = (
         ],
         utf8 => 'author',
     },
+    'hash with key' => {
+        file => 'font-data.yml',
+        perl => [
+            { font => { -family => 'Courier 10 Pitch', -overstrike => 0 } }
+        ]
+    }
 );
 
 for my $key ( sort keys %passes ) {
