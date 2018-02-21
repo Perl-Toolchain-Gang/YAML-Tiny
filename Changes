@@ -1,5 +1,7 @@
 Revision history for YAML-Tiny
 
+{{$NEXT}}
+
 1.73    2018-02-21 21:07:59Z
 
         - shipping 1.72 as stable, with no changes.
