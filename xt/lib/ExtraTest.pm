@@ -1,4 +1,4 @@
-package xt::lib::Test;
+package ExtraTest;
 
 use strict;
 use warnings;

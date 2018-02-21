@@ -1,9 +1,10 @@
 use strict;
 use warnings;
-use lib 't/lib/';
 use Test::More 0.99;
+use lib 't/lib';
 use TestBridge;
-use xt::lib::Test;
+use lib 'xt/lib';
+use ExtraTest;
 
 use YAML::Tiny;
 
