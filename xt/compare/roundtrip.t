@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More 0.99;
+use Test::More 0.88;
 use lib 't/lib';
 use TestBridge;
 use lib 'xt/lib';
