@@ -891,7 +891,7 @@ Like the other C<::Tiny> modules, YAML::Tiny has no non-core dependencies,
 does not require a compiler to install, is back-compatible to Perl v5.8.1,
 and can be inlined into other modules if needed.
 
-In exchange for this adding this extreme flexibility, it provides support
+In exchange for adding this extreme flexibility, it provides support
 for only a limited subset of YAML. But the subset supported contains most
 of the features for the more common uses of YAML.
 
