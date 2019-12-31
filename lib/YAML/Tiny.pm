@@ -528,7 +528,7 @@ sub _load_hash {
                 $hash->{$key} = undef;
                 return 1;
             }
-            if ( $lines->[0] =~ /^(\s*)-/ ) {
+            if ( $lines->[0] =~ /^(\s*)-(?:\s|$)/ ) {
                 $hash->{$key} = [];
                 $self->_load_array(
                     $hash->{$key}, [ @$indent, length($1) ], $lines
