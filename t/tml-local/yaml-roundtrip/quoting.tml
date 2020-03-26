@@ -137,3 +137,10 @@ slash3: '\\foo\\\\'
 foo: '-'
 --- perl
 [ { foo => '-' } ]
+
+=== Number followed by a newline
+--- yaml
+---
+foo: "0\n"
+--- perl
+[ { foo => "0\n" } ]
