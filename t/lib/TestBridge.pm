@@ -347,11 +347,13 @@ sub test_code_point {
         my $data = { chr($code) => chr($code) };
         my $dump = YAML::Tiny::Dump($data);
         $dump =~ s/^---\n//;
-        is $dump, $yaml, "Dump key and value of code point char $code";
+        ok($dump eq $yaml or "'$dump'" eq $yaml,
+            "Dump key and value of code point char $code");
 
         my $yny = YAML::Tiny::Dump(YAML::Tiny::Load($yaml));
         $yny =~ s/^---\n//;
-        is $yny, $yaml, "YAML for code point $code YNY roundtrips";
+        ok($yny eq $yaml or "'$yny'" eq $yaml,
+            "YAML for code point $code YNY roundtrips");
 
         my $nyn = YAML::Tiny::Load(YAML::Tiny::Dump($data));
         cmp_deeply( $nyn, $data, "YAML for code point $code NYN roundtrips" );

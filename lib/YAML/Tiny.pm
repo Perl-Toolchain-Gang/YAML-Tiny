@@ -138,7 +138,10 @@ my %UNESCAPES = (
 # These 3 values have special meaning when unquoted and using the
 # default YAML schema. They need quotes if they are strings.
 my %QUOTE = map { $_ => 1 } qw{
-    null true false
+    null Null NULL
+    y Y yes Yes YES n N no No NO
+    true True TRUE false False FALSE
+    on On ON off Off OFF
 };
 
 # The commented out form is simpler, but overloaded the Perl regex
