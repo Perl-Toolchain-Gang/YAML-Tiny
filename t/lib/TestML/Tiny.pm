@@ -66,6 +66,9 @@ sub _slurp {
 
 #------------------------------------------------------------------------------
 =comment
+
+=for :stopwords TestML
+
 ::Runtime -- Run a TestML Function
 
 The TestML Code and Data get compiled into a Function, and the Function is run
@@ -93,7 +96,7 @@ sub run {
 ::Compiler -- Turn a TestML document into a runnable TestML Function.
 
 A TestML "document" is comprised of 3 main parts: Meta, Code, Data. This
-information often is in a single TestML (.tml) file or string, but it doesn't
+information often is in a single TestML (F<.tml>) file or string, but it doesn't
 need to be. The information can come from anywhere and be in any form that is
 supported; it just must all be present when it is needed.
 
