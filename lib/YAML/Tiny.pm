@@ -1357,8 +1357,8 @@ Support for the document boundary marker "---" is required.
 
 Support for the document boundary market "..." is B<not> required.
 
-If necessary, a document boundary should simply by indicated with a
-"---" marker, with not preceding "..." marker.
+If necessary, a document boundary should simply be indicated with a
+"---" marker, with no preceding "..." marker.
 
 Support for empty streams (containing no documents) is required.
 
