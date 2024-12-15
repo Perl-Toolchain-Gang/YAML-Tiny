@@ -2,6 +2,11 @@ Revision history for YAML-Tiny
 
 {{$NEXT}}
 
+        [FIXED]
+
+        - fixed regression in %QUOTE (Nathan Monfils, PR#60)
+        - fix version comparison logic for forward compatibility (BooK, PR#63)
+
 1.74    2023-03-23 03:19:08Z
 
         [FIXED]
