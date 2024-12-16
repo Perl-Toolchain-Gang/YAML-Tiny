@@ -6,7 +6,7 @@ YAML::Tiny - Read/Write YAML files with as little code as possible
 
 =head1 VERSION
 
-version 1.75
+version 1.76
 
 =head1 PREAMBLE
 

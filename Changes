@@ -1,6 +1,6 @@
 Revision history for YAML-Tiny
 
-{{$NEXT}}
+1.76    2024-12-16 18:59:46Z
         [FIXED]
 
         - revert change from #60: "yes", "y" etc are not actually booleans.
