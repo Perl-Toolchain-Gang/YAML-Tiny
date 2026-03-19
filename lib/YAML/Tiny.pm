@@ -610,6 +610,10 @@ sub _dump_string {
         foreach my $cursor ( @$self ) {
             push @lines, '---';
 
+            # Resolve blessed objects with TO_JSON before type dispatch
+            $cursor = $cursor->TO_JSON()
+                if ref $cursor && Scalar::Util::blessed($cursor) && $cursor->can('TO_JSON');
+
             # An empty document
             if ( ! defined $cursor ) {
                 # Do nothing
@@ -694,6 +698,9 @@ sub _dump_array {
     }
     my @lines  = ();
     foreach my $el ( @$array ) {
+        # Resolve blessed objects with TO_JSON before type dispatch
+        $el = $el->TO_JSON()
+            if ref $el && Scalar::Util::blessed($el) && $el->can('TO_JSON');
         my $line = ('  ' x $indent) . '-';
         my $type = ref $el;
         if ( ! $type ) {
@@ -734,6 +741,9 @@ sub _dump_hash {
     my @lines  = ();
     foreach my $name ( sort keys %$hash ) {
         my $el   = $hash->{$name};
+        # Resolve blessed objects with TO_JSON before type dispatch
+        $el = $el->TO_JSON()
+            if ref $el && Scalar::Util::blessed($el) && $el->can('TO_JSON');
         my $line = ('  ' x $indent) . $self->_dump_scalar($name, 1) . ":";
         my $type = ref $el;
         if ( ! $type ) {
