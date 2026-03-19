@@ -1,0 +1,122 @@
+%PointMarker +++
+
+#####################################################################
+# Boolean and null scalars (issue #14)
+# https://github.com/Perl-Toolchain-Gang/YAML-Tiny/issues/14
+
+=== true loads as 1
++++ yaml
+--- true
+
++++ perl
+[ 1 ]
+
+
+=== false loads as empty string
++++ yaml
+--- false
+
++++ perl
+[ '' ]
+
+
+=== null loads as undef
++++ yaml
+--- null
+
++++ perl
+[ undef ]
+
+
+=== True (capitalized) loads as 1
++++ yaml
+--- True
+
++++ perl
+[ 1 ]
+
+
+=== False (capitalized) loads as empty string
++++ yaml
+--- False
+
++++ perl
+[ '' ]
+
+
+=== Null (capitalized) loads as undef
++++ yaml
+--- Null
+
++++ perl
+[ undef ]
+
+
+=== TRUE (uppercase) loads as 1
++++ yaml
+--- TRUE
+
++++ perl
+[ 1 ]
+
+
+=== FALSE (uppercase) loads as empty string
++++ yaml
+--- FALSE
+
++++ perl
+[ '' ]
+
+
+=== NULL (uppercase) loads as undef
++++ yaml
+--- NULL
+
++++ perl
+[ undef ]
+
+
+=== booleans in a mapping
++++ yaml
+---
+a: true
+b: false
+c: null
+
++++ perl
+[ { a => 1, b => '', c => undef } ]
+
+
+=== booleans in a sequence
++++ yaml
+---
+- true
+- false
+- null
+
++++ perl
+[ [ 1, '', undef ] ]
+
+
+=== quoted true remains a string
++++ yaml
+--- 'true'
+
++++ perl
+[ 'true' ]
+
+
+=== quoted false remains a string
++++ yaml
+--- 'false'
+
++++ perl
+[ 'false' ]
+
+
+=== quoted null remains a string
++++ yaml
+--- 'null'
+
++++ perl
+[ 'null' ]

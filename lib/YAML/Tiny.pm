@@ -332,6 +332,11 @@ sub _load_scalar {
     # Explitic null/undef
     return undef if $string eq '~';
 
+    # Boolean and null literals (YAML 1.1 core schema)
+    return undef if $string =~ /\Anull\z/i;
+    return 1     if $string =~ /\Atrue\z/i;
+    return ''    if $string =~ /\Afalse\z/i;
+
     # Single quote
     if ( $string =~ /^$re_capture_single_quoted$re_trailing_comment\z/ ) {
         return $self->_unquote_single($1);
