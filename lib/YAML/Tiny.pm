@@ -8,6 +8,9 @@ package YAML::Tiny;
 
 our $VERSION = '1.77';
 
+# Control whether _dump_hash() sorts keys alphabetically (default: on)
+our $SORT_KEYS = 1;
+
 #####################################################################
 # The YAML::Tiny API.
 #
@@ -732,7 +735,7 @@ sub _dump_hash {
         die \"YAML::Tiny does not support circular references";
     }
     my @lines  = ();
-    foreach my $name ( sort keys %$hash ) {
+    foreach my $name ( $SORT_KEYS ? sort keys %$hash : keys %$hash ) {
         my $el   = $hash->{$name};
         my $line = ('  ' x $indent) . $self->_dump_scalar($name, 1) . ":";
         my $type = ref $el;
@@ -1049,6 +1052,18 @@ The C<$errstr> variable is still set when exceptions are thrown, but
 C<$errstr> and the C<errstr()> method are deprecated and may be removed in a
 future release.  The first use of C<errstr()> will issue a deprecation
 warning.
+
+=head1 PACKAGE VARIABLES
+
+=head2 $YAML::Tiny::SORT_KEYS
+
+When set to a true value (the default), hash keys will be sorted
+alphabetically when writing YAML output.  Set to C<0> to preserve
+the native hash key order, which can be useful for human-authored
+configuration files where a meaningful key ordering is desired.
+
+    local $YAML::Tiny::SORT_KEYS = 0;
+    my $yaml = $yt->write_string;
 
 =head1 FUNCTIONS
 
