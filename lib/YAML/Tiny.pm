@@ -661,6 +661,11 @@ sub _dump_scalar {
     my $has_string_flag = _has_internal_string_value($string);
     return '~'  unless defined $string;
     return "''" unless length  $string;
+    # Upgrade valid UTF-8 byte strings to character strings so that the
+    # byte-level substitutions below operate on code points, not raw bytes.
+    # Without this, UTF-8 continuation bytes (0x80-0xBF) would be incorrectly
+    # treated as C1 control characters and mangled.
+    utf8::decode($string) if !utf8::is_utf8($string) && utf8::valid($string);
     if (Scalar::Util::looks_like_number($string)) {
         # keys and values that have been used as strings get quoted
         if ( $is_key || $has_string_flag ) {
