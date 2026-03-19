@@ -16,6 +16,43 @@
 - 'true'
 - 'false'
 
+=== Quote YAML 1.1 boolean keywords (yes/no/on/off)
+# These are booleans in YAML 1.1 (e.g. PyYAML) and must be quoted
+--- perl
+[ [ qw{ yes no on off y n } ] ]
+
+--- yaml
+\---
+- 'yes'
+- 'no'
+- 'on'
+- 'off'
+- 'y'
+- 'n'
+
+=== Quote YAML 1.1 boolean case variants
+--- perl
+[ [ qw{ Yes YES No NO On ON Off OFF Y N True TRUE False FALSE Null NULL } ] ]
+
+--- yaml
+\---
+- 'Yes'
+- 'YES'
+- 'No'
+- 'NO'
+- 'On'
+- 'ON'
+- 'Off'
+- 'OFF'
+- 'Y'
+- 'N'
+- 'True'
+- 'TRUE'
+- 'False'
+- 'FALSE'
+- 'Null'
+- 'NULL'
+
 === Quote scalars ending in colon
 --- perl
 [ [ 'A:' ] ]

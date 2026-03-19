@@ -278,27 +278,20 @@ $: $
 A: A
 
 
-# Some implementations think N means false. This should not be the case in a
-# default schema. No quotes.
-#
-# NOTE:
-#   http://yaml.org/type/bool.html suggests that many simple strings should be
-#   loaded as boolean, but this is an outdated concept. Currently, only the
-#   words true/false/null (lower case) should be loaded specially (not as
-#   strings).  This may become even more restrictive in the future. ie Only
-#   true/false/null in a flow context.
+# N is a YAML 1.1 boolean keyword (false). Quote it to prevent
+# misinterpretation by YAML 1.1 parsers like PyYAML.
 === Code point 78
 --- code: 78
 --- yaml
-N: N
+'N': 'N'
 
 
-# Some implementations think Y means true. This should not be the case in a
-# default schema. No quotes.
+# Y is a YAML 1.1 boolean keyword (true). Quote it to prevent
+# misinterpretation by YAML 1.1 parsers like PyYAML.
 === Code point 89
 --- code: 89
 --- yaml
-Y: Y
+'Y': 'Y'
 
 
 # [ is a flow sequence start indicator. Needs quotes.
@@ -352,20 +345,20 @@ _: _
 a: a
 
 
-# Some implementations think n means false. This should not be the case in a
-# default schema. No quotes.
+# n is a YAML 1.1 boolean keyword (false). Quote it to prevent
+# misinterpretation by YAML 1.1 parsers like PyYAML.
 === Code point 110
 --- code: 110
 --- yaml
-n: n
+'n': 'n'
 
 
-# Some implementations think y means true. This should not be the case in a
-# default schema. No quotes.
+# y is a YAML 1.1 boolean keyword (true). Quote it to prevent
+# misinterpretation by YAML 1.1 parsers like PyYAML.
 === Code point 121
 --- code: 121
 --- yaml
-y: y
+'y': 'y'
 
 
 # { is a flow mapping start indicator. Needs quotes.

@@ -135,10 +135,17 @@ my %UNESCAPES = (
 # I(ngy) need to decide if these values should be quoted in
 # YAML::Tiny or not. Probably yes.
 
-# These 3 values have special meaning when unquoted and using the
+# These values have special meaning when unquoted and using the
 # default YAML schema. They need quotes if they are strings.
+# In addition to the YAML 1.2 core schema booleans (true/false),
+# we also quote YAML 1.1 boolean keywords (yes/no/y/n/on/off and
+# case variants) to prevent misinterpretation by YAML 1.1 parsers
+# such as PyYAML.
 my %QUOTE = map { $_ => 1 } qw{
-    null true false
+    null Null NULL
+    y Y yes Yes YES n N no No NO
+    true True TRUE false False FALSE
+    on On ON off Off OFF
 };
 
 # The commented out form is simpler, but overloaded the Perl regex
