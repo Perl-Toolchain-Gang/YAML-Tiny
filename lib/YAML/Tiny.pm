@@ -237,9 +237,41 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
         # Check for some special cases
         return $self unless length $string;
 
-        # Split the file into lines
-        my @lines = grep { ! /^\s*(?:\#.*)?\z/ }
-                split /(?:\015{1,2}\012|\015|\012)/, $string;
+        # Split the file into lines, stripping blank lines and YAML comment
+        # lines.  Lines inside literal/folded block scalars (introduced by |
+        # or >) must be preserved even when they look like comments, because
+        # '#' is ordinary content inside a block scalar (GitHub#52).
+        my @lines = do {
+            my @raw = split /(?:\015{1,2}\012|\015|\012)/, $string;
+            my @result;
+            my $block_indent; # undef=outside, 0=waiting for first content line, N=indent
+            for my $line ( @raw ) {
+                if ( defined $block_indent ) {
+                    if ( $block_indent == 0 ) {
+                        # Waiting for first non-blank line to establish indent
+                        next if $line =~ /^\s*\z/;
+                        my ($ws) = ( $line =~ /^(\s+)/ );
+                        $block_indent = $ws ? length($ws) : 0;
+                        push @result, $line;
+                        next;
+                    }
+                    # Inside the block: preserve if indented enough
+                    next if $line =~ /^\s*\z/;
+                    my ($ws) = ( $line =~ /^(\s*)/ );
+                    if ( length($ws) >= $block_indent ) {
+                        push @result, $line;
+                        next;
+                    }
+                    $block_indent = undef;  # left the block
+                }
+                # Outside a block: skip blank lines and YAML comment lines
+                next if $line =~ /^\s*(?:\#.*)?\z/;
+                push @result, $line;
+                # Detect entry into a literal (|) or folded (>) block scalar
+                $block_indent = 0 if $line =~ /[|>][-+]?\s*(?:\#.*)?\z/;
+            }
+            @result;
+        };
 
         # Strip the initial YAML header
         @lines and $lines[0] =~ /^\%YAML[: ][\d\.]+.*\z/ and shift @lines;

@@ -88,6 +88,35 @@ m:      # comment '"!&@%`
 --- noyamlpm
 
 ####################################################################
+# Lines starting with # inside literal blocks must be preserved as content
+# (RT#52 / GitHub#52)
+
+=== comment_lines_in_literal_block
+--- yaml
+---
+whatever: |
+   #!/bin/bash
+   env
+   # another comment
+      # indented comment
+   # back from indentation
+--- perl
+[ { whatever => "#!/bin/bash\nenv\n# another comment\n   # indented comment\n# back from indentation\n" } ]
+--- noyamlpm
+
+
+=== comment_lines_in_literal_block_in_sequence
+--- yaml
+---
+- |
+  # Perl sub:
+  sub foo {}
+--- perl
+[ [ "# Perl sub:\nsub foo {}\n" ] ]
+--- noyamlpm
+
+
+####################################################################
 # Comment on the Document Line
 
 === comment header
