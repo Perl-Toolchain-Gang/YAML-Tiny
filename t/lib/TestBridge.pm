@@ -31,10 +31,12 @@ our @EXPORT = qw{
 # regular expressions for checking error messages; incomplete, but more
 # can be added as more error messages get test coverage
 my %ERROR = (
-    E_CIRCULAR => qr{\QYAML::Tiny does not support circular references},
-    E_FEATURE  => qr{\QYAML::Tiny does not support a feature},
-    E_PLAIN    => qr{\QYAML::Tiny found illegal characters in plain scalar},
-    E_CLASSIFY => qr{\QYAML::Tiny failed to classify the line},
+    E_CIRCULAR  => qr{\QYAML::Tiny does not support circular references},
+    E_FEATURE   => qr{\QYAML::Tiny does not support a feature},
+    E_PLAIN     => qr{\QYAML::Tiny found illegal characters in plain scalar},
+    E_CLASSIFY  => qr{\QYAML::Tiny failed to classify the line},
+    E_SERIALIZE => qr{Cannot serialize},
+    E_NOREF     => qr{\QYAML::Tiny does not support\E \S+ \Qreferences},
 );
 
 my %WARN = (

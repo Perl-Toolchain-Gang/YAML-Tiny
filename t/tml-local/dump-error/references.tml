@@ -1,0 +1,69 @@
+=== Blessed hash at root level
+# Dumping a blessed hash reference (object) should be an error
+--- perl
+[ bless( {a => 1}, 'Foo' ) ]
+
+--- error: E_SERIALIZE
+
+=== Blessed array at root level
+# Dumping a blessed array reference (object) should be an error
+--- perl
+[ bless( [1, 2, 3], 'Foo' ) ]
+
+--- error: E_SERIALIZE
+
+=== CODE reference at root level
+# Dumping a code reference should be an error
+--- perl
+[ sub { 1 } ]
+
+--- error: E_SERIALIZE
+
+=== SCALAR reference at root level
+# Dumping a scalar reference should be an error
+--- perl
+my $x = 42; [ \$x ]
+
+--- error: E_SERIALIZE
+
+=== CODE reference in array
+# Dumping a code reference nested in an array should be an error
+--- perl
+[ [ sub { 1 } ] ]
+
+--- error: E_NOREF
+
+=== CODE reference in hash value
+# Dumping a code reference nested in a hash should be an error
+--- perl
+[ { code => sub { 1 } } ]
+
+--- error: E_NOREF
+
+=== SCALAR reference in array
+# Dumping a scalar reference nested in an array should be an error
+--- perl
+my $x = 42; [ [ \$x ] ]
+
+--- error: E_NOREF
+
+=== SCALAR reference in hash value
+# Dumping a scalar reference nested in a hash should be an error
+--- perl
+my $x = 42; [ { ref => \$x } ]
+
+--- error: E_NOREF
+
+=== Blessed object in array
+# Dumping a blessed reference nested in an array should be an error
+--- perl
+[ [ bless( {a => 1}, 'Foo' ) ] ]
+
+--- error: E_NOREF
+
+=== Blessed object in hash value
+# Dumping a blessed reference nested in a hash should be an error
+--- perl
+[ { obj => bless( {a => 1}, 'Foo' ) } ]
+
+--- error: E_NOREF
