@@ -38,4 +38,32 @@ subtest "constructor and documents" => sub {
     cmp_deeply( [ @$yaml ], \@docs, "the object is an arrayref of documents" );
 };
 
+subtest "documents() accessor" => sub {
+    my @docs = ( { one => 'two' }, { three => 'four' } );
+    my $yaml = YAML::Tiny->new( @docs );
+
+    my @got = $yaml->documents;
+    cmp_deeply( \@got, \@docs, "documents() returns all documents" );
+
+    # Empty object
+    my $empty = YAML::Tiny->new;
+    my @none = $empty->documents;
+    cmp_deeply( \@none, [], "documents() returns empty list for empty object" );
+};
+
+subtest "document() accessor" => sub {
+    my @docs = ( { one => 'two' }, { three => 'four' }, [ 'a', 'b' ] );
+    my $yaml = YAML::Tiny->new( @docs );
+
+    cmp_deeply( $yaml->document(0), $docs[0], "document(0) returns first doc" );
+    cmp_deeply( $yaml->document(1), $docs[1], "document(1) returns second doc" );
+    cmp_deeply( $yaml->document(2), $docs[2], "document(2) returns third doc" );
+
+    # Negative index
+    cmp_deeply( $yaml->document(-1), $docs[2], "document(-1) returns last doc" );
+
+    # Out of bounds returns undef
+    is( $yaml->document(99), undef, "document(99) returns undef for out-of-bounds" );
+};
+
 done_testing;

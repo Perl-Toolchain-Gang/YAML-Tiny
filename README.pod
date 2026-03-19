@@ -49,18 +49,18 @@ Read and write F<file.yml> like this:
     # Open the config
     my $yaml = YAML::Tiny->read( 'file.yml' );
 
-    # Get a reference to the first document
-    my $config = $yaml->[0];
+    # Get a reference to the first document via OO accessor
+    my $config = $yaml->document(0);
 
     # Or read properties directly
-    my $root = $yaml->[0]->{rootproperty};
-    my $one  = $yaml->[0]->{section}->{one};
-    my $Foo  = $yaml->[0]->{section}->{Foo};
+    my $root = $yaml->document(0)->{rootproperty};
+    my $one  = $yaml->document(0)->{section}->{one};
+    my $Foo  = $yaml->document(0)->{section}->{Foo};
 
     # Change data directly
-    $yaml->[0]->{newsection} = { this => 'that' }; # Add a section
-    $yaml->[0]->{section}->{Foo} = 'Not Bar!';     # Change a value
-    delete $yaml->[0]->{section};                  # Delete a value
+    $yaml->document(0)->{newsection} = { this => 'that' }; # Add a section
+    $yaml->document(0)->{section}->{Foo} = 'Not Bar!';     # Change a value
+    delete $yaml->document(0)->{section};                  # Delete a value
 
     # Save the document back to the file
     $yaml->write( 'file.yml' );
@@ -153,6 +153,21 @@ read the string from a file yourself, be sure that you have correctly decoded
 it into characters first.
 
 Returns the object on success or throws an error on failure.
+
+=head2 document $index
+
+    my $first_doc  = $yaml->document(0);
+    my $last_doc   = $yaml->document(-1);
+
+Returns the YAML document at the given C<$index>.  Supports negative
+indices (C<-1> is the last document).  Returns C<undef> if the index is
+out of bounds.
+
+=head2 documents
+
+    my @all_docs = $yaml->documents;
+
+Returns all YAML documents as a list.
 
 =head2 write $filename
 
