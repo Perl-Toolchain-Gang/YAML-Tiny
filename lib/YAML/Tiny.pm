@@ -732,7 +732,9 @@ sub _dump_hash {
         die \"YAML::Tiny does not support circular references";
     }
     my @lines  = ();
-    foreach my $name ( sort keys %$hash ) {
+    my @keys   = keys %$hash;
+    @keys      = sort @keys unless tied %$hash;
+    foreach my $name ( @keys ) {
         my $el   = $hash->{$name};
         my $line = ('  ' x $indent) . $self->_dump_scalar($name, 1) . ":";
         my $type = ref $el;
