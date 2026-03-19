@@ -110,6 +110,35 @@ again.
 
 It only supports a very basic subset of the full YAML specification.
 
+B<IMPORTANT>: L<YAML::Tiny> is not a conforming YAML parser. It implements
+a simplified dialect that is I<mostly> compatible with YAML, but it may
+accept input that is not valid according to the YAML specification. In
+particular, YAML::Tiny tends to be more permissive than a strict YAML
+parser, which means:
+
+=over 4
+
+=item *
+
+Files that YAML::Tiny accepts may B<not> be parseable by other YAML
+processors (such as L<YAML>, L<YAML::XS>, or non-Perl tools).
+
+=item *
+
+If you share YAML files with other applications, or if you ever need to
+switch to a different YAML module, you may encounter parse failures due to
+YAML::Tiny having accepted constructs that are not valid YAML.
+
+=item *
+
+You should treat YAML::Tiny files as a YAML::Tiny-specific format rather
+than as interchangeable YAML.
+
+=back
+
+If portability with other YAML tools is important, consider using L<YAML::XS>
+or L<YAML::PP> instead, which implement the full YAML specification.
+
 =for stopwords embeddable
 
 Usage is targeted at files like Perl's META.yml, for which a small and
