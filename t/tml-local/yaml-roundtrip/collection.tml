@@ -135,3 +135,16 @@ dbi:SQLite::
   foo: bar
 --- perl
 [ { 'dbi:SQLite:' => { 'foo' => 'bar' } } ]
+
+# GH #58 - list item at lower indent must not be parsed as hash value's array
+=== sequence item indentation determines parent not hash value
+--- yaml
+- foo:
+   bar:
+- foo2:
+   bar2: {}
+--- perl
+[ [
+    { foo => { bar => undef } },
+    { foo2 => { bar2 => {} } },
+] ]
