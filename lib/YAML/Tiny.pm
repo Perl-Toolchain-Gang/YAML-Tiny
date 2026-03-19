@@ -664,7 +664,10 @@ sub _dump_scalar {
     if (Scalar::Util::looks_like_number($string)) {
         # keys and values that have been used as strings get quoted
         if ( $is_key || $has_string_flag ) {
-            return qq['$string'];
+            # Fall through to double-quote handling if string contains chars
+            # that cannot safely appear inside single quotes (e.g. "0\n")
+            return qq['$string']
+                unless $string =~ /[\x00-\x09\x0b-\x0d\x0e-\x1f\x7f-\x9f\'\n]/;
         }
         else {
             return $string;
