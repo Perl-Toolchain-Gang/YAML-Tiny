@@ -238,7 +238,7 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
         return $self unless length $string;
 
         # Split the file into lines
-        my @lines = grep { ! /^\s*(?:\#.*)?\z/ }
+        my @lines = grep { ! /^\s*\z/ }
                 split /(?:\015{1,2}\012|\015|\012)/, $string;
 
         # Strip the initial YAML header
@@ -247,6 +247,13 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
         # A nibbling parser
         my $in_document = 0;
         while ( @lines ) {
+            # Skip comment lines (but not inside block scalars,
+            # which are handled by _load_scalar)
+            if ( $lines[0] =~ /^\s*\#/ ) {
+                shift @lines;
+                next;
+            }
+
             # Do we have a document header?
             if ( $lines[0] =~ /^---\s*(?:(.+)\s*)?\z/ ) {
                 # Handle scalar documents
@@ -386,6 +393,12 @@ sub _load_array {
     my ($self, $array, $indent, $lines) = @_;
 
     while ( @$lines ) {
+        # Skip comment lines
+        if ( $lines->[0] =~ /^\s*\#/ ) {
+            shift @$lines;
+            next;
+        }
+
         # Check for a new document
         if ( $lines->[0] =~ /^(?:---|\.\.\.)/ ) {
             while ( @$lines and $lines->[0] !~ /^---/ ) {
@@ -411,6 +424,8 @@ sub _load_array {
 
         } elsif ( $lines->[0] =~ /^\s*\-\s*\z/ ) {
             shift @$lines;
+            # Skip comment lines
+            shift @$lines while @$lines and $lines->[0] =~ /^\s*\#/;
             unless ( @$lines ) {
                 push @$array, undef;
                 return 1;
@@ -468,6 +483,12 @@ sub _load_hash {
     my ($self, $hash, $indent, $lines) = @_;
 
     while ( @$lines ) {
+        # Skip comment lines
+        if ( $lines->[0] =~ /^\s*\#/ ) {
+            shift @$lines;
+            next;
+        }
+
         # Check for a new document
         if ( $lines->[0] =~ /^(?:---|\.\.\.)/ ) {
             while ( @$lines and $lines->[0] !~ /^---/ ) {
@@ -524,6 +545,8 @@ sub _load_hash {
         } else {
             # An indent
             shift @$lines;
+            # Skip comment lines
+            shift @$lines while @$lines and $lines->[0] =~ /^\s*\#/;
             unless ( @$lines ) {
                 $hash->{$key} = undef;
                 return 1;
