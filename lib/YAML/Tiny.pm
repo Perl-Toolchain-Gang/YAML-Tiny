@@ -17,7 +17,7 @@ our $VERSION = '1.77';
 use Exporter;
 our @ISA       = qw{ Exporter  };
 our @EXPORT    = qw{ Load Dump };
-our @EXPORT_OK = qw{ LoadFile DumpFile freeze thaw };
+our @EXPORT_OK = qw{ LoadFile DumpFile LoadUTF8 DumpUTF8 freeze thaw };
 
 ###
 # Functional/Export API:
@@ -37,6 +37,24 @@ sub Load {
         # To match YAML.pm, return the last document
         return $self->[-1];
     }
+}
+
+# UTF-8 octet variants of Dump/Load (issue #11).
+# DumpUTF8 serializes and then encodes the result as UTF-8 bytes.
+# LoadUTF8 decodes a UTF-8 byte string and then parses it.
+
+sub DumpUTF8 {
+    utf8::encode( my $string = Dump(@_) );
+    return $string;
+}
+
+sub LoadUTF8 {
+    my $string = shift;
+    utf8::decode($string)
+        or YAML::Tiny->_error(
+            "Did not provide a valid UTF-8 byte string to LoadUTF8"
+        );
+    return Load($string);
 }
 
 # XXX-INGY Do we really need freeze and thaw?
@@ -1093,6 +1111,33 @@ returns the data structure corresponding to the last of the YAML documents
 found in the input stream.
 
 Dies on any error.
+
+=head2 DumpUTF8
+
+  my $utf8_bytes = DumpUTF8(list-of-Perl-data-structures);
+
+Like C<Dump>, but returns a UTF-8 encoded byte string instead of a character
+string.  Use this when you need raw octets, for example to write to a binary
+file handle or to pass to an API that expects UTF-8 bytes.
+
+  open my $fh, '>:raw', 'file.yml' or die $!;
+  print $fh DumpUTF8( $data );
+
+Dies on any error.
+
+=head2 LoadUTF8
+
+  my @data_structures = LoadUTF8($utf8_bytes);
+  my $last_document   = LoadUTF8($utf8_bytes);
+
+Like C<Load>, but accepts a UTF-8 encoded byte string instead of a character
+string.  Use this when you have raw octets, for example data read from a
+binary file handle or received from a network socket.
+
+  open my $fh, '<:raw', 'file.yml' or die $!;
+  my $data = LoadUTF8( do { local $/; <$fh> } );
+
+Dies if the byte string is not valid UTF-8, or on any other error.
 
 =head2 freeze() and thaw()
 
