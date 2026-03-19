@@ -35,6 +35,10 @@ sub Load {
         return @$self;
     } else {
         # To match YAML.pm, return the last document
+        if ( scalar(@$self) > 1 ) {
+            require Carp;
+            Carp::carp( "YAML::Tiny::Load called in scalar context on input containing multiple YAML documents (returning last document)" );
+        }
         return $self->[-1];
     }
 }
@@ -58,6 +62,10 @@ sub LoadFile {
         return @$self;
     } else {
         # Return only the last document to match YAML.pm,
+        if ( scalar(@$self) > 1 ) {
+            require Carp;
+            Carp::carp( "YAML::Tiny::LoadFile called in scalar context on input containing multiple YAML documents (returning last document)" );
+        }
         return $self->[-1];
     }
 }
