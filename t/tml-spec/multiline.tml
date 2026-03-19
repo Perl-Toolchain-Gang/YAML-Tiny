@@ -31,3 +31,33 @@ a: |
 --- json
 ["ciao\n      a\n   tutti\n","quanti\n   voi\namici\n"]
 
+=== basic folded block
+# Folded blocks join lines with spaces.
+--- yaml
+a: >
+   ciao
+   a tutti
+--- json
+{"a":"ciao a tutti\n"}
+
+=== folded block with inner indentation
+# In folded blocks, lines with extra indentation (beyond the established indent)
+# preserve their relative spacing when folded.
+--- yaml
+a: >
+   ciao
+         a
+   tutti
+--- json
+{"a":"ciao       a tutti\n"}
+
+=== literal block with strip chomp
+# The strip chomp modifier (-) removes the trailing newline.
+--- yaml
+a: |-
+   ciao
+         a
+   tutti
+--- json
+{"a":"ciao\n      a\ntutti"}
+
