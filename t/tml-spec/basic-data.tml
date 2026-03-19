@@ -15,10 +15,10 @@ a: b
 # "a\nb": c
 
 === basic array
-# This is just a simple one key hash.
+# This is just a simple array.
 --- yaml
 - a
--b
+- b
 --- json
 ["a","b"]
 

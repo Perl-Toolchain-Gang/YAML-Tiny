@@ -42,10 +42,23 @@ foo: `perl -V`
 === double-dash
 --- yaml
 --
---- error: E_PLAIN
+--- error: E_CLASSIFY
 
 === multi-line scalar document starting on header
 --- yaml
 \--- foo
 bar
+--- error: E_CLASSIFY
+
+=== dash-nospace not a sequence item in array context
+--- yaml
+- a
+-b
+--- error: E_CLASSIFY
+
+=== dash-nospace not a sequence item in hash value
+--- yaml
+foo:
+  -a
+  -b
 --- error: E_CLASSIFY

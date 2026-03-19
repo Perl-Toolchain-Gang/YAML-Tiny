@@ -52,7 +52,7 @@ use YAML::Tiny;
     my @yamldocsloaded;
     eval { @yamldocsloaded = YAML::Tiny::Load("$str\n"); };
     error_like(
-        qr/YAML::Tiny failed to classify line '$str'/,
+        qr/YAML::Tiny failed to classify the line '$str'/,
         "Correctly failed to load non-YAML string"
     );
 }

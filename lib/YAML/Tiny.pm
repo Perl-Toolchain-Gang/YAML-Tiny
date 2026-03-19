@@ -435,10 +435,10 @@ sub _load_array {
                 );
 
             } else {
-                die \"YAML::Tiny failed to classify line '$lines->[0]'";
+                die \"YAML::Tiny failed to classify the line '$lines->[0]'";
             }
 
-        } elsif ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*\z/ ) {
+        } elsif ( $lines->[0] =~ /^\s*\-(\s+)(.+?)\s*\z/ ) {
             # Array entry with a value
             shift @$lines;
             push @$array, $self->_load_scalar(
@@ -456,7 +456,7 @@ sub _load_array {
             return 1;
 
         } else {
-            die \"YAML::Tiny failed to classify line '$lines->[0]'";
+            die \"YAML::Tiny failed to classify the line '$lines->[0]'";
         }
     }
 
@@ -508,7 +508,7 @@ sub _load_hash {
             die \"YAML::Tiny does not support a feature in line '$lines->[0]'";
         }
         else {
-            die \"YAML::Tiny failed to classify line '$lines->[0]'";
+            die \"YAML::Tiny failed to classify the line '$lines->[0]'";
         }
 
         if ( exists $hash->{$key} ) {
@@ -528,7 +528,7 @@ sub _load_hash {
                 $hash->{$key} = undef;
                 return 1;
             }
-            if ( $lines->[0] =~ /^(\s*)-/ ) {
+            if ( $lines->[0] =~ /^(\s*)-(?:\s|$)/ ) {
                 $hash->{$key} = [];
                 $self->_load_array(
                     $hash->{$key}, [ @$indent, length($1) ], $lines
