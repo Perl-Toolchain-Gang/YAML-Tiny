@@ -49,3 +49,63 @@ foo: `perl -V`
 \--- foo
 bar
 --- error: E_CLASSIFY
+
+=== alias indicator in sequence
+--- yaml
+- *foo
+--- error: E_PLAIN
+
+=== flow sequence in sequence
+--- yaml
+- [foo]
+--- error: E_PLAIN
+
+=== flow mapping in sequence
+--- yaml
+- {foo}
+--- error: E_PLAIN
+
+=== flow mapping with value in sequence
+--- yaml
+- {xxx: yyy}
+--- error: E_PLAIN
+
+=== explicit key indicator in sequence
+--- yaml
+- ? foo
+--- error: E_PLAIN
+
+=== comma in sequence
+--- yaml
+- ,foo
+--- error: E_PLAIN
+
+=== flow sequence end in sequence
+--- yaml
+- ]foo
+--- error: E_PLAIN
+
+=== flow mapping end in sequence
+--- yaml
+- }foo
+--- error: E_PLAIN
+
+=== alias indicator as value
+--- yaml
+foo: *bar
+--- error: E_PLAIN
+
+=== flow sequence as value
+--- yaml
+foo: [bar]
+--- error: E_PLAIN
+
+=== flow mapping as value
+--- yaml
+foo: {bar}
+--- error: E_PLAIN
+
+=== explicit key indicator as value
+--- yaml
+foo: ? bar
+--- error: E_PLAIN

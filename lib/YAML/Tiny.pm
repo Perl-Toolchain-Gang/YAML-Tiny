@@ -352,7 +352,8 @@ sub _load_scalar {
     # Regular unquoted string
     if ( $string !~ /^[>|]/ ) {
         die \"YAML::Tiny found illegal characters in plain scalar: '$string'"
-            if $string =~ /^(?:-(?:\s|$)|[\@\%\`])/ or
+            if $string =~ /^(?:-(?:\s|$)|[\@\%\`\*\,\[\]\{\}])/ or
+                $string =~ /^\?(?:\s|$)/ or
                 $string =~ /:(?:\s|$)/;
         $string =~ s/\s+#.*\z//;
         return $string;
@@ -402,7 +403,7 @@ sub _load_array {
             die \"YAML::Tiny found bad indenting in line '$lines->[0]'";
         }
 
-        if ( $lines->[0] =~ /^(\s*\-\s+)[^\'\"]\S*\s*:(?:\s+|$)/ ) {
+        if ( $lines->[0] =~ /^(\s*\-\s+)[^\'\"\{\[]\S*\s*:(?:\s+|$)/ ) {
             # Inline nested hash
             my $indent2 = length("$1");
             $lines->[0] =~ s/-/ /;
@@ -497,6 +498,9 @@ sub _load_hash {
             s/^\s*$re_capture_double_quoted$re_key_value_separator//
         ) {
             $key = $self->_unquote_double($1);
+        }
+        elsif ( $lines->[0] =~ /^\s*[!&*,\[\]{}|>?@`]/ ) {
+            die \"YAML::Tiny does not support a feature in line '$lines->[0]'";
         }
         elsif ( $lines->[0] =~
             s/^\s*$re_capture_unquoted_key$re_key_value_separator//

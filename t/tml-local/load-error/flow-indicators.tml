@@ -1,0 +1,24 @@
+=== alias as mapping key
+--- yaml
+*foo: bar
+--- error: E_FEATURE
+
+=== anchor as mapping key
+--- yaml
+&foo: bar
+--- error: E_FEATURE
+
+=== tag as mapping key
+--- yaml
+!foo: bar
+--- error: E_FEATURE
+
+=== flow sequence start as mapping key
+--- yaml
+[foo: bar
+--- error: E_FEATURE
+
+=== flow mapping start as mapping key
+--- yaml
+{foo: bar
+--- error: E_FEATURE
