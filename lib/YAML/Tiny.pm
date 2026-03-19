@@ -237,12 +237,21 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
         # Check for some special cases
         return $self unless length $string;
 
-        # Split the file into lines
-        my @lines = grep { ! /^\s*(?:\#.*)?\z/ }
-                split /(?:\015{1,2}\012|\015|\012)/, $string;
+        # Split the file into lines, tracking original line numbers
+        my @all_lines = split /(?:\015{1,2}\012|\015|\012)/, $string;
+        my @lines;
+        my @line_nums;
+        for my $i ( 0 .. $#all_lines ) {
+            next if $all_lines[$i] =~ /^\s*(?:\#.*)?\z/;
+            push @lines,     $all_lines[$i];
+            push @line_nums, $i + 1;
+        }
 
         # Strip the initial YAML header
-        @lines and $lines[0] =~ /^\%YAML[: ][\d\.]+.*\z/ and shift @lines;
+        @lines and $lines[0] =~ /^\%YAML[: ][\d\.]+.*\z/ and do {
+            shift @lines;
+            shift @line_nums;
+        };
 
         # A nibbling parser
         my $in_document = 0;
@@ -251,9 +260,10 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
             if ( $lines[0] =~ /^---\s*(?:(.+)\s*)?\z/ ) {
                 # Handle scalar documents
                 shift @lines;
+                shift @line_nums;
                 if ( defined $1 and $1 !~ /^(?:\#.+|\%YAML[: ][\d\.]+)\z/ ) {
                     push @$self,
-                        $self->_load_scalar( "$1", [ undef ], \@lines );
+                        $self->_load_scalar( "$1", [ undef ], \@lines, \@line_nums );
                     next;
                 }
                 $in_document = 1;
@@ -264,6 +274,7 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
                 push @$self, undef;
                 while ( @lines and $lines[0] !~ /^---/ ) {
                     shift @lines;
+                    shift @line_nums;
                 }
                 $in_document = 0;
 
@@ -271,18 +282,18 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
             # error later.
             } elsif ( ! $in_document && @$self ) {
                 # only the first document can be explicit
-                die \"YAML::Tiny failed to classify the line '$lines[0]'";
+                die \"YAML::Tiny failed to classify the line '$lines[0]' (line $line_nums[0])";
             } elsif ( $lines[0] =~ /^\s*\-(?:\s|$|-+$)/ ) {
                 # An array at the root
                 my $document = [ ];
                 push @$self, $document;
-                $self->_load_array( $document, [ 0 ], \@lines );
+                $self->_load_array( $document, [ 0 ], \@lines, \@line_nums );
 
             } elsif ( $lines[0] =~ /^(\s*)\S/ ) {
                 # A hash at the root
                 my $document = { };
                 push @$self, $document;
-                $self->_load_hash( $document, [ length($1) ], \@lines );
+                $self->_load_hash( $document, [ length($1) ], \@lines, \@line_nums );
 
             } else {
                 # Shouldn't get here.  @lines have whitespace-only lines
@@ -291,7 +302,7 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
                 # a perlbug where \s is not symmetric with \S
 
                 # uncoverable statement
-                die \"YAML::Tiny failed to classify the line '$lines[0]'";
+                die \"YAML::Tiny failed to classify the line '$lines[0]' (line $line_nums[0])";
             }
         }
     };
@@ -324,7 +335,7 @@ sub _unquote_double {
 
 # Load a YAML scalar string to the actual Perl scalar
 sub _load_scalar {
-    my ($self, $string, $indent, $lines) = @_;
+    my ($self, $string, $indent, $lines, $line_nums) = @_;
 
     # Trim trailing whitespace
     $string =~ s/\s*\z//;
@@ -365,7 +376,7 @@ sub _load_scalar {
     $lines->[0]   =~ /^(\s*)/;
     $indent->[-1] = length("$1");
     if ( defined $indent->[-2] and $indent->[-1] <= $indent->[-2] ) {
-        die \"YAML::Tiny found bad indenting in line '$lines->[0]'";
+        die \"YAML::Tiny found bad indenting in line '$lines->[0]' (line $line_nums->[0])";
     }
 
     # Pull the lines
@@ -374,6 +385,7 @@ sub _load_scalar {
         $lines->[0] =~ /^(\s*)/;
         last unless length($1) >= $indent->[-1];
         push @multiline, substr(shift(@$lines), $indent->[-1]);
+        shift @$line_nums;
     }
 
     my $j = (substr($string, 0, 1) eq '>') ? ' ' : "\n";
@@ -383,13 +395,14 @@ sub _load_scalar {
 
 # Load an array
 sub _load_array {
-    my ($self, $array, $indent, $lines) = @_;
+    my ($self, $array, $indent, $lines, $line_nums) = @_;
 
     while ( @$lines ) {
         # Check for a new document
         if ( $lines->[0] =~ /^(?:---|\.\.\.)/ ) {
             while ( @$lines and $lines->[0] !~ /^---/ ) {
                 shift @$lines;
+                shift @$line_nums;
             }
             return 1;
         }
@@ -399,7 +412,7 @@ sub _load_array {
         if ( length($1) < $indent->[-1] ) {
             return 1;
         } elsif ( length($1) > $indent->[-1] ) {
-            die \"YAML::Tiny found bad indenting in line '$lines->[0]'";
+            die \"YAML::Tiny found bad indenting in line '$lines->[0]' (line $line_nums->[0])";
         }
 
         if ( $lines->[0] =~ /^(\s*\-\s+)[^\'\"]\S*\s*:(?:\s+|$)/ ) {
@@ -407,10 +420,11 @@ sub _load_array {
             my $indent2 = length("$1");
             $lines->[0] =~ s/-/ /;
             push @$array, { };
-            $self->_load_hash( $array->[-1], [ @$indent, $indent2 ], $lines );
+            $self->_load_hash( $array->[-1], [ @$indent, $indent2 ], $lines, $line_nums );
 
         } elsif ( $lines->[0] =~ /^\s*\-\s*\z/ ) {
             shift @$lines;
+            shift @$line_nums;
             unless ( @$lines ) {
                 push @$array, undef;
                 return 1;
@@ -424,25 +438,26 @@ sub _load_array {
                     # Naked indenter
                     push @$array, [ ];
                     $self->_load_array(
-                        $array->[-1], [ @$indent, $indent2 ], $lines
+                        $array->[-1], [ @$indent, $indent2 ], $lines, $line_nums
                     );
                 }
 
             } elsif ( $lines->[0] =~ /^(\s*)\S/ ) {
                 push @$array, { };
                 $self->_load_hash(
-                    $array->[-1], [ @$indent, length("$1") ], $lines
+                    $array->[-1], [ @$indent, length("$1") ], $lines, $line_nums
                 );
 
             } else {
-                die \"YAML::Tiny failed to classify line '$lines->[0]'";
+                die \"YAML::Tiny failed to classify line '$lines->[0]' (line $line_nums->[0])";
             }
 
         } elsif ( $lines->[0] =~ /^\s*\-(\s*)(.+?)\s*\z/ ) {
             # Array entry with a value
             shift @$lines;
+            shift @$line_nums;
             push @$array, $self->_load_scalar(
-                "$2", [ @$indent, undef ], $lines
+                "$2", [ @$indent, undef ], $lines, $line_nums
             );
 
         } elsif ( defined $indent->[-2] and $indent->[-1] == $indent->[-2] ) {
@@ -456,7 +471,7 @@ sub _load_array {
             return 1;
 
         } else {
-            die \"YAML::Tiny failed to classify line '$lines->[0]'";
+            die \"YAML::Tiny failed to classify line '$lines->[0]' (line $line_nums->[0])";
         }
     }
 
@@ -465,13 +480,14 @@ sub _load_array {
 
 # Load a hash
 sub _load_hash {
-    my ($self, $hash, $indent, $lines) = @_;
+    my ($self, $hash, $indent, $lines, $line_nums) = @_;
 
     while ( @$lines ) {
         # Check for a new document
         if ( $lines->[0] =~ /^(?:---|\.\.\.)/ ) {
             while ( @$lines and $lines->[0] !~ /^---/ ) {
                 shift @$lines;
+                shift @$line_nums;
             }
             return 1;
         }
@@ -481,7 +497,7 @@ sub _load_hash {
         if ( length($1) < $indent->[-1] ) {
             return 1;
         } elsif ( length($1) > $indent->[-1] ) {
-            die \"YAML::Tiny found bad indenting in line '$lines->[0]'";
+            die \"YAML::Tiny found bad indenting in line '$lines->[0]' (line $line_nums->[0])";
         }
 
         # Find the key
@@ -505,25 +521,28 @@ sub _load_hash {
             $key =~ s/\s+$//;
         }
         elsif ( $lines->[0] =~ /^\s*\?/ ) {
-            die \"YAML::Tiny does not support a feature in line '$lines->[0]'";
+            die \"YAML::Tiny does not support a feature in line '$lines->[0]' (line $line_nums->[0])";
         }
         else {
-            die \"YAML::Tiny failed to classify line '$lines->[0]'";
+            die \"YAML::Tiny failed to classify line '$lines->[0]' (line $line_nums->[0])";
         }
 
         if ( exists $hash->{$key} ) {
-            warn "YAML::Tiny found a duplicate key '$key' in line '$lines->[0]'";
+            warn "YAML::Tiny found a duplicate key '$key' in line '$lines->[0]' (line $line_nums->[0])";
         }
 
         # Do we have a value?
         if ( length $lines->[0] ) {
             # Yes
+            my $value = shift @$lines;
+            shift @$line_nums;
             $hash->{$key} = $self->_load_scalar(
-                shift(@$lines), [ @$indent, undef ], $lines
+                $value, [ @$indent, undef ], $lines, $line_nums
             );
         } else {
             # An indent
             shift @$lines;
+            shift @$line_nums;
             unless ( @$lines ) {
                 $hash->{$key} = undef;
                 return 1;
@@ -531,7 +550,7 @@ sub _load_hash {
             if ( $lines->[0] =~ /^(\s*)-/ ) {
                 $hash->{$key} = [];
                 $self->_load_array(
-                    $hash->{$key}, [ @$indent, length($1) ], $lines
+                    $hash->{$key}, [ @$indent, length($1) ], $lines, $line_nums
                 );
             } elsif ( $lines->[0] =~ /^(\s*)./ ) {
                 my $indent2 = length("$1");
@@ -541,7 +560,7 @@ sub _load_hash {
                 } else {
                     $hash->{$key} = {};
                     $self->_load_hash(
-                        $hash->{$key}, [ @$indent, length($1) ], $lines
+                        $hash->{$key}, [ @$indent, length($1) ], $lines, $line_nums
                     );
                 }
             }
