@@ -135,3 +135,12 @@ dbi:SQLite::
   foo: bar
 --- perl
 [ { 'dbi:SQLite:' => { 'foo' => 'bar' } } ]
+
+# GitHub issue 26 (same pattern as RT 92916, reported for dbi:CSV::)
+=== colon at end of key with nested mapping
+--- yaml
+\---
+dbi:CSV::
+  /pro/3gl/CPAN/DBI-Test-git/sandbox/tim: tdd_csv_merijn_0
+--- perl
+[ { 'dbi:CSV:' => { '/pro/3gl/CPAN/DBI-Test-git/sandbox/tim' => 'tdd_csv_merijn_0' } } ]
