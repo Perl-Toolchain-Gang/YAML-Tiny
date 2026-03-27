@@ -14,6 +14,9 @@ our $VERSION = '1.77';
 # These are the currently documented API functions/methods and
 # exports:
 
+# If enabled we convert "true" and "false" into booleans
+our $Boolean = undef;
+
 use Exporter;
 our @ISA       = qw{ Exporter  };
 our @EXPORT    = qw{ Load Dump };
@@ -322,6 +325,19 @@ sub _unquote_double {
     return $string;
 }
 
+sub string_to_bool {
+	my ($str, $mode) = @_;
+
+	# Strict
+	if ($str && $mode == 1) {
+		if ($str eq "false") {
+			return bless \(my $dummy = 0), "JSON::PP::Boolean";
+		} else {
+			return bless \(my $dummy = 1), "JSON::PP::Boolean";
+		}
+	}
+}
+
 # Load a YAML scalar string to the actual Perl scalar
 sub _load_scalar {
     my ($self, $string, $indent, $lines) = @_;
@@ -341,6 +357,11 @@ sub _load_scalar {
     if ( $string =~ /^$re_capture_double_quoted$re_trailing_comment\z/ ) {
         return $self->_unquote_double($1);
     }
+
+	# Boolean
+	if ( $Boolean && $string =~ /^(true|false)$/) {
+		return string_to_bool($1, 1); # Strict
+	}
 
     # Special cases
     if ( $string =~ /^[\'\"!&]/ ) {
