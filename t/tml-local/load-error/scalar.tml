@@ -34,6 +34,11 @@ foo: bar:
 foo: bar: baz
 --- error: E_PLAIN
 
+=== empty key with invalid value
+--- yaml
+: foo: bar
+--- error: E_PLAIN
+
 === backticks
 --- yaml
 foo: `perl -V`

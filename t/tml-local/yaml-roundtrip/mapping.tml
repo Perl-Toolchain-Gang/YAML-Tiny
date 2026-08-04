@@ -128,6 +128,29 @@ build_requires:
 [ { foo => 0, requires => undef, build_requires => undef } ]
 --- noyamlpm
 
+
+=== empty mapping key
+--- yaml
+---
+foo:
+  : value
+bar:
+  : # comment: text
+--- perl
+[ { foo => { '' => 'value' }, bar => { '' => undef } } ]
+--- noxs
+--- nosyck
+
+
+=== empty root mapping key
+--- yaml
+\---
+: value
+--- perl
+[ { '' => 'value' } ]
+--- noxs
+--- nosyck
+
 #####################################################################
 # Confirm we can read the synopsis
 

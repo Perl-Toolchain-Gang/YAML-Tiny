@@ -497,6 +497,9 @@ sub _load_hash {
         ) {
             $key = $self->_unquote_double($1);
         }
+        elsif ( $lines->[0] =~ s/^\s*$re_key_value_separator// ) {
+            $key = '';
+        }
         elsif ( $lines->[0] =~
             s/^\s*$re_capture_unquoted_key$re_key_value_separator//
         ) {
