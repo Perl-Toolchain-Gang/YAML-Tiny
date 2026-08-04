@@ -117,6 +117,15 @@ bar: value
 [ [ undef, { foo => 'bar', this => 'that' }, 'baz' ] ]
 
 
+=== colon-prefixed key in inline mapping
+--- yaml
+---
+- :order: 1
+--- perl
+[ [ { ':order' => 1 } ] ]
+--- noyamlpm
+
+
 # RT 51491
 === space after hypen
 --- yaml

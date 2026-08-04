@@ -61,6 +61,52 @@ Foo::Bar: 1
 [ { 'Foo::Bar' => 1 } ]
 
 
+=== colon in comment after one-character key
+--- yaml
+---
+a: # comment: text
+--- perl
+[ { a => undef } ]
+
+
+=== colon in quoted value after one-character key
+--- yaml
+---
+k: 'x: y'
+--- perl
+[ { k => 'x: y' } ]
+
+
+# Plain mapping keys may start with a colon when followed by a non-space
+=== colon at start of key
+--- yaml
+\---
+x:
+  :order: 1
+--- perl
+[ { x => { ':order' => 1 } } ]
+
+
+=== colon at start of root key
+--- yaml
+\---
+:order: 1 # comment
+--- perl
+[ { ':order' => 1 } ]
+
+
+=== colon-only and internal-colon keys
+--- yaml
+\---
+:: 1
+::: 2
+a:b: 3
+a:: 4
+:empty:
+--- perl
+[ { ':' => 1, '::' => 2, 'a:b' => 3, 'a:' => 4, ':empty' => undef } ]
+
+
 # Hash indented
 === hash_indented
 --- yaml
