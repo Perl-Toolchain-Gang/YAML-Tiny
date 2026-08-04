@@ -2,6 +2,11 @@ Revision history for YAML-Tiny
 
 {{$NEXT}}
 
+        [FIXED]
+
+        - allow plain-style mapping keys to start with a colon while preserving
+          parsing of one-character and empty mapping keys.
+
 1.76    2024-12-16 18:59:46Z
         [FIXED]
 
