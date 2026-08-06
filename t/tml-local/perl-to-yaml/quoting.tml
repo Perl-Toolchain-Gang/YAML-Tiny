@@ -24,3 +24,10 @@
 \---
 - 'A:'
 
+=== Quote mapping keys starting with colon
+--- perl
+[ { ':order' => 1 } ]
+
+--- yaml
+\---
+':order': 1

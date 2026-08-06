@@ -147,8 +147,7 @@ my %QUOTE = map +($_ => 1), qw{
 # qr/\"((?:\\.|[^\"])*)\"/
 my $re_capture_double_quoted = qr/\"([^\\"]*(?:\\.[^\\"]*)*)\"/;
 my $re_capture_single_quoted = qr/\'([^\']*(?:\'\'[^\']*)*)\'/;
-# unquoted re gets trailing space that needs to be stripped
-my $re_capture_unquoted_key  = qr/([^:]+(?::+\S(?:[^:]*|.*?(?=:)))*)(?=\s*\:(?:\s+|$))/;
+my $re_capture_unquoted_key  = qr/(\S(?:.*?\S)??)(?=\s*\:(?:\s+|$))/;
 my $re_trailing_comment      = qr/(?:\s+\#.*)?/;
 my $re_key_value_separator   = qr/\s*:(?:\s+(?:\#.*)?|$)/;
 
@@ -497,6 +496,9 @@ sub _load_hash {
             s/^\s*$re_capture_double_quoted$re_key_value_separator//
         ) {
             $key = $self->_unquote_double($1);
+        }
+        elsif ( $lines->[0] =~ s/^\s*$re_key_value_separator// ) {
+            $key = '';
         }
         elsif ( $lines->[0] =~
             s/^\s*$re_capture_unquoted_key$re_key_value_separator//
