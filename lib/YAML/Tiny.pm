@@ -679,7 +679,7 @@ sub _dump_scalar {
         $string =~ s/([\x7f-\x9f])/'\x' . sprintf("%X",ord($1))/ge;
         return qq|"$string"|;
     }
-    if ( $string =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/ or
+    if ( $string =~ /(?:^[\s~!@#%&*|>?:,'"`{}\[\]]|^-+$|[\r\n\t\f]|:(\s|\z)|[\s#]$)/ or
         $QUOTE{$string}
     ) {
         return "'$string'";
