@@ -24,6 +24,28 @@ this: ~
 [ { this => undef, foo => 'bar' } ]
 
 
+=== flat array value
+--- yaml
+---
+numbers: [2, 4, 6]
+--- perl
+[ { numbers => [ 2, 4, 6 ] } ]
+
+
+=== quoted flat array value
+--- yaml
+---
+names: ["Alice", 'Bob']
+values: ["a,b", 'c,d']
+empty: [""]
+--- perl
+[ {
+    empty  => [ '' ],
+    names  => [ 'Alice', 'Bob' ],
+    values => [ 'a,b', 'c,d' ],
+} ]
+
+
 === one_hash3
 --- yaml
 ---
@@ -176,3 +198,32 @@ a b: c d
 [ { '' => 'foo' } ]
 
 
+#####################################################################
+# Flat arrays with unquoted strings
+
+=== unquoted flat array value
+--- yaml
+---
+paths: [foo/bar, file.txt, a#b, a&b, -dash, x:y, yes]
+words: [123]
+--- perl
+[ {
+    paths => [ 'foo/bar', 'file.txt', 'a#b', 'a&b', '-dash', 'x:y', 'yes' ],
+    words => [ '123' ],
+} ]
+
+
+=== mixed flat array value
+--- yaml
+---
+mixed: [a, "b, c", 'd']
+--- perl
+[ { mixed => [ 'a', 'b, c', 'd' ] } ]
+
+
+=== flat array with spaces
+--- yaml
+---
+key: [foo bar, baz qux, a&b]
+--- perl
+[ { key => [ 'foo bar', 'baz qux', 'a&b' ] } ]
