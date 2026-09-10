@@ -349,6 +349,63 @@ sub _load_scalar {
     return {} if $string =~ /^{}(?:\s+\#.*)?\z/;
     return [] if $string =~ /^\[\](?:\s+\#.*)?\z/;
 
+	# Flat arrays
+    if ( $string =~ /^\[\s*(.*?)\s*\]$re_trailing_comment\z/ ) {
+        my $contents = $1;
+        return [] unless length $contents;
+
+        my @array;
+        my $value = '';
+        my $quote = '';
+
+        # Split on commas outside quoted array members.
+        for ( my $i = 0; $i < length($contents); $i++ ) {
+            my $char = substr($contents, $i, 1);
+
+            # Preserve single-quoted content and YAML's doubled quote escape.
+            if ( $quote eq "'" ) {
+                $value .= $char;
+                # Check for a doubled single quote or the closing quote.
+                if ( $char eq "'" ) {
+                    # Consume the second quote in a YAML escaped pair.
+                    if ( substr($contents, $i + 1, 1) eq "'" ) {
+                        $value .= substr($contents, ++$i, 1);
+                    # End single-quoted mode at an unpaired quote.
+                    } else {
+                        $quote = '';
+                    }
+                }
+            # Preserve double-quoted content and escaped characters.
+            } elsif ( $quote eq '"' ) {
+                $value .= $char;
+                # Consume the character following a backslash as escaped text.
+                if ( $char eq '\\' && $i + 1 < length($contents) ) {
+                    $value .= substr($contents, ++$i, 1);
+                # End double-quoted mode at an unescaped quote.
+                } elsif ( $char eq '"' ) {
+                    $quote = '';
+                }
+            # Begin tracking a quoted array member.
+            } elsif ( $char eq "'" || $char eq '"' ) {
+                $quote = $char;
+                $value .= $char;
+            # Finish the current member at an unquoted comma.
+            } elsif ( $char eq ',' ) {
+                $value =~ s/^\s+|\s+$//g;
+                push @array, $value;
+                $value = '';
+            # Accumulate ordinary member content.
+            } else {
+                $value .= $char;
+            }
+        }
+
+        $value =~ s/^\s+|\s+$//g;
+        push(@array, $value);
+
+        return [ map $self->_load_scalar($_, $indent, $lines), @array ];
+    }
+
     # Regular unquoted string
     if ( $string !~ /^[>|]/ ) {
         die \"YAML::Tiny found illegal characters in plain scalar: '$string'"
